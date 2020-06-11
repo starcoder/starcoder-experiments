@@ -1,0 +1,20 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"sentiment" : {"type" : "numeric"},
+	"text" : {"type" : "text"},
+	"split" : {"type" : "categorical"}
+    },
+    "entity_types" : {
+	"node" : ["sentiment", "text", "split"]
+    },
+    "relation_fields" : {
+	"child_of" : {
+            "source_entity_type" : "node",
+            "target_entity_type" : "node"
+	}
+    }
+}

@@ -1,0 +1,103 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"notice_party_size" : {"type" : "numeric"},
+	"notice_reward_amount" : {"type" : "numeric"},
+	"notice_reward_currency" : {"type" : "categorical"},
+	"notice_note" : {"type" : "text"},
+	"notice_date" : {"type" : "numeric"},
+	"voyage_manifest_date" : {"type" : "numeric"},
+	"voyage_count" : {"type" : "numeric"},
+	"voyage_departure_location" : {"type" : "categorical"},
+	"slave_race" : {"type" : "categorical"},
+	"slave_name" : {"type" : "categorical"},
+	"slave_sex" : {"type" : "categorical"},
+	"slave_age" : {"type" : "numeric"},
+	"slave_owner_count" : {"type" : "numeric"},
+	"slave_height" : {"type" : "numeric"},
+	"owner_name" : {"type" : "categorical"},
+	"owner_location" : {"type" : "categorical"},
+	"shipper_name" : {"type" : "categorical"},
+	"shipper_location" : {"type" : "categorical"},
+	"captain_name" : {"type" : "categorical"},
+	"source_file" : {"type" : "categorical"},
+	"source_row" : {"type" : "categorical"},
+	"source_sheet" : {"type" : "categorical"},	
+	"consignor_name" : {"type" : "categorical"},
+	"consignor_location" : {"type" : "categorical"},
+	"vessel_tonnage" : {"type" : "numeric"},
+	"vessel_type" : {"type" : "categorical"},
+	"vessel_name" : {"type" : "categorical"},
+	"gazette_name" : {"type" : "categorical"},
+	"author_type" : {"type" : "categorical"},
+	"author_name" : {"type" : "categorical"},
+	"jail_name" : {"type" : "categorical"}
+    },
+    "entity_types" : {
+	"notice" : [],
+	"voyage" : ["voyage_departure_location", "voyage_count", "voyage_manifest_date"],
+	"slave" : ["slave_sex", "slave_age", "slave_name"],
+	"owner" : ["owner_name", "owner_location"],
+	"shipper" : ["shipper_location", "shipper_name"],
+	"captain" : ["captain_name"],
+	"source" : ["source_file", "source_sheet", "source_row"],
+	"consignor" : ["consignor_name", "consignor_location"],
+	"vessel" : ["vessel_type", "vessel_name", "vessel_tonnage"],
+	"gazette" : ["gazette_name"],
+	"author" : ["author_type", "author_name"],
+	"jail" : ["jail_name"]
+    },
+    "relation_fields" : {
+	"voyage_recorded_in_entry" : {
+            "source_entity_type" : "voyage",
+            "target_entity_type" : "source"
+	},
+	"notice_recorded_in_entry" : {
+            "source_entity_type" : "notice",
+            "target_entity_type" : "source"
+	},	
+	"used_vessel" : {
+            "source_entity_type" : "voyage",
+            "target_entity_type" : "vessel"	    
+	},
+	"shipped_by" : {
+            "source_entity_type" : "voyage",
+            "target_entity_type" : "shipper"
+	},
+	"consigned_by" : {
+            "source_entity_type" : "slave",
+            "target_entity_type" : "consignor"
+	},
+	"owned_by" : {
+            "source_entity_type" : "slave",
+            "target_entity_type" : "owner"
+	},
+	"captained_by" : {
+            "source_entity_type" : "voyage",
+            "target_entity_type" : "captain"	    
+	},
+	"passenger_on" : {
+            "source_entity_type" : "slave",
+            "target_entity_type" : "voyage"	    
+	},
+	"reports_slave" : {
+            "source_entity_type" : "notice",
+            "target_entity_type" : "slave"	    
+	},
+	"published_in" : {
+            "source_entity_type" : "notice",
+            "target_entity_type" : "gazette"
+	},
+	"written_by" : {
+            "source_entity_type" : "notice",
+            "target_entity_type" : "author"	    
+	},
+	"imprisoned_in" : {
+            "source_entity_type" : "slave",
+            "target_entity_type" : "jail"	    
+	}
+    }
+}

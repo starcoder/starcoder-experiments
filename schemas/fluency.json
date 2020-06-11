@@ -1,0 +1,38 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"text" : {"type" : "text"},
+	"twitter_language" : {"type" : "categorical"},
+	"valid_vector" : {"type" : "distribution"},
+	"name" : {"type" : "text"},
+	"is_bot" : {"type" : "boolean"},
+	"fluent_in_eng" : {"type" : "boolean"},
+	"fluent_in_ukr" : {"type" : "boolean"},
+	"fluent_in_rus" : {"type" : "boolean"}
+    },
+    "entity_types" : {
+	"tweet" : ["text", "twitter_language", "lid_scores"],
+	"user" : ["name", "is_bot", "fluent_in_eng", "fluent_in_ukr", "fluent_in_rus"]
+    },
+    "relation_fields" : {
+	"wrote" : {
+	    "source_entity_type" : "user",		   
+	    "target_entity_type" : "tweet"
+	},
+	"written_by" : {
+	    "source_entity_type" : "tweet",		   
+	    "target_entity_type" : "user"
+	},	
+	"follows" : {
+	    "source_entity_type" : "user",
+	    "target_entity_type" : "user"
+	},
+	"followed_by" : {
+	    "source_entity_type" : "user",
+	    "target_entity_type" : "user"
+	}
+    }
+}

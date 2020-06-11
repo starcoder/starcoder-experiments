@@ -1,0 +1,34 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"subreddit_name" : {"type" : "categorical"},
+	"author_name" : {"type" : "categorical"},
+	"upvotes" : { "type" : "numeric"},
+	"downvotes" : { "type" : "numeric"},
+	"gilded" : { "type" : "numeric"},
+	"edited" : { "type" : "categorical"},
+	"text" : { "type" : "text"}
+    },
+    "entity_types" : {
+	"comment" : ["upvotes", "downvotes", "gilded", "edited", "text", "response_to", "posted_in"],
+	"author" : ["wrote", "author_name"],
+	"subreddit" : ["subreddit_name"]
+    },
+    "relation_fields" : {
+	"wrote" : {
+            "source_entity_type" : "author",
+            "target_entity_type" : "comment"
+	},
+	"response_to" : {
+            "source_entity_type" : "comment",
+            "target_entity_type" : "comment"
+	},
+	"posted_in" : {
+            "source_entity_type" : "comment",
+            "target_entity_type" : "subreddit"
+	}
+    }
+}

@@ -1,0 +1,70 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"source_type" : {"type" : "categorical"},
+	"source_type_other" : {"type" : "categorical"},
+	"repeat" : {"type" : "categorical"},
+	"repeat_notice" : {"type" : "categorical"},
+	"notes" : { "type" : "text"},
+
+	"venue_chain" : {"type" : "categorical", "ignore" : true},
+	"location_venue" : {"type" : "categorical"},
+	"location_venue_other" : {"type" : "categorical"},
+	"location_name" : {"type" : "categorical"},
+	"location_exact" : {"type" : "categorical"},
+	"location_owner" : {"type" : "categorical"},
+
+	"performer_name" : {"type" : "text"},
+	"amateur" : {"type" : "categorical", "ignore" : true},
+	"local_amateur" : {"type" : "categorical", "ignore" : true},	
+
+	"price" : { "type" : "numeric"},
+	"class" : {"type" : "categorical"},
+	"event_type" : {"type" : "categorical"},
+	"play_name" : {"type" : "categorical"},
+	"performance_quality" : {"type" : "categorical"},
+	"outdoor_type" : {"type" : "categorical"},
+	"event_type_other" : {"type" : "categorical"},
+	"event_type_minstrel" : {"type" : "categorical"},
+	"event_type_classical" : {"type" : "categorical"},
+	"event_type_brass" : {"type" : "categorical"},
+	"ethnicity" : {"type" : "categorical"},
+	"ethnicity_list" : {"type" : "categorical"},
+	"ethnicity_other" : {"type" : "categorical"},
+	"ethnic_comedy" : {"type" : "categorical"},
+	"ethnic_comedy_other" : {"type" : "categorical"},
+	"classical_performance_other" : {"type" : "categorical"},
+	"song_title_female" : {"type" : "categorical"},
+	"song_title_male" : {"type" : "categorical"},
+	"event_type_vaudeville" : {"type" : "categorical"},	
+	"audience_size" : { "type" : "numeric"},
+	"performance_notes" : { "type" : "text"}	
+    },
+    "entity_types" : {
+	"performance" : ["performance_notes", "class", "event_type", "price", "play_name", "performance_quality", "outdoor_type", "event_type_other", "event_type_minstrel", "event_type_classical", "event_type_brass", "ethnicity", "ethnicity_list", "ethnicity_other", "ethnic_comedy", "ethnic_comedy_other", "classical_performance_other", "song_title_female", "song_title_male", "event_type_vaudeville", "audience_size"],
+	"location" : ["venue_chain", "location_venue", "location_venue_other", "location_name", "location_exact", "location_owner"],
+	"notice" : ["source_type", "source_type_other", "repeat", "repeat_notice", "notes"],
+	"performer" : ["amateur", "local_amateur", "performer_name"]
+    },
+    "relation_fields" : {
+	"occurred_at" : {
+            "source_entity_type" : "performance",
+            "target_entity_type" : "location"
+	},
+	"advertised_by" : {
+            "source_entity_type" : "performance",
+            "target_entity_type" : "notice"
+	},
+	"has_primary_performer" : {
+            "source_entity_type" : "performance",
+            "target_entity_type" : "performer"
+	},
+	"has_other_performer" : {
+            "source_entity_type" : "performance",
+            "target_entity_type" : "performer"
+	}
+    }
+}

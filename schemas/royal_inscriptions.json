@@ -1,0 +1,34 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"content" : {"type" : "text"}
+    },
+    "entity_types" : {
+	"period" : [],
+	"dynasty" : [],
+	"ruler" : [],
+	"text" : [],
+	"witness" : ["content"]
+    },
+    "relation_fields" : {
+	"from_period" : {
+            "source_entity_type" : "dynasty",
+            "target_entity_type" : "period"
+	},
+	"from_dynasty" : {
+            "source_entity_type" : "ruler",
+            "target_entity_type" : "dynasty"
+	},
+	"for_ruler" : {
+            "source_entity_type" : "text",
+            "target_entity_type" : "ruler"
+	},
+	"witness_of" : {
+            "source_entity_type" : "witness",
+            "target_entity_type" : "text"
+	}	
+    }
+}

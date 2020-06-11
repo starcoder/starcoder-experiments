@@ -1,0 +1,27 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"operation_name" : {"type" : "categorical"},
+	"value" : { "type" : "numeric"}
+    },
+    "entity_types" : {
+	"node" : ["operation_name", "value"]
+    },
+    "relation_fields" : {
+	"unary_arg" : {
+            "source_entity_type" : "node",
+            "target_entity_type" : "node"
+	},
+	"left_arg" : {
+            "source_entity_type" : "node",
+            "target_entity_type" : "node"
+	},
+	"right_arg" : {
+            "source_entity_type" : "node",
+            "target_entity_type" : "node"
+	}
+    }
+}

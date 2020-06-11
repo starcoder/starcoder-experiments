@@ -1,0 +1,47 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"year" : {"type" : "numeric"},
+	"amount" : {"type" : "numeric"},
+	"parish_name" : {"type" : "categorical"},
+	"street_name" : {"type" : "categorical"},
+	"role_name" : {"type" : "categorical"},
+	"role_type" : {"type" : "categorical"},
+	"person_name" : {"type" : "text"},
+	"currency" : {"type" : "categorical"},
+	"status" : {"type" : "categorical"}
+    },
+    "entity_types" : {
+	"tax_roll" : ["year"],
+	"parish" : ["parish_name"],
+	"street" : ["street_name"],
+	"role" : ["role_type", "role_name"],
+	"person" : ["person_name"],
+	"debt" : ["amount", "currency", "status"]
+    },
+    "relation_fields" : {
+	"recorded_in" : {
+            "source_entity_type" : "debt",
+            "target_entity_type" : "tax_roll"
+	},
+	"owed_by" : {
+            "source_entity_type" : "debt",
+            "target_entity_type" : "person"
+	},
+	"lives_on" : {
+            "source_entity_type" : "person",
+            "target_entity_type" : "street"
+	},
+	"part_of" : {
+            "source_entity_type" : "street",
+            "target_entity_type" : "parish"
+	},
+	"acts_as" : {
+            "source_entity_type" : "person",
+            "target_entity_type" : "role"
+	}
+    }
+}

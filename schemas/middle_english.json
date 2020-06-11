@@ -1,0 +1,33 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"token" : {"type" : "categorical"},
+	"lemma" : {"type" : "categorical"},
+	"tagging" : {"type" : "categorical"},
+	"stress" : {"type" : "categorical"}
+    },
+    "entity_types" : {
+	"book" : {"ignore" : true},
+	"section" : [],
+	"line" : [],
+	"word" : ["token", "lemma", "tagging", "stress"]
+    },
+    "relation_fields" : {
+	"word_from" : {
+            "source_entity_type" : "word",
+            "target_entity_type" : "line"
+	},
+	"line_from" : {
+            "source_entity_type" : "line",
+            "target_entity_type" : "section"
+	},
+	"section_from" : {
+	    "ignore" : true,
+            "source_entity_type" : "section",
+            "target_entity_type" : "book"
+	}
+    }
+}

@@ -1,0 +1,36 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"author_name" : {"type" : "categorical"},
+	"document_title" : {"type" : "categorical", "ignore" : true},
+	"section_name" : {"type" : "categorical", "ignore" : true},
+	"subsection_type" : {"type" : "categorical"},
+	"subsection_text" : {"type" : "text"}
+    },
+    "entity_types" : {
+	"author" : {"data_fields" : ["author_name"], "ignore" : true},
+	"document" : {"data_fields" : ["document_title"], "ignore" : true},
+	"section" : {"data_fields" : ["section_name"], "ignore" : false},
+	"subsection" : {"data_fields" : ["subsection_text", "subsection_type", "author_name"]}
+    },
+    "relation_fields" : {
+	"written_by" : {
+	    "ignore" : true,
+	    "source_entity_type" : "subsection",
+	    "target_entity_type" : "author"
+	},
+	"section_of" : {
+	    "ignore" : true,
+	    "source_entity_type" : "section",
+	    "target_entity_type" : "document"	    
+	},
+	"subsection_of" : {
+	    "ignore" : false,
+	    "source_entity_type" : "subsection",
+	    "target_entity_type" : "section"	    
+	}
+    }
+}

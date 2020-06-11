@@ -1,0 +1,37 @@
+{
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id"
+    },
+    "data_fields" : {
+	"source_description" : {"type" : "categorical"},
+	"document_name" : {"type" : "categorical"},
+	"book_name" : {"type" : "categorical"},
+	"chapter_number" : {"type" : "numeric"},
+	"verse_number" : {"type" : "numeric"},
+	"words" : {"type" : "text"}
+    },
+    "entity_types" : {
+	"source" : ["source_description"],
+	"document" : ["document_name"],
+	"book" : ["book_name"],
+	"chapter" : ["chapter_number"],
+	"verse" : ["verse_number", "words"]
+    },
+    "relation_fields" : {
+	"from_document" : {
+	    "ignore" : true,
+            "source_entity_type" : "book",
+            "target_entity_type" : "document"
+	},
+	"from_book" : {
+	    "ignore" : true,
+            "source_entity_type" : "chapter",
+            "target_entity_type" : "book"
+	},
+	"from_chapter" : {
+            "source_entity_type" : "verse",
+            "target_entity_type" : "chapter"
+	}	
+    }
+}
