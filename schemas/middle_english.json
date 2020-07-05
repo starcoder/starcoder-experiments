@@ -4,16 +4,16 @@
 	"id_field" : "id"
     },
     "data_fields" : {
-	"token" : {"type" : "categorical"},
-	"lemma" : {"type" : "categorical"},
+	"token" : {"type" : "text"},
+	"lemma" : {"type" : "text"},
 	"tagging" : {"type" : "categorical"},
 	"stress" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"book" : {"ignore" : true},
-	"section" : [],
-	"line" : [],
-	"word" : ["token", "lemma", "tagging", "stress"]
+	"book" : {"data_fields" : []},
+	"section" : {"data_fields" : []},
+	"line" : {"data_fields" : []},
+	"word" : {"data_fields" : ["token", "lemma", "tagging", "stress"]}
     },
     "relation_fields" : {
 	"word_from" : {
@@ -25,7 +25,6 @@
             "target_entity_type" : "section"
 	},
 	"section_from" : {
-	    "ignore" : true,
             "source_entity_type" : "section",
             "target_entity_type" : "book"
 	}

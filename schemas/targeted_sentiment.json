@@ -5,15 +5,19 @@
     },
     "data_fields" : {
 	"sentiment" : {"type" : "numeric"},
-	"text" : {"type" : "text"},
-	"split" : {"type" : "categorical"}
+	"text" : {"type" : "text"}
     },
     "entity_types" : {
-	"node" : ["sentiment", "text", "split"]
+	"node" : {"data_fields" : ["sentiment"]},
+	"word" : {"data_fields" : ["text"]}
     },
     "relation_fields" : {
 	"child_of" : {
             "source_entity_type" : "node",
+            "target_entity_type" : "node"
+	},
+	"text_of" : {
+            "source_entity_type" : "word",
             "target_entity_type" : "node"
 	}
     }

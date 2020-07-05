@@ -15,7 +15,7 @@ if __name__ == "__main__":
     all_fluencies = set()
     count = 0
     with gzip.open(args.output, "wt") as ofd:
-        for file_id, fname in enumerate(args.inputs):
+        for file_id, fname in list(enumerate(args.inputs)):
             try:
                 with gzip.open(fname, "rb") as ifd:
                     main_user, followed_by, user_tweets = pickle.load(ifd)
@@ -37,25 +37,24 @@ if __name__ == "__main__":
                         if followed != main_id:
                             continue
                         follower = "{}_{}".format(file_id, follower)
-                        entities[followed] = entities.get(followed, {"entity_type" : "user", "followed_by" : [], "follows" : []})
-                        entities[follower] = entities.get(follower, {"entity_type" : "user", "followed_by" : [], "follows" : []})
+                        entities[followed] = entities.get(followed, {"entity_type" : "user", "followed_by" : []})
+                        entities[follower] = entities.get(follower, {"entity_type" : "user", "followed_by" : []})
                         entities[followed]["followed_by"].append(follower)
-                        entities[follower]["follows"].append(followed)
 
                     for user_id, tweets in user_tweets.items():
                         user_id = "{}_{}".format(file_id, user_id)
                         if user_id in entities:
                             entities[user_id]["wrote"] = []
                             for tweet_id, tweet in tweets.items():
+                                if sum(tweet["valid"].values()) == 0.0:
+                                    continue
                                 tweet_id = "{}_{}".format(file_id, tweet_id)
                                 entities[tweet_id] = {"twitter_language" : list(tweet["twitter"][1].keys())[0],
-                                                      "valid_vector" : [v for k, v in sorted(tweet["valid"].items())],
+                                                      "valid_vector" : tweet["valid"], #[v for k, v in sorted(tweet["valid"].items())],
                                                       "entity_type" : "tweet",
-                                                      "written_by" : [],
-                                                      #"text" : tweet["text"],
+                                                      "written_by" : user_id,
+                                                      "text" : tweet["text"],
                                 }
-                                entities[user_id]["wrote"].append(tweet_id)
-                                entities[tweet_id]["written_by"].append(user_id)
                     for eid, entity in entities.items():
                         entity["id"] = eid
                         for f in all_fluencies:

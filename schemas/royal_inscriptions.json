@@ -7,11 +7,11 @@
 	"content" : {"type" : "text"}
     },
     "entity_types" : {
-	"period" : [],
-	"dynasty" : [],
-	"ruler" : [],
-	"text" : [],
-	"witness" : ["content"]
+	"period" : {"data_fields" : []},
+	"dynasty" : {"data_fields" : []},
+	"ruler" : {"data_fields" : []},
+	"text" : {"data_fields" : []},
+	"witness" : {"data_fields" : ["content"]}
     },
     "relation_fields" : {
 	"from_period" : {

@@ -7,26 +7,25 @@
 	"product_name" : {"type" : "categorical"},
 	"product_description" : {"type" : "text"},
 	"city_name" : {"type" : "categorical"},
-	"date" : {"type" : "date"},
+	"date" : {"type" : "numeric"},
 	"price_low" : {"type" : "numeric"},
 	"price_high" : {"type" : "numeric"},
 	"availability" : {"type" : "categorical"},
 	"qualifier" : {"type" : "categorical"}
-	
     },
     "entity_types" : {
-	"product" : ["product_name", "product_description"],
-	"city" : ["city_name"],
-	"listing" : ["date", "price_low", "price_high", "availability", "qualifier"]
+	"city" : {"data_fields" : ["city_name"]},
+	"product" : {"data_fields" : ["product_name", "product_description"]},
+	"listing" : {"data_fields" : ["date", "price_low", "price_high", "availability", "qualifier"]}
     },
     "relation_fields" : {
 	"price_for" : {
             "source_entity_type" : "listing",
             "target_entity_type" : "product"
 	},
-	"located_in" : {
+	"price_in" : {
             "source_entity_type" : "listing",
             "target_entity_type" : "city"
-	}
+	}	
     }
 }

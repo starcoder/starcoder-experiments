@@ -8,7 +8,7 @@
 	"value" : { "type" : "numeric"}
     },
     "entity_types" : {
-	"node" : ["operation_name", "value"]
+	"node" : {"data_fields" : ["operation_name", "value"]}
     },
     "relation_fields" : {
 	"unary_arg" : {

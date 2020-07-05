@@ -6,16 +6,18 @@
     "data_fields" : {
 	"subreddit_name" : {"type" : "categorical"},
 	"author_name" : {"type" : "categorical"},
-	"upvotes" : { "type" : "numeric"},
-	"downvotes" : { "type" : "numeric"},
-	"gilded" : { "type" : "numeric"},
-	"edited" : { "type" : "categorical"},
-	"text" : { "type" : "text"}
+	"upvotes" : {"type" : "numeric"},
+	"downvotes" : {"type" : "numeric"},
+	"gilded" : {"type" : "numeric"},
+	"edited" : {"type" : "categorical"},
+	"text" : {"type" : "text"},
+	"title" : {"type" : "text"}
     },
     "entity_types" : {
-	"comment" : ["upvotes", "downvotes", "gilded", "edited", "text", "response_to", "posted_in"],
-	"author" : ["wrote", "author_name"],
-	"subreddit" : ["subreddit_name"]
+	"comment" : {"data_fields" : ["upvotes", "downvotes", "gilded", "edited", "response_to", "posted_in", "text"]},
+	"submission" : {"data_fields" : ["title", "selftext"]},
+	"author" : {"data_fields" : ["wrote", "author_name"]},
+	"subreddit" : {"data_fields" : ["subreddit_name"]}
     },
     "relation_fields" : {
 	"wrote" : {

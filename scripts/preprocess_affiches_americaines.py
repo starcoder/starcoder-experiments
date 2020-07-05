@@ -2,6 +2,9 @@ import argparse
 import csv
 import json
 import gzip
+import calendar
+import datetime
+
 
 if __name__ == "__main__":
 
@@ -21,20 +24,29 @@ if __name__ == "__main__":
                 products[product_id] = {"product_name" : row["product_name"],
                                         "product_description" : row["listing_product_description"],
                                         "entity_type" : "product",
-                                        }
+                }
                 city_id = row["city_name"]
                 cities[city_id] = {"city_name" : row["city_name"], "entity_type" : "city"}
                 listing_id = "listing_{}".format(i)
-                listings[listing_id] = {"date" : 0,
-                                        "price_low" : row["listing_price_low"],
-                                        "price_high" : row["listing_price_high"],
-                                        "availability" : row["listing_availability"],
+                listings[listing_id] = {"availability" : row["listing_availability"],                    
                                         "qualifier" : row["listing_qualifier"],
                                         "price_for" : product_id,
-                                        "located_in" : city_id,
+                                        "price_in" : city_id,
                                         "entity_type" : "listing",
-                                        }
-
+                }
+                try:
+                    listings[listing_id]["price_high"] = float(row["listing_price_high"])
+                except:
+                    pass
+                try:
+                    listings[listing_id]["price_low"] = float(row["listing_price_low"])
+                except:
+                    pass
+                try:
+                    date = datetime.datetime.strptime(row["listing_date"], "%d-%b-%Y")
+                    listings[listing_id]["date"] = date.toordinal()
+                except:
+                    pass
     with gzip.open(args.output, "wt") as ofd:
         for eid, entity in products.items():
             entity["id"] = eid

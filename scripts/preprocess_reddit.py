@@ -17,33 +17,36 @@ if __name__ == "__main__":
             with bz2.open(fname, "rt") as ifd:
                 for i, line in enumerate(ifd):
                     j = json.loads(line)
-                    author_id = j["author"]
-                    subreddit_id = j["subreddit_id"]
-                    comment_id = j["name"]
-                    parent_id = j["parent_id"]
-
-                    entities[author_id] = entities.get(author_id, {"id" : author_id,
-                                                                   "entity_type" : "author",
-                                                                   "author_name" : "author_id",
-                                                                   "wrote" : []})
+                    author_id = (j["author_fullname"] if j["author_fullname"] != None else "_").split("_")[-1]
+                    subreddit_id = j["subreddit_id"].split("_")[-1]
+                    document_id = j["id"].split("_")[-1]
+                    if author_id != "":
+                        entities[author_id] = entities.get(author_id, {"id" : author_id,
+                                                                       "entity_type" : "author",
+                                                                       "author_name" : j["author"],
+                        })
                     entities[subreddit_id] = entities.get(subreddit_id, {"id" : subreddit_id,
                                                                          "entity_type" : "subreddit",
                                                                          "subreddit_name" : j["subreddit"]})
-                    comment = {
-                        "id" : comment_id,
-                        "entity_type" : "comment",
-                        "response_to" : j["parent_id"],
-                        "posted_in" : subreddit_id,
-                        "upvotes" : j["ups"],
-                        "downvotes" : j["downs"],
+
+                    document = {
+                        "id" : document_id.split("_")[-1],
+                        "entity_type" : "submission" if "selftext" in j else "comment",
+                        "response_to" : j.get("parent_id", "").split("_")[-1] if j.get("parent_id", 1) != j.get("link_id", 2) else "",
+                        "for_submission" : j.get("link_id", "").split("_")[-1] if "link_id" in j else "",
+                        "posted_in" : subreddit_id.split("_")[-1],
+                        "score" : j["score"],
                         "gilded" : j["gilded"],
                         "edited" : str(j["edited"]),
-                        "text" : j["body"],
+                        "text" : j["body"] if "body" in j else j["selftext"],
+                        "title" : j["title"] if "title" in j else "",
+                        "posted_by" : author_id if "body" in j else "",
+                        "submitted_by" : author_id if "selftext" in j else "",
                     }
-                    ofd.write(json.dumps(comment) + "\n")
+
+                    document = {k : v for k, v in document.items() if v not in ["", None]}
                     
-                    entities[author_id]["wrote"].append(comment_id)
-                    entities[author_id]["author_name"] = j["author"]
+                    ofd.write(json.dumps(document) + "\n")
 
         for eid, entity in entities.items():
             entity["id"] = eid

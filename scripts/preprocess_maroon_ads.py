@@ -3,6 +3,7 @@ import argparse
 import csv
 import sys
 import gzip
+import logging
 
 mapping = {"Date" : "notice_date",
            "City" : "city_name",
@@ -23,6 +24,14 @@ mapping = {"Date" : "notice_date",
            "Slaver Profession" : "owner_profession",
 }
 
+numeric_fields = [
+    "time_escaped",
+    "escape_group_size",
+    "reward",
+    "slave_age",
+    "slave_height",
+]
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -32,6 +41,7 @@ if __name__ == "__main__":
 
     csv.field_size_limit(sys.maxsize)
 
+    seen_cities = set()
     data = []
     for fname in args.inputs:
         with open(fname, "rt") as ifd:
@@ -41,18 +51,27 @@ if __name__ == "__main__":
                     entity_type = v.split("_")[0]
                     if row[k] != "":
                         try:
-                            entities[entity_type][v] = float(row[k]) if schema[v]["type"] == "numeric" else row[k]
-                        except:
-                            print("Couldn't parse value '{}' for field '{}'", row[k], v)
+                            entities[entity_type][v] = float(row[k]) if v in numeric_fields else row[k]
+                        except Exception as e:                            
+                            logging.warning("Couldn't parse value '%s' for field '%s' of entity type '%s'", row[k], v, entity_type)
+                            #raise e
                 if row["Livre Equivalent"] != "":
                     entities["notice"]["notice_reward"] = float(row["Livre Equivalent"])
                 elif row["Currency Specified Reward"].lower() == "livre":
                     entities["notice"]["notice_reward"] = float(row["Specified Reward"])
                 entities["owner"]["submitted"] = entities["notice"]["id"]
                 entities["slave"]["reported_in"] = entities["notice"]["id"]
-                entities["city"]["location_of"] = entities["notice"]["id"]
+                if "city_name" in entities["city"]:
+                    entities["city"]["id"] = entities["city"]["city_name"]
+                    entities["notice"]["posted_in"] = entities["city"]["id"]
+                    if entities["city"]["id"] in seen_cities:
+                        del entities["city"]
+                    else:                        
+                        seen_cities.add(entities["city"]["id"])
+                else:
+                    del entities["city"]
                 data += [v for v in entities.values()]
-        
+
     with gzip.open(args.output, "wt") as ofd:
         for entity in data:
             ofd.write(json.dumps(entity) + "\n")

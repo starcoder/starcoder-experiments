@@ -12,20 +12,18 @@
 	"words" : {"type" : "text"}
     },
     "entity_types" : {
-	"source" : ["source_description"],
-	"document" : ["document_name"],
-	"book" : ["book_name"],
-	"chapter" : ["chapter_number"],
-	"verse" : ["verse_number", "words"]
+	"source" : {"data_fields" : ["source_description"]},
+	"document" : {"data_fields" : ["document_name"]},
+	"book" : {"data_fields" : ["book_name"]},
+	"chapter" : {"data_fields" : ["chapter_number"]},
+	"verse" : {"data_fields" : ["verse_number", "words"]}
     },
     "relation_fields" : {
 	"from_document" : {
-	    "ignore" : true,
             "source_entity_type" : "book",
             "target_entity_type" : "document"
 	},
 	"from_book" : {
-	    "ignore" : true,
             "source_entity_type" : "chapter",
             "target_entity_type" : "book"
 	},

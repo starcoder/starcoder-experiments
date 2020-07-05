@@ -10,17 +10,17 @@
 	"street_name" : {"type" : "categorical"},
 	"role_name" : {"type" : "categorical"},
 	"role_type" : {"type" : "categorical"},
-	"person_name" : {"type" : "text"},
+	"person_name" : {"type" : "categorical"},
 	"currency" : {"type" : "categorical"},
 	"status" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"tax_roll" : ["year"],
-	"parish" : ["parish_name"],
-	"street" : ["street_name"],
-	"role" : ["role_type", "role_name"],
-	"person" : ["person_name"],
-	"debt" : ["amount", "currency", "status"]
+	"tax_roll" : {"data_fields" : ["year"]},
+	"parish" : {"data_fields" : ["parish_name"]},
+	"street" : {"data_fields" : ["street_name"]},
+	"role" : {"data_fields" : ["role_type", "role_name"]},
+	"person" : {"data_fields" : ["person_name"]},
+	"debt" : {"data_fields" : ["amount", "currency", "status"]}
     },
     "relation_fields" : {
 	"recorded_in" : {

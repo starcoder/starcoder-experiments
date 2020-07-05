@@ -64,7 +64,7 @@ if __name__ == "__main__":
             tweets.append({"id" : tid,
                            "entity_type" : "tweet",
                            "written_in" : lang_code,
-                           "tweet_text" : text,
+                           "tweet_text" : text.lower(),
                            "tweet_language" : lang_code,
             })
 

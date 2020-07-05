@@ -1,70 +1,85 @@
-OUTPUT_WIDTH = 1000
-USE_GPU = False
-LOG_LEVEL = "INFO"
-BATCH_SIZE = 128
-MAX_EPOCHS = 200
-LEARNING_RATE = 0.01
-MOMENTUM = None
-CLUSTER_REDUCTION = .3
-EARLY_STOP = 10
-PATIENCE = 5
-RANDOM_COMPONENTS = 500
-MINIMUM_CONSTANTS = 1
-MAXIMUM_CONSTANTS = 2
-RANDOM_RESTARTS = 0
-RANDOM_SEED = 0
-DEFAULT_TRAIN_CONFIG = {"DEPTH" : [1],
-                        "EMBEDDING_SIZE" : [128],
-                        "HIDDEN_SIZE" : [128],
-                        "AUTOENCODER_SHAPES" : [(64, 32,)],
-}
-DEFAULT_APPLY_CONFIG = {}
-DEFAULT_SPLIT_PROPORTIONS = [("train", 0.8), ("dev", 0.1), ("test", 0.1)]
-
-EXPERIMENTS = {
-    "arithmetic" : {"SCHEMA" : "schemas/arithmetic.json",
-                    "MASK" : ["\"lambda e, f : f == 'value' and e['name'] != 'const'\""]
-    },
-    # "maroon_ads" : {"SCHEMA" : "schemas/maroon_ads.json",
-    #                 "DATA_FILES" : ["${MAROON_PATH}/RealMaroonAds - Cleaned Up Data.tsv"]
-    # },
-    # "fluency" : {"SCHEMA" : "schemas/fluency.json",
-    #              "DATA_FILES" : ["${FLUENCY_PATH}/*pkl.gz"]
-    # },
-    # "targeted_sentiment" : {"SCHEMA" : "schemas/targeted_sentiment.json",
-    #                         "DATA_FILES" : ["${SENTIMENT_PATH}/stanford_sentiment_train.txt.gz",
-    #                                         "${SENTIMENT_PATH}/stanford_sentiment_dev.txt.gz",
-    #                                         "${SENTIMENT_PATH}/stanford_sentiment_test.txt.gz"],
-    # },
-    # "reddit" : {"SCHEMA" : "schemas/reddit.json",
-    #             "DATA_FILES" : ["${REDDIT_PATH}/*"]
-    # },
-    # "affiches_americaines" : {"SCHEMA" : "schemas/affiches_americaines.json",
-    #                           "DATA_FILES" : ["${AFFICHES_PATH}/affiches_americaines_product_prices.csv.gz"]
-    # },
-    # "royal_inscriptions" : {"SCHEMA" : "schemas/royal_inscriptions.json",
-    #                         "DATA_FILES" : ["${ROYAL_INSCRIPTIONS_PATH}/royal_inscriptions.tgz"]
-    # },
-    # "linguistic_lid" : {"SCHEMA" : "schemas/linguistic_lid.json",
-    #                     "DATA_FILES" : ["${TWITTER_LID_PATH}/balanced_lid.txt.gz",
-    #                                     "${WALS_PATH}/wals_languages.csv.gz"]
-    # },
-    # "middle_english" : {"SCHEMA" : "schemas/middle_english.json",
-    #                     "DATA_FILES" : ["${ME_PATH}/*"]
-    # },
-    # "entertaining_america" : {"SCHEMA" : "schemas/entertaining_america.json",
-    #                           "DATA_FILES" : ["${ENTERTAINING_PATH}/entertaining_america.csv.gz"]
-    # },
-    # "paris_tax_rolls" : {"SCHEMA" : "schemas/paris_tax_rolls.json",
-    #                      "DATA_FILES" : ["${PARIS_TAX_ROLLS_PATH}/paris_tax_rolls.tgz"]
-    # },
-    # "post_atlantic_slave_trade" : {"SCHEMA" : "schemas/post_atlantic_slave_trade.json",
-    #                                "DATA_FILES" : ["${SLAVE_TRADE_PATH}/slavery.json.gz"]
-    # },
-    # "documentary_hypothesis" : {"SCHEMA" : "schemas/documentary_hypothesis.json",
-    #                             "DATA_FILES" : ["${DH_PATH}/wlc_dh.tgz"]
-    # },
-    # "women_writers" : {"SCHEMA" : "schemas/women_writers.json",
-    #                    "DATA_FILES" : ["${WOMEN_WRITERS_PATH}/women_writers.tgz"]
-    # }
-}
+# OUTPUT_WIDTH = 1000
+# USE_GPU = False
+# LOG_LEVEL = "INFO"
+# BATCH_SIZE = 1024
+# DEPTH = 1
+# RANDOM_COMPONENTS = 5000
+# MINIMUM_CONSTANTS = 1
+# MAXIMUM_CONSTANTS = 2
+# RANDOM_RESTARTS = 0
+# RANDOM_SEED = 0
+# DATA_PATH = "CHANGEME"
+# MAX_EPOCHS = 2
+# EXPERIMENTS = {
+#     "arithmetic" : {"SCHEMA" : "schemas/arithmetic.json",
+#                     "SPLITTER_CLASS" : "sample_components",
+#                     "BATCHIFIER_CLASS" : "sample_components",
+#     },
+#     "maroon_ads" : {"SCHEMA" : "schemas/maroon_ads.json",
+#                     "DATA_FILES" : ["${MAROON_PATH}/RealMaroonAds - Cleaned Up Data.tsv"],
+#                     "SPLITTER_CLASS" : "sample_components",
+#                     "BATCHIFIER_CLASS" : "sample_components",
+#                     "SHARED_ENTITY_TYPES" : ["city"],
+#                     "DEPTH" : 2,
+#     },
+#     "linguistic_lid" : {"SCHEMA" : "schemas/linguistic_lid.json",
+#                         "DATA_FILES" : ["${TWITTER_LID_PATH}/balanced_lid.txt.gz",
+#                                         "${WALS_PATH}/wals_languages.csv.gz"],
+#                         "SPLITTER_CLASS" : "sample_entities",
+#                         "BATCHIFIER_CLASS" : "sample_entities",
+#                         "SHARED_ENTITY_TYPES" : ["language", "genus", "family", "macroarea"],
+#                         "BATCH_SIZE" : 2048,
+#                         "DEPTH" : 4,
+#     },
+#     "targeted_sentiment" : {"SCHEMA" : "schemas/targeted_sentiment.json",
+#                             "DATA_FILES" : ["${SENTIMENT_PATH}/stanford_sentiment_train.txt.gz",
+#                                             "${SENTIMENT_PATH}/stanford_sentiment_dev.txt.gz",
+#                                             "${SENTIMENT_PATH}/stanford_sentiment_test.txt.gz"],
+#                             "BATCH_SIZE" : 2048,
+#                             "SPLITTER_CLASS" : "sample_components",
+#                             "BATCHIFIER_CLASS" : "sample_components",
+#     },
+#     "royal_inscriptions" : {"SCHEMA" : "schemas/royal_inscriptions.json",
+#                             "DATA_FILES" : ["${ROYAL_INSCRIPTIONS_PATH}/royal_inscriptions.tgz"],
+#                             "SHARED_ENTITY_TYPES" : ["period", "dynasty", "ruler"],
+#     },
+#     "middle_english" : {"SCHEMA" : "schemas/middle_english.json",
+#                         "DATA_FILES" : ["${ME_PATH}/*"],
+#                         "BATCH_SIZE" : 2048,
+#                         "SHARED_ENTITY_TYPES" : ["book", "section"],
+#     },
+#     "entertaining_america" : {"SCHEMA" : "schemas/entertaining_america.json",
+#                              "DATA_FILES" : ["${ENTERTAINING_PATH}/entertaining_america.csv.gz"],
+#     },
+#     "paris_tax_rolls" : {"SCHEMA" : "schemas/paris_tax_rolls.json",
+#                          "DATA_FILES" : ["${PARIS_TAX_ROLLS_PATH}/paris_tax_rolls.tgz"],
+#                          "BATCH_SIZE" : 1024,
+#     },
+#     "documentary_hypothesis" : {"SCHEMA" : "schemas/documentary_hypothesis.json",
+#                                 "DATA_FILES" : ["${DH_PATH}/wlc_dh.tgz"],
+#                                 "SHARED_ENTITY_TYPES" : ["source", "document", "book", "chapter"],
+#                                 "BATCH_SIZE" : 2048,
+#     },
+#     "women_writers" : {"SCHEMA" : "schemas/women_writers.json",
+#                        "DATA_FILES" : ["${WOMEN_WRITERS_PATH}/women_writers.tgz"],
+#                        "BATCH_SIZE" : 2048,
+#                        "SHARED_ENTITY_TYPES" : ["author", "document"],
+#     },
+#     "smoking_and_vaping" : {"SCHEMA" : "schemas/reddit.json",
+#                             "DATA_FILES" : ["${SMOKING_AND_VAPING_PATH}"],
+#                             "SHARED_ENTITY_TYPES" : ["subreddit"],
+#                             "BATCH_SIZE" : 1024,
+#     },
+#     "post_atlantic_slave_trade" : {"SCHEMA" : "schemas/post_atlantic_slave_trade.json",
+#                                    "DATA_FILES" : ["${SLAVE_TRADE_PATH}/slavery.json.gz"],                                   
+#     },
+#     "fluency" : {"SCHEMA" : "schemas/fluency.json",
+#                  "DATA_FILES" : ["${FLUENCY_PATH}/*pkl.gz"],
+#                  "SPLITTER_CLASS" : "sample_components",
+#                  "BATCHIFIER_CLASS" : "sample_entities",
+#     },
+#     "affiches_americaines" : {"SCHEMA" : "schemas/affiches_americaines.json",
+#                               "DATA_FILES" : ["${AFFICHES_PATH}/affiches_americaines_product_prices.csv.gz"],
+#                               "SHARED_ENTITY_TYPES" : ["city", "product"],
+#     },
+# }

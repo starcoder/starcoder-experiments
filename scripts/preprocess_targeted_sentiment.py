@@ -8,17 +8,21 @@ from nltk import Tree
 def process_tree(node, path, split, top_level=False):
     parent_id = "_".join([str(x) for x in path[:-1]])
     node_id = "_".join([str(x) for x in path])
-    entity = {"entity_type" : "node",
-              "id" : node_id,
+    entity = {"id" : node_id,
               "split" : split}
-    if not top_level:
-        entity["child_of"] = parent_id
+
     if isinstance(node, str):
         entity["text"] = node
+        entity["entity_type"] = "word"
+        entity["text_of"] = parent_id
         return [entity]
     else:
+        entity["entity_type"] = "node"
         entity["sentiment"] = int(node.label())
+        if not top_level:
+            entity["child_of"] = parent_id
         return [entity] + sum([process_tree(c, path + [i], split) for i, c in enumerate(node)], [])
+
 
 if __name__ == "__main__":
 

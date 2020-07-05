@@ -8,15 +8,15 @@
 	"tweet_text" : {"type" : "text"},
 	"language_name" : {"type" : "categorical"},
 	"genus_name" : {"type" : "categorical"},
-	"family_name" : {"type" : "categorical", "ignore" : true},
-	"macroarea_name" : {"type" : "categorical", "ignore" : true}
+	"family_name" : {"type" : "categorical"},
+	"macroarea_name" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"tweet" : ["tweet_language", "tweet_text"],
-	"language" : ["language_name"],
-	"genus" : ["genus_name"],
-	"family" : {"data_fields" : ["family_name"], "ignore" : true},
-	"macroarea" : {"data_fields" : ["macroarea_name"], "ignore" : true}
+	"tweet" : {"data_fields" : ["tweet_language", "tweet_text"]},
+	"language" : {"data_fields" : ["language_name"]},
+	"genus" : {"data_fields" : ["genus_name"]},
+	"family" : {"data_fields" : ["family_name"]},
+	"macroarea" : {"data_fields" : ["macroarea_name"]}
     },
     "relation_fields" : {
 	"written_in" : {
@@ -28,12 +28,10 @@
             "target_entity_type" : "genus"
 	},
 	"from_family" : {
-	    "ignore" : true,
             "source_entity_type" : "genus",
             "target_entity_type" : "family"
 	},
 	"from_macroarea" : {
-	    "ignore" : true,
             "source_entity_type" : "family",
             "target_entity_type" : "macroarea"
 	}

@@ -56,7 +56,9 @@ if __name__ == "__main__":
                                 debt_id = "debt_{}".format(debt_counter)                                
                                 person_id = "".format(name, street_id)
                                 entities[person_id] = {"entity_type" : "person", "name" : name}
-                                entities[debt_id] = {"entity_type" : "debt", "amount" : amount, "currency" : unit, "status" : status}
+                                entities[debt_id] = {"entity_type" : "debt", "currency" : unit, "status" : status}
+                                if amount != None:
+                                    entities[debt_id]["amount"] = amount
                                 entities[debt_id]["recorded_in"] = roll_id
                                 entities[debt_id]["owed_by"] = person_id
                                 entities[street_id]["part_of"] = parish_id

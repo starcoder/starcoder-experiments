@@ -37,18 +37,18 @@
 	"jail_name" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"notice" : [],
-	"voyage" : ["voyage_departure_location", "voyage_count", "voyage_manifest_date"],
-	"slave" : ["slave_sex", "slave_age", "slave_name"],
-	"owner" : ["owner_name", "owner_location"],
-	"shipper" : ["shipper_location", "shipper_name"],
-	"captain" : ["captain_name"],
-	"source" : ["source_file", "source_sheet", "source_row"],
-	"consignor" : ["consignor_name", "consignor_location"],
-	"vessel" : ["vessel_type", "vessel_name", "vessel_tonnage"],
-	"gazette" : ["gazette_name"],
-	"author" : ["author_type", "author_name"],
-	"jail" : ["jail_name"]
+	"notice" : {"data_fields" : []},
+	"voyage" : {"data_fields" : ["voyage_departure_location", "voyage_count", "voyage_manifest_date"]},
+	"slave" : {"data_fields" : ["slave_sex", "slave_age", "slave_name"]},
+	"owner" : {"data_fields" : ["owner_name", "owner_location"]},
+	"shipper" : {"data_fields" : ["shipper_location", "shipper_name"]},
+	"captain" : {"data_fields" : ["captain_name"]},
+	"source" : {"data_fields" : ["source_file", "source_sheet", "source_row"]},
+	"consignor" : {"data_fields" : ["consignor_name", "consignor_location"]},
+	"vessel" : {"data_fields" : ["vessel_type", "vessel_name", "vessel_tonnage"]},
+	"gazette" : {"data_fields" : ["gazette_name"]},
+	"author" : {"data_fields" : ["author_type", "author_name"]},
+	"jail" : {"data_fields" : ["jail_name"]}
     },
     "relation_fields" : {
 	"voyage_recorded_in_entry" : {
