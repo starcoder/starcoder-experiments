@@ -63,8 +63,8 @@ def run_over_components(model, batchifier, optim, loss_policy, data, batch_size,
         logger.debug("Processing batch #%d", batch_num)
         batch_loss_by_field = {}
         if gpu:
-            entities = {k : v.cuda() for k, v in entities.items()}
-            adjacencies = {k : v.cuda() for k, v in adjacencies.items()}
+            full_entities = {k : v.cuda() if hasattr(v, "cuda") else v for k, v in full_entities.items()}
+            full_adjacencies = {k : v.cuda() for k, v in full_adjacencies.items()}
         optim.zero_grad()
         reconstructions, bottlenecks, ae_pairs = model(full_entities, full_adjacencies)
         for field_type, fields in compute_losses(full_entities, reconstructions, data.schema).items():
@@ -211,7 +211,6 @@ if __name__ == "__main__":
             model.cuda()
             logger.info("CUDA memory allocated/cached: %.3fg/%.3fg", 
                          torch.cuda.memory_allocated() / 1000000000, torch.cuda.memory_cached() / 1000000000)
-
         logger.info("Model: %s", model)
         logger.info("Model has %d parameters", model.parameter_count)
         #model.half()
