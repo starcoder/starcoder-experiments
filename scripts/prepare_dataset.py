@@ -25,10 +25,10 @@ if __name__ == "__main__":
         for entity in map(json.loads, ifd):
             schema.observe_entity(entity)                    
             entities.append(entity)
-            
+    schema.verify()
     logging.info("Created %s", schema)
 
-    dataset = Dataset(schema, entities)
+    dataset = Dataset(schema, entities, strict=True)
     
     with gzip.open(args.schema_output, "wb") as ofd:
         pickle.dump(schema, ofd)    

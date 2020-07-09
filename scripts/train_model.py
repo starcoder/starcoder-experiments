@@ -23,34 +23,23 @@ logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore")
 
 
-def compute_losses(entities, reconstructions, schema):
+def compute_losses(model, entities, reconstructions, schema):
     """
     Gather and return all the field losses as a nested dictionary where the first
     level of keys are field types, and the second level are field names.
     """
     losses = {}
     for field_name, field_values in entities.items():
-        #print(field_name)
         if field_name in schema.data_fields and field_name in reconstructions:
             logger.debug("Computing losses for field %s", field_name)
-            #mask = entity_values > 0
             field_type = type(schema.data_fields[field_name])
             reconstruction_values = reconstructions[field_name]
-            #print(field_name, entity_values.shape, reconstruction_values.shape)
-            #recon = torch.reshape(reconstruction_values, (reconstruction_values.shape[0], -1)).sum(1)
-            #selector = torch.masked_select(torch.arange(0, entity_values.shape[0]),
-            #                               ~torch.isnan(entity_values) & ~torch.isnan(recon))
             losses[field_type] = losses.get(field_type, {})
-            #masked_entity_values = torch.index_select(entity_values, 0, selector) #~torch.isnan(entity_values))
-            #print(field_values, reconstruction_values)
-            #print(field_name, field_values.shape, reconstruction_values.shape)
-            #masked_reconstruction_values = torch.index_select(reconstruction_values, 0, selector) #~torch.isnan(entity_values))
-            #masked_field_losses =
-            #print(reconstruction_values.shape, field_values.shape)
-            field_losses = field_model_classes[field_type][2](reconstruction_values, field_values)
-            losses[field_type][field_name] = field_losses
+            field_losses = model.field_losses[field_name](reconstruction_values, field_values)
+            field_model_classes[field_type][2](reconstruction_values, field_values)
+            mask = ~torch.isnan(field_losses)
+            losses[field_type][field_name] = torch.masked_select(field_losses, mask)
     return losses
-
 
 
 def run_over_components(model, batchifier, optim, loss_policy, data, batch_size, gpu, train, subselect=False, strict=True, mask_tests=[]):
@@ -58,8 +47,7 @@ def run_over_components(model, batchifier, optim, loss_policy, data, batch_size,
     model.train(train)
     loss_by_field = {}
     loss = 0.0
-    #for batch_num, ((full_entities, full_adjacencies), (masked_entities, masked_adjacencies)) in enumerate(batchifier(data, batch_size)):
-    for batch_num, (full_entities, full_adjacencies) in enumerate(batchifier(data, batch_size)):        
+    for batch_num, (full_entities, full_adjacencies) in enumerate(batchifier(data, batch_size)):
         logger.debug("Processing batch #%d", batch_num)
         batch_loss_by_field = {}
         if gpu:
@@ -67,7 +55,7 @@ def run_over_components(model, batchifier, optim, loss_policy, data, batch_size,
             full_adjacencies = {k : v.cuda() for k, v in full_adjacencies.items()}
         optim.zero_grad()
         reconstructions, bottlenecks, ae_pairs = model(full_entities, full_adjacencies)
-        for field_type, fields in compute_losses(full_entities, reconstructions, data.schema).items():
+        for field_type, fields in compute_losses(model, full_entities, reconstructions, data.schema).items():
             for field_name, losses in fields.items():
                 batch_loss_by_field[(field_name, field_type)] = losses        
         batch_loss = loss_policy(batch_loss_by_field, ae_pairs)
@@ -114,7 +102,6 @@ def run_epoch(model, batchifier, optimizer, loss_policy, train_data, dev_data, b
             {k : [v.clone().detach().cpu() for v in vv] for k, vv in train_loss_by_field.items()},
             dev_loss.clone().detach().cpu(),
             {k : [v.clone().detach().cpu() for v in vv] for k, vv in dev_loss_by_field.items()})
-
 
 
 if __name__ == "__main__":
@@ -189,10 +176,6 @@ if __name__ == "__main__":
     global_best_dev_loss = torch.tensor(numpy.nan)
     global_best_state = None
     traces = []
-
-    setattr(args, "rest", rest)
-    #batchifier = batchifier_classes[args.batchifier_class](**vars(args))
-
     for restart in range(args.random_restarts + 1):
 
         local_best_dev_loss = torch.tensor(numpy.nan)
@@ -201,11 +184,7 @@ if __name__ == "__main__":
         model = GraphAutoencoder(schema=data.schema,
                                  depth=args.depth,
                                  autoencoder_shapes=args.autoencoder_shapes,
-                                 embedding_size=args.embedding_size,
-                                 hidden_size=args.hidden_size,
-                                 field_dropout=args.field_dropout,
-                                 hidden_dropout=args.hidden_dropout,
-                                 reverse_relations=True
+                                 reverse_relations=True,
         )
         if args.gpu:
             model.cuda()
@@ -213,8 +192,6 @@ if __name__ == "__main__":
                          torch.cuda.memory_allocated() / 1000000000, torch.cuda.memory_cached() / 1000000000)
         logger.info("Model: %s", model)
         logger.info("Model has %d parameters", model.parameter_count)
-        #model.half()
-        #sys.exit()
         model.init_weights()
 
         if args.momentum != None:
@@ -237,9 +214,7 @@ if __name__ == "__main__":
         def policy(losses_by_field, ae_pairs):
             loss_by_field = {k : v.sum() for k, v in losses_by_field.items()}
             retval = sum(loss_by_field.values())
-            if args.ae_loss:
-                for ae_in, ae_out in ae_pairs:
-                    retval += torch.nn.functional.mse_loss(ae_out, ae_in)
+            #assert retval.device == "cuda:0"
             return retval
 
         for e in range(1, args.max_epochs + 1):
@@ -290,11 +265,9 @@ if __name__ == "__main__":
                     global_best_dev_loss = local_best_dev_loss
                     global_best_state = local_best_state
                     traces.append(trace)
-            # model.load_state_dict model.eval model.to(device)
 
     logger.info("Final dev loss of {:.4}".format(global_best_dev_loss))
-
-    # torch.save(model, args.model_output)
+    
     with gzip.open(args.model_output, "wb") as ofd:
         torch.save((global_best_state, args, data.schema), ofd)
 

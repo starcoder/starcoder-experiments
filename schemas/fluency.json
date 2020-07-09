@@ -10,7 +10,8 @@
 	"is_bot" : {"type" : "boolean"},
 	"fluent_in_eng" : {"type" : "boolean"},
 	"fluent_in_ukr" : {"type" : "boolean"},
-	"fluent_in_rus" : {"type" : "boolean"}
+	"fluent_in_rus" : {"type" : "boolean"},
+	"fluent_in_und" : {"type" : "boolean"}
     },
     "entity_types" : {
 	"tweet" : {"data_fields" : ["text", "twitter_language", "lid_scores"]},

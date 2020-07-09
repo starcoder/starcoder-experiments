@@ -30,6 +30,11 @@
 	"from_chapter" : {
             "source_entity_type" : "verse",
             "target_entity_type" : "chapter"
+	},
+	"from_source" : {
+            "source_entity_type" : "verse",
+            "target_entity_type" : "source"
 	}	
+
     }
 }

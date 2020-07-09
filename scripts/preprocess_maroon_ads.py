@@ -25,9 +25,8 @@ mapping = {"Date" : "notice_date",
 }
 
 numeric_fields = [
-    "time_escaped",
-    "escape_group_size",
-    "reward",
+    "notice_escape_group_size",
+    "notice_reward",
     "slave_age",
     "slave_height",
 ]

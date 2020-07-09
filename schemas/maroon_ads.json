@@ -4,10 +4,12 @@
 	"id_field" : "id"
     },
     "data_fields" : {
-	"time_escaped_is_approximate" : {"type" : "categorical"},
-	"time_escaped" : {"type" : "numeric"},
-	"escape_group_size" : {"type" : "numeric"},
-	"reward" : {"type" : "numeric"},
+	"notice_time_escaped_is_approximate" : {"type" : "categorical"},
+	"notice_time_escaped" : {"type" : "text"},
+	"notice_escape_group_size" : {"type" : "numeric"},
+	"notice_reward" : {"type" : "numeric"},
+	"notice_date" : {"type" : "text"},
+	"notice_time_escaped" : {"type" : "text"},
 	"city_name" : {"type" : "categorical"},
 	"slave_name" : {"type" : "categorical"},
 	"slave_race" : {"type" : "categorical"},
@@ -28,14 +30,14 @@
 				    "slave_height_is_approximate", "slave_has_known_associates",
 				    "slave_profession", "slave_age", "slave_height"]},				    
 	"notice" : {"data_fields" : ["time_escaped_is_approximate", "time_escaped",
-				     "escape_group_size", "reward"]},
+				     "escape_group_size", "reward", "notice_date"]},
 	"city" : {"data_fields" : ["city_name"]},
 	"owner" : {"data_fields" : ["owner_name", "owner_profession"]}
     },
     "relation_fields" : {
-	"location_of" : {
-            "source_entity_type" : "city",
-            "target_entity_type" : "notice"
+	"posted_in" : {
+            "source_entity_type" : "notice",
+            "target_entity_type" : "city"
 	},
 	"submitted" : {
             "source_entity_type" : "owner",

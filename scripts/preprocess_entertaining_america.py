@@ -9,8 +9,8 @@ import calendar
 import csv
 
 entity_types = {
-    "performance" : ["audience_size", "price", "popular_performance_other", "play_name", "performance_notes", "performance_quality", "outdoor_type", "event_type_other", "event_type_minstrel", "event_type_classical", "event_type_brass", "ethnicity", "ethnicity_list", "ethnicity_other", "event_type", "ethnic_comedy", "ethnic_comedy_other", "classical_performance_other", "class", "song_title_female", "song_title_male", "event_type_vaudeville"],
-    "performer" : ["amateur", "local_amateur", "performer_name"],
+    "performance" : ["amateur", "local_amateur", "audience_size", "price", "popular_performance_other", "play_name", "performance_notes", "performance_quality", "outdoor_type", "event_type_other", "event_type_minstrel", "event_type_classical", "event_type_brass", "ethnicity", "ethnicity_list", "ethnicity_other", "event_type", "ethnic_comedy", "ethnic_comedy_other", "classical_performance_other", "class", "song_title_female", "song_title_male", "event_type_vaudeville"],
+    "performer" : ["performer_name"],
     "location" : ["venue_chain", "location_venue", "location_venue_other", "location_name", "location_exact", "location_owner"],
     "notice" : ["repeat", "repeat_notice", "source_type", "source_type_other", "notes"],
 }
@@ -41,12 +41,12 @@ if __name__ == "__main__":
                             val = float(v)
                         else:
                             val = v.strip()
-                            if field_name in entity_types["performance"]:
-                                performance[field_name] = val
-                            elif field_name in entity_types["location"]:
-                                location[field_name] = val
-                            elif field_name in entity_types["notice"]:
-                                notice[field_name] = val
+                        if field_name in entity_types["performance"]:
+                            performance[field_name] = val
+                        elif field_name in entity_types["location"]:
+                            location[field_name] = val
+                        elif field_name in entity_types["notice"]:
+                            notice[field_name] = val
                 other, primary = {}, {}
                 if row["other_performers"] != "":
                     other = {"entity_type" : "performer",

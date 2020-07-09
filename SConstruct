@@ -137,23 +137,23 @@ env.Append(BUILDERS={"PreprocessArithmetic" : env.Builder(**env.ActionMaker("pyt
                                                                   USE_GPU=env["USE_GPU"],
                                                            )),
                      "ApplyModel" : env.Builder(**env.ActionMaker("python",
-                                                           "scripts/apply_model.py",
-                                                            "--model ${SOURCES[0]} --data ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
-                                                           other_args=["BATCH_SIZE"],
-                     )),                     
-                     "Evaluate" : env.Builder(**env.ActionMaker("python",
-                                                         "scripts/evaluate.py",
-                                                         "--model ${SOURCES[0]} --data ${SOURCES[1]} --test ${SOURCES[2]} --output ${TARGETS[0]}",
+                                                                  "scripts/apply_model.py",
+                                                                  "--model ${SOURCES[0]} --data ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
+                                                                  #other_args=["BATCH_SIZE"],
                      )),
+                     # "Evaluate" : env.Builder(**env.ActionMaker("python",
+                     #                                     "scripts/evaluate.py",
+                     #                                     "--model ${SOURCES[0]} --data ${SOURCES[1]} --test ${SOURCES[2]} --output ${TARGETS[0]}",
+                     # )),
                      "ClusterEntities" : env.Builder(**env.ActionMaker("python",
                                                                        "scripts/cluster_entities.py",
                                                                        "--input ${SOURCES[0]} --output ${TARGETS[0]} --reduction ${CLUSTER_REDUCTION}")),
-                     "InspectClusters" : env.Builder(**env.ActionMaker("python",
-                                                                       "scripts/inspect_clusters.py",
-                                                                       "--input ${SOURCES[0]} --output ${TARGETS[0]}")),
-                     "CollateResults" : env.Builder(**env.ActionMaker("python",
-                                                               "scripts/collate_results.py",
-                                                               "${SOURCES} --output ${TARGETS[0]}")),
+                     # "InspectClusters" : env.Builder(**env.ActionMaker("python",
+                     #                                                   "scripts/inspect_clusters.py",
+                     #                                                   "--input ${SOURCES[0]} --output ${TARGETS[0]}")),
+                     # "CollateResults" : env.Builder(**env.ActionMaker("python",
+                     #                                           "scripts/collate_results.py",
+                     #                                           "${SOURCES} --output ${TARGETS[0]}")),
                  },
            tools=["default"],
 )
@@ -196,6 +196,8 @@ def run_experiment(env, experiment_config, **args):
                                      **experiment_config,
                                      **args, RANDOM_SEED=0, PROPORTIONS=split_props)
 
+    env.Alias("splits", [train, dev, test])
+    
     # expand training configurations
     train_configs = [[]]
     for arg_name, values in experiment_config.get("TRAIN_CONFIG", {}).items():        
@@ -217,24 +219,22 @@ def run_experiment(env, experiment_config, **args):
                                       **args,
                                       **experiment_config,
                                       **config)
-        continue
         for apply_config in apply_configs:
             config.update(apply_config)
             args["APPLY_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
             output = env.ApplyModel("work/${EXPERIMENT_NAME}/${FOLD}/output_${APPLY_CONFIG_ID}.json.gz", 
-                                    [model, dataset, test],
+                                    [model, dataset],
                                     **args,
                                     **config)
-
             clusters = env.ClusterEntities("work/${EXPERIMENT_NAME}/${FOLD}/clusters_${APPLY_CONFIG_ID}.json.gz",
                                            output,
                                            **args,
                                            **config)
 
-            inspect_clusters = env.InspectClusters("work/${EXPERIMENT_NAME}/${FOLD}/inspect_clusters_${APPLY_CONFIG_ID}.json.gz",
-                                                   clusters,
-                                                   **args,
-                                                   **config)
+            #inspect_clusters = env.InspectClusters("work/${EXPERIMENT_NAME}/${FOLD}/inspect_clusters_${APPLY_CONFIG_ID}.json.gz",
+            #                                       clusters,
+            #                                       **args,
+            #                                       **config)
     return None
 
 

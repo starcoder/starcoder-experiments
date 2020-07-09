@@ -29,7 +29,7 @@ if __name__ == "__main__":
                 entities[dynasty_id] = {"entity_type" : "dynasty", "from_period" : period_id}
                 entities[ruler_id] = {"entity_type" : "ruler", "from_dynasty" : dynasty_id}
                 entities[text_id] = {"entity_type" : "text", "for_ruler" : ruler_id}
-                entities[witness_id] = {"entity_type" : "witness", "version_of" : text_id, "content" : content}
+                entities[witness_id] = {"entity_type" : "witness", "witness_of" : text_id, "content" : content}
 
     with gzip.open(args.output, "wt") as ofd:
         for eid, entity in entities.items():

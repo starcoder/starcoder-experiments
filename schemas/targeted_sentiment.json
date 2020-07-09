@@ -5,7 +5,8 @@
     },
     "data_fields" : {
 	"sentiment" : {"type" : "numeric"},
-	"text" : {"type" : "text"}
+	"text" : {"type" : "text"},
+	"split" : {"type" : "categorical"}
     },
     "entity_types" : {
 	"node" : {"data_fields" : ["sentiment"]},

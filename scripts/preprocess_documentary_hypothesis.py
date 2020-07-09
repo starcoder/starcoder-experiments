@@ -24,7 +24,7 @@ if __name__ == "__main__":
                     source_lookup[code] = desc
                 book_name = xml.find(".//tanach/book/names/name").text
                 book_id = book_name
-                entities[book_id] = {"entity_type" : "book", "name" : book_name}
+                entities[book_id] = {"entity_type" : "book", "book_name" : book_name}
                 for chapter in xml.findall(".//tanach/book/c"):
                     chapter_num = int(chapter.attrib["n"])
                     chapter_id = "{}_{}".format(book_name, chapter_num)

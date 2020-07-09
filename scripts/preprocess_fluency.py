@@ -25,7 +25,7 @@ if __name__ == "__main__":
                     is_bot = main_user.get("labels", {}).get("bot") == '1' or "bot" in main_user.get("fluencies", {})
                     #if is_bot:
                     #    continue
-                    entities = {main_id : {k : v for k, v in [("entity_type", "user"), ("followed_by", []), ("follows", [])] + \
+                    entities = {main_id : {k : v for k, v in [("entity_type", "user"), ("followed_by", [])] + \
                                            fluencies + [("is_bot", "true" if is_bot else "false")]}}
                     for f, _ in fluencies:
                         all_fluencies.add(f)
@@ -44,7 +44,6 @@ if __name__ == "__main__":
                     for user_id, tweets in user_tweets.items():
                         user_id = "{}_{}".format(file_id, user_id)
                         if user_id in entities:
-                            entities[user_id]["wrote"] = []
                             for tweet_id, tweet in tweets.items():
                                 if sum(tweet["valid"].values()) == 0.0:
                                     continue

@@ -5,9 +5,8 @@
     },
     "data_fields" : {
 	"subreddit_name" : {"type" : "categorical"},
-	"author_name" : {"type" : "categorical"},
-	"upvotes" : {"type" : "numeric"},
-	"downvotes" : {"type" : "numeric"},
+	"user_name" : {"type" : "categorical"},
+	"score" : {"type" : "numeric"},
 	"gilded" : {"type" : "numeric"},
 	"edited" : {"type" : "categorical"},
 	"text" : {"type" : "text"},
@@ -16,21 +15,29 @@
     "entity_types" : {
 	"comment" : {"data_fields" : ["upvotes", "downvotes", "gilded", "edited", "response_to", "posted_in", "text"]},
 	"submission" : {"data_fields" : ["title", "selftext"]},
-	"author" : {"data_fields" : ["wrote", "author_name"]},
+	"user" : {"data_fields" : ["wrote", "user_name"]},
 	"subreddit" : {"data_fields" : ["subreddit_name"]}
     },
     "relation_fields" : {
-	"wrote" : {
-            "source_entity_type" : "author",
-            "target_entity_type" : "comment"
+	"written_by" : {
+            "source_entity_type" : "comment",
+            "target_entity_type" : "user"
+	},
+	"submitted_by" : {
+            "source_entity_type" : "submission",
+            "target_entity_type" : "user"
 	},
 	"response_to" : {
             "source_entity_type" : "comment",
             "target_entity_type" : "comment"
 	},
 	"posted_in" : {
-            "source_entity_type" : "comment",
+            "source_entity_type" : "submission",
             "target_entity_type" : "subreddit"
+	},
+	"for_submission" : {
+            "source_entity_type" : "comment",
+            "target_entity_type" : "submission"	    
 	}
     }
 }

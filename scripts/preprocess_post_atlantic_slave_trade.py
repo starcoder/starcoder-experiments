@@ -43,6 +43,9 @@ if __name__ == "__main__":
                 if s in entities and t in entities:
                     entities[s][n] = entities[t]["id"]
             for v in entities.values():
+                for name in ["voyage_manifest_count", "voyage_duration"]:
+                    if name in v:
+                        v[name] = float(v[name])
                 all_entities.append(v)
 
     with gzip.open(args.output, "wt") as ofd:
