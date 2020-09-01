@@ -18,7 +18,7 @@
 	"chapter" : {"data_fields" : ["chapter_number"]},
 	"verse" : {"data_fields" : ["verse_number", "words"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"from_document" : {
             "source_entity_type" : "book",
             "target_entity_type" : "document"

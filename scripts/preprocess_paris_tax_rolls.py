@@ -54,7 +54,7 @@ if __name__ == "__main__":
                                     role_id = "{}_{}".format(role_type, role_name)
                                 debt_counter += 1
                                 debt_id = "debt_{}".format(debt_counter)                                
-                                person_id = "".format(name, street_id)
+                                person_id = "person_{}_{}".format(name, street_id)
                                 entities[person_id] = {"entity_type" : "person", "person_name" : name}
                                 entities[debt_id] = {"entity_type" : "debt", "currency" : unit, "status" : status}
                                 if amount != None:

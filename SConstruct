@@ -12,7 +12,7 @@ import imp
 import sys
 import json
 from hashlib import md5
-import starcoder
+#import starcoder
 import steamroller
 
 
@@ -41,6 +41,8 @@ vars.AddVariables(
     ("MAX_EPOCHS", "", 10),
     ("LEARNING_RATE", "", 0.001),
     ("RANDOM_RESTARTS", "", 0),
+    ("ELASTIC_HOST", "", "localhost"),
+    ("ELASTIC_PORT", "", 5601),
     ("MOMENTUM", "", None),
     ("EARLY_STOP", "", 10),
     ("PATIENCE", "", 5),
@@ -69,8 +71,24 @@ vars.AddVariables(
     ("TWITTER_LID_PATH", "", "${DATA_PATH}/twitter_lid"),
     ("WOMEN_WRITERS_PATH", "", "${DATA_PATH}"),
     ("PARIS_TAX_ROLLS_PATH", "", "${DATA_PATH}"),
+    ("LITBANK_PATH", "", "${DATA_PATH}/litbank"),
+    ("MULTIMODAL_WIKIPEDIA_PATH", "", "${DATA_PATH}/multimodal_wikipedia"),
     ("DATA_PATH", "", ""),
-    ("EXPERIMENTS", "", {}),    
+    ("EXPERIMENTS", "", {}),
+    ("ELASTIC_HOST", "", "localhost"),
+    ("ELASTIC_PORT", "", 9200),
+    ("ELASTIC_USER", "", "elastic"),
+    ("ELASTIC_PASSWORD", "", ""),
+    ("KIBANA_HOST", "", "localhost"),
+    ("KIBANA_PORT", "", 5601),
+    ("KIBANA_USER", "", "elastic"),
+    ("KIBANA_PASSWORD", "", ""),
+    ("DJANGO_USER", "", "admin"),
+    ("DJANGO_PASSWORD", "", "admin"),
+    ("DJANGO_EMAIL", "", "nothing@nothing.com"),
+    BoolVariable("ELASTIC_UPLOAD", "", False),
+    ("SERVER_HOST", "", "localhost"),
+    ("SERVER_PORT", "", 8080),
 )
 
 
@@ -117,17 +135,23 @@ env.Append(BUILDERS={"PreprocessArithmetic" : env.Builder(**env.ActionMaker("pyt
                      "PreprocessLinguisticLid" : env.Builder(**env.ActionMaker("python",
                                                                                "scripts/preprocess_linguistic_lid.py",
                                                                                "--output ${TARGETS[0]} ${SOURCES}")),
+                     "PreprocessLitbank" : env.Builder(**env.ActionMaker("python",
+                                                                         "scripts/preprocess_litbank.py",
+                                                                         "--output ${TARGETS[0]} --input ${SOURCES[0]}")),
+                     "PreprocessMultimodalWikipedia" : env.Builder(**env.ActionMaker("python",
+                                                                                     "scripts/preprocess_multimodal_wikipedia.py",
+                                                                                     "--output ${TARGETS[0]} --input ${SOURCES[0]}")),
                      "PreprocessPostAtlanticSlaveTrade" : env.Builder(**env.ActionMaker("python",
                                                                                         "scripts/preprocess_post_atlantic_slave_trade.py",
                                                                                         "--output ${TARGETS[0]} ${SOURCES}")),
                      "PrepareDataset" : env.Builder(**env.ActionMaker("python",
                                                                "scripts/prepare_dataset.py",
                                                                "--schema_output ${TARGETS[0]} --data_output ${TARGETS[1]} --data_input ${SOURCES[0]} --schema_input ${SOURCES[1]}",
-                                                               other_deps=["../starcoder/starcoder/dataset.py"])),
+                                                               other_deps=[])),
                      "SplitData" : env.Builder(**env.ActionMaker("python",
                                                                  "scripts/split_data.py",
                                                                  "--input ${SOURCES[0]} --proportions ${PROPORTIONS} --outputs ${TARGETS} --random_seed ${RANDOM_SEED} --splitter_class ${SPLITTER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES}",
-                                                                 other_deps=["../starcoder/starcoder/splitters.py"],
+                                                                 other_deps=[],
                      )),
                      "TrainModel" : env.Builder(**env.ActionMaker("python",
                                                            "scripts/train_model.py",
@@ -138,22 +162,24 @@ env.Append(BUILDERS={"PreprocessArithmetic" : env.Builder(**env.ActionMaker("pyt
                                                            )),
                      "ApplyModel" : env.Builder(**env.ActionMaker("python",
                                                                   "scripts/apply_model.py",
-                                                                  "--model ${SOURCES[0]} --data ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
-                                                                  #other_args=["BATCH_SIZE"],
+                                                                  "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
                      )),
-                     # "Evaluate" : env.Builder(**env.ActionMaker("python",
-                     #                                     "scripts/evaluate.py",
-                     #                                     "--model ${SOURCES[0]} --data ${SOURCES[1]} --test ${SOURCES[2]} --output ${TARGETS[0]}",
-                     # )),
-                     "ClusterEntities" : env.Builder(**env.ActionMaker("python",
-                                                                       "scripts/cluster_entities.py",
-                                                                       "--input ${SOURCES[0]} --output ${TARGETS[0]} --reduction ${CLUSTER_REDUCTION}")),
-                     # "InspectClusters" : env.Builder(**env.ActionMaker("python",
-                     #                                                   "scripts/inspect_clusters.py",
-                     #                                                   "--input ${SOURCES[0]} --output ${TARGETS[0]}")),
-                     # "CollateResults" : env.Builder(**env.ActionMaker("python",
-                     #                                           "scripts/collate_results.py",
-                     #                                           "${SOURCES} --output ${TARGETS[0]}")),
+                     "UploadResults" : env.Builder(**env.ActionMaker("python",
+                                                                  "scripts/upload_results.py",
+                                                                  "--results ${SOURCES[0]} --log ${TARGETS[0]} --elastic_host ${ELASTIC_HOST} --elastic_port ${ELASTIC_PORT} --create_indices --overwrite_existing --experiment_id ${APPLY_CONFIG_ID} --experiment_name ${EXPERIMENT_NAME} --elastic_user ${ELASTIC_USER} --elastic_password ${ELASTIC_PASSWORD} --kibana_host ${KIBANA_HOST} --kibana_port ${KIBANA_PORT} --kibana_user ${KIBANA_USER} --kibana_password ${KIBANA_PASSWORD} --model ${SOURCES[1]}",
+                     )),
+                     #"ClusterEntities" : env.Builder(**env.ActionMaker("python",
+                     #                                                  "scripts/cluster_entities.py",
+                     #                                                  "--input ${SOURCES[0]} --schema ${SOURCES[1]} --output ${TARGETS[0]} --reduction ${CLUSTER_REDUCTION}")),
+                     #"InspectClusters" : env.Builder(**env.ActionMaker("python",
+                     #                                                  "scripts/inspect_clusters.py",
+                     #                                                  "--input ${SOURCES[0]} --schema ${SOURCES[1]} --output ${TARGETS[0]}")),
+                     "PlotTrace" : env.Builder(**env.ActionMaker("python",
+                                                                 "scripts/plot_trace.py",
+                                                                 "--input ${SOURCES[0]} --output ${TARGETS[0]}")),
+                     "MakeServerConfig" : env.Builder(**env.ActionMaker("python",
+                                                                        "scripts/make_server_config.py",
+                                                                        "--models ${SOURCES} --names ${NAMES} --elastic_host ${ELASTIC_HOST} --elastic_port ${ELASTIC_PORT} --elastic_user ${ELASTIC_USER} --elastic_password ${ELASTIC_PASSWORD} --host ${SERVER_HOST} --port ${SERVER_PORT} --django_user ${DJANGO_USER} --django_password ${DJANGO_PASSWORD} --django_email ${DJANGO_EMAIL} --output ${TARGETS[0]}")),
                  },
            tools=["default"],
 )
@@ -183,12 +209,12 @@ def run_experiment(env, experiment_config, **args):
                                                       data, **args)
 
     # prepare the final spec and dataset
-    spec, dataset = env.PrepareDataset(["work/${EXPERIMENT_NAME}/spec.pkl.gz", "work/${EXPERIMENT_NAME}/dataset.pkl.gz"],
-                                       [data] + ([] if schema == None else [schema]),
-                                       **args)
+    observed_schema, dataset = env.PrepareDataset(["work/${EXPERIMENT_NAME}/schema.json.gz", "work/${EXPERIMENT_NAME}/dataset.pkl.gz"],
+                                                  [data] + ([] if schema == None else [schema]),
+                                                  **args)
     
-    split_names = [n for n, _ in env["SPLIT_PROPORTIONS"]]
-    split_props = [p for _, p in env["SPLIT_PROPORTIONS"]]
+    split_names = [n for n, _ in experiment_config.get("SPLIT_PROPORTIONS", env["SPLIT_PROPORTIONS"])]
+    split_props = [p for _, p in experiment_config.get("SPLIT_PROPORTIONS", env["SPLIT_PROPORTIONS"])]    
 
     
     train, dev, test = env.SplitData(["work/${{EXPERIMENT_NAME}}/{0}.pkl.gz".format(n) for n in split_names], 
@@ -214,28 +240,39 @@ def run_experiment(env, experiment_config, **args):
     for config in train_configs:
         args["TRAIN_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
         model, trace = env.TrainModel(["work/${EXPERIMENT_NAME}/model_${TRAIN_CONFIG_ID}.pkl.gz", 
-                                       "work/${EXPERIMENT_NAME}/trace_${TRAIN_CONFIG_ID}.pkl.gz"],
+                                       "work/${EXPERIMENT_NAME}/trace_${TRAIN_CONFIG_ID}.json.gz"],
                                       [dataset, train, dev],
                                       **args,
                                       **experiment_config,
                                       **config)
+        env.PlotTrace("work/${EXPERIMENT_NAME}/traceplot_${TRAIN_CONFIG_ID}.png",
+                      trace,
+                      **args
+        )
         for apply_config in apply_configs:
             config.update(apply_config)
             args["APPLY_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
-            output = env.ApplyModel("work/${EXPERIMENT_NAME}/${FOLD}/output_${APPLY_CONFIG_ID}.json.gz", 
+            output = env.ApplyModel("work/${EXPERIMENT_NAME}/${FOLD}/output_${APPLY_CONFIG_ID}.json.gz",
                                     [model, dataset],
                                     **args,
+                                    **experiment_config,
                                     **config)
-            clusters = env.ClusterEntities("work/${EXPERIMENT_NAME}/${FOLD}/clusters_${APPLY_CONFIG_ID}.json.gz",
-                                           output,
+            if env["ELASTIC_UPLOAD"] == True:
+                upload = env.UploadResults("work/${EXPERIMENT_NAME}/${FOLD}/upload_${APPLY_CONFIG_ID}.txt",
+                                           [output, model],
                                            **args,
+                                           **experiment_config,
                                            **config)
-
-            #inspect_clusters = env.InspectClusters("work/${EXPERIMENT_NAME}/${FOLD}/inspect_clusters_${APPLY_CONFIG_ID}.json.gz",
-            #                                       clusters,
+            #continue            
+            #clusters = env.ClusterEntities("work/${EXPERIMENT_NAME}/${FOLD}/clusters_${APPLY_CONFIG_ID}.json.gz",
+            #                               [output, schema],
+            #                               **args,
+            #                               **config)
+            #inspect_clusters = env.InspectClusters("work/${EXPERIMENT_NAME}/${FOLD}/inspect_clusters_${APPLY_CONFIG_ID}.txt",
+            #                                       [clusters, observed_schema],
             #                                       **args,
             #                                       **config)
-    return None
+    return model
 
 
 env.AddMethod(run_experiment, "RunExperiment")
@@ -244,6 +281,9 @@ env.AddMethod(run_experiment, "RunExperiment")
 #
 # Run all experiments
 #
-
+models = []
+names = []
 for experiment_name, experiment_config in env["EXPERIMENTS"].items():
-    env.RunExperiment(experiment_config, EXPERIMENT_NAME=experiment_name)
+    names.append(experiment_name)
+    models.append(env.RunExperiment(experiment_config, EXPERIMENT_NAME=experiment_name))
+env.MakeServerConfig("work/server_config.json", models, NAMES=names)

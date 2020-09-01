@@ -16,7 +16,7 @@
 	"section" : {"data_fields" : ["section_name"]},
 	"subsection" : {"data_fields" : ["subsection_text", "subsection_type", "author_name"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"written_by" : {
 	    "source_entity_type" : "subsection",
 	    "target_entity_type" : "author"

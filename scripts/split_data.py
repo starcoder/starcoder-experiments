@@ -38,5 +38,7 @@ if __name__ == "__main__":
 
     for fname, split in zip(args.outputs, splitter(data)):
         logger.info("Writing %d entities to %s", len(split), fname)
-        with gzip.open(fname, "wb") as ofd:
-            pickle.dump(split, ofd)
+        with gzip.open(fname, "wt") as ofd:
+            for i in split:
+                ofd.write("{}\n".format(i))
+                #pickle.dump(split, ofd)

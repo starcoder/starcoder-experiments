@@ -22,7 +22,7 @@
 	"person" : {"data_fields" : ["person_name"]},
 	"debt" : {"data_fields" : ["amount", "currency", "status"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"recorded_in" : {
             "source_entity_type" : "debt",
             "target_entity_type" : "tax_roll"

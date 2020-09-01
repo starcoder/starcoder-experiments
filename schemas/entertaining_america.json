@@ -49,7 +49,7 @@
 	"notice" : {"data_fields" : ["source_type", "source_type_other", "repeat", "repeat_notice", "notes"]},
 	"performer" : {"data_fields" : ["performer_name"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"occurred_at" : {
             "source_entity_type" : "performance",
             "target_entity_type" : "location"

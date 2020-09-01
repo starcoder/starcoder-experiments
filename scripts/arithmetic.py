@@ -182,4 +182,7 @@ def to_json(tree):
                 ("entity_type", "node"),
             ] + ([(k, v) for k, v in node.relations.items()] if hasattr(node, "relations") else [])
             ))
+            #if random.choice([1, 2]) == 1:
+            #    retval[-1]["value"] = node.value
+            #retval[-1]["operation_name"] = node.name            
     return retval

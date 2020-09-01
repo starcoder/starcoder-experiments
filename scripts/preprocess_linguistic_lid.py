@@ -38,19 +38,19 @@ if __name__ == "__main__":
             if hasattr(lang, "alpha_2"):
                 lang_code = lang.alpha_2
                 wals_langs.add(lang_code)
-                macroareas[row["macroarea"]] = {"id" : row["macroarea"],
+                macroareas[row["macroarea"]] = {"id" : "macroarea {}".format(row["macroarea"]),
                                                "entity_type" : "macroarea",
                                                "macroarea_name" : row["macroarea"]}
-                families[row["family"]] = {"id" : row["family"],
+                families[row["family"]] = {"id" : "family {}".format(row["family"]),
                                            "entity_type" : "family",
                                            "from_macroarea" : row["macroarea"],
                                            "family_name" : row["family"]}
-                genuses[row["genus"]] = {"id" : row["genus"], 
+                genuses[row["genus"]] = {"id" : "genus {}".format(row["genus"]),
                                          "from_family" : row["family"], 
                                          "entity_type" : "genus",
                                          "genus_name" : row["genus"]
                 }
-                languages[lang_code] = {"id" : lang_code,
+                languages[lang_code] = {"id" : "language {}".format(lang_code),
                                         "entity_type" : "language",
                                         "from_genus" : row["genus"],
                                         "language_name" : row["Name"]

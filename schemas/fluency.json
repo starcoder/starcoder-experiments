@@ -17,7 +17,7 @@
 	"tweet" : {"data_fields" : ["text", "twitter_language", "lid_scores"]},
 	"user" : {"data_fields" : ["is_bot", "fluent_in_eng", "fluent_in_ukr", "fluent_in_rus"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"written_by" : {
 	    "source_entity_type" : "tweet",		   
 	    "target_entity_type" : "user"

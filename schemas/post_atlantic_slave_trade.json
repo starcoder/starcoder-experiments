@@ -66,7 +66,7 @@
 	"author" : {"data_fields" : ["author_type", "author_name"]},
 	"jail" : {"data_fields" : ["jail_name"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"voyage_recorded_in_entry" : {
             "source_entity_type" : "voyage",
             "target_entity_type" : "source"

@@ -9,43 +9,76 @@ import logging
 import warnings
 import numpy
 from torch.optim import Adam, SGD
+from torch.optim.optimizer import Optimizer
 import torch
+from torch import Tensor
 from starcoder.registry import field_model_classes, batchifier_classes, field_classes, scheduler_classes
-from starcoder.ensemble import GraphAutoencoder
+from starcoder.ensemble_model import GraphAutoencoder
 from starcoder.dataset import Dataset
 from starcoder.schema import Schema
-from starcoder.fields import CategoricalField
+from starcoder.batchifier import Batchifier
+from starcoder.field import CategoricalField
 from torch.autograd import set_detect_anomaly
 set_detect_anomaly(True)
+from typing import Dict, List, Any, Tuple
 
 logger = logging.getLogger(__name__)
 
 warnings.filterwarnings("ignore")
 
 
-def compute_losses(model, entities, reconstructions, schema):
+def simple_loss_policy(losses_by_field: Dict[str, List[float]]) -> float:
+    loss_by_field = {k : sum(v) for k, v in losses_by_field.items()}
+    retval = sum(loss_by_field.values())
+    return retval
+
+def compute_losses(model: GraphAutoencoder,
+                   entities: Dict[str, Any],
+                   reconstructions: Dict[str, Any],
+                   schema: Schema) -> Dict[str, torch.Tensor]:
     """
     Gather and return all the field losses as a nested dictionary where the first
     level of keys are field types, and the second level are field names.
     """
+    #print({k : v.shape for k, v in entities.items()},
+    #print(entities.keys())
+    #print(reconstructions["node"].keys())
+    #print({k : v.shape for k, v in reconstructions.items()})
     losses = {}
     for field_name, field_values in entities.items():
         if field_name in schema.data_fields and field_name in reconstructions:
-            logger.debug("Computing losses for field %s", field_name)
-            field_type = type(schema.data_fields[field_name])
-            reconstruction_values = reconstructions[field_name]
-            losses[field_type] = losses.get(field_type, {})
-            field_losses = model.field_losses[field_name](reconstruction_values, field_values)
-            field_model_classes[field_type][2](reconstruction_values, field_values)
+            field = schema.data_fields[field_name]
+            logger.debug("Computing losses for field %s of type %s", field.name, field.type_name)
+            #field_type = type(schema.data_fields[field_name])
+            reconstruction_values = reconstructions[field.name]
+            #losses[field] = losses.get(field, {})
+            #print("****" + field_name)
+            #print(reconstruction_values)
+            #print(field_values)
+            field_losses = model.field_losses[field.name](reconstruction_values, field_values)
+            #field_model_classes[field_type][2](reconstruction_values, field_values)
+            #print(field_losses)
             mask = ~torch.isnan(field_losses)
-            losses[field_type][field_name] = torch.masked_select(field_losses, mask)
+            #print(mask)
+            #print(torch.masked_select(field_losses, mask))
+            losses[field] = torch.masked_select(field_losses, mask)
     return losses
 
 
-def run_over_components(model, batchifier, optim, loss_policy, data, batch_size, gpu, train, subselect=False, strict=True, mask_tests=[]):
+def run_over_components(model: GraphAutoencoder,
+                        batchifier: Batchifier,
+                        optim: Optimizer,
+                        loss_policy: Any,
+                        data: Dataset,
+                        batch_size: int,
+                        gpu: bool,
+                        train: bool,
+                        subselect: bool=False,
+                        strict: bool=True,
+                        mask_tests: Any=[]) -> Tuple[Any, Dict[Any, Any]]:
     old_mode = model.training
     model.train(train)
-    loss_by_field = {}
+    loss_by_field: Dict[str, Any] = {}
     loss = 0.0
     for batch_num, (full_entities, full_adjacencies) in enumerate(batchifier(data, batch_size)):
         logger.debug("Processing batch #%d", batch_num)
@@ -54,23 +87,32 @@ def run_over_components(model, batchifier, optim, loss_policy, data, batch_size,
             full_entities = {k : v.cuda() if hasattr(v, "cuda") else v for k, v in full_entities.items()}
             full_adjacencies = {k : v.cuda() for k, v in full_adjacencies.items()}
         optim.zero_grad()
-        reconstructions, bottlenecks, ae_pairs = model(full_entities, full_adjacencies)
-        for field_type, fields in compute_losses(model, full_entities, reconstructions, data.schema).items():
-            for field_name, losses in fields.items():
-                batch_loss_by_field[(field_name, field_type)] = losses        
-        batch_loss = loss_policy(batch_loss_by_field, ae_pairs)
+        reconstructions, _, bottlenecks = model(full_entities, full_adjacencies)
+        for field, losses in compute_losses(model, full_entities, reconstructions, data.schema).items():
+            if losses.shape[0] > 0:
+                batch_loss_by_field[field] = losses
+        batch_loss = loss_policy(batch_loss_by_field)
         loss += batch_loss
         if train:            
             batch_loss.backward()
             optim.step()
-        for k, v in batch_loss_by_field.items():
-            loss_by_field[k] = loss_by_field.get(k, [])
-            loss_by_field[k].append(v.clone().detach())
+        for field, v in batch_loss_by_field.items():
+            loss_by_field[field] = loss_by_field.get(field, [])
+            loss_by_field[field].append(v.clone().detach())
     model.train(old_mode)
     return (loss, loss_by_field)
 
 
-def run_epoch(model, batchifier, optimizer, loss_policy, train_data, dev_data, batch_size, gpu, mask_tests=[], subselect=False):
+def run_epoch(model: GraphAutoencoder,
+              batchifier: Batchifier,
+              optimizer: Optimizer,
+              loss_policy: Any,
+              train_data: Dataset,
+              dev_data: Dataset,
+              batch_size: int,
+              gpu: bool,
+              mask_tests: Any=[],
+              subselect: bool=False) -> Tuple[Any, Any, Any, Any]:
     model.train(True)
     logger.debug("Running over training data")
     train_loss, train_loss_by_field = run_over_components(model,
@@ -98,10 +140,15 @@ def run_epoch(model, batchifier, optimizer, loss_policy, train_data, dev_data, b
                                                       mask_tests=mask_tests,
     )
 
-    return (train_loss.clone().detach().cpu(), 
-            {k : [v.clone().detach().cpu() for v in vv] for k, vv in train_loss_by_field.items()},
+    return (train_loss.clone().detach().cpu(),
+            #train_loss_by_field,
+            {k : sum([x.sum() for x in v]) for k, v in train_loss_by_field.items()},
+            #{k : sum([x.sum() for x in v]) for k, v in dev_loss_by_field.items()},
+            #{k : [v.clone().detach().cpu() for v in vv] for k, vv in train_loss_by_field.items()},
             dev_loss.clone().detach().cpu(),
-            {k : [v.clone().detach().cpu() for v in vv] for k, vv in dev_loss_by_field.items()})
+            {k : sum([x.sum() for x in v]) for k, v in dev_loss_by_field.items()},
+            )
+            #{k : [v.clone().detach().cpu() for v in vv] for k, vv in dev_loss_by_field.items()})
 
 
 if __name__ == "__main__":
@@ -153,76 +200,73 @@ if __name__ == "__main__":
     if isinstance(args.random_seed, int):
         logger.info("Setting random seed to %d across the board", args.random_seed)
         random.seed(args.random_seed)
-        torch.manual_seed(args.random_seed)
-        torch.cuda.manual_seed(args.random_seed)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
+        torch.manual_seed(args.random_seed) # type: ignore
+        torch.cuda.manual_seed(args.random_seed) # type: ignore
+        torch.backends.cudnn.deterministic = True # type: ignore
+        torch.backends.cudnn.benchmark = False # type: ignore
         numpy.random.seed(args.random_seed)
 
     with gzip.open(args.data, "rb") as ifd:
-        data = pickle.load(ifd)
+        data = pickle.load(ifd) # type: ignore
         
-    logger.info("Loaded data set: %s", data)
+    logger.info("Loaded dataset: %s", data)
+    logger.info("Dataset has schema: %s", data.schema)
 
-    with gzip.open(args.train, "rb") as ifd:
-        train_indices = pickle.load(ifd)
+    with gzip.open(args.train, "rt") as ifd:
+        train_ids = [x.strip() for x in ifd]
+        #pickle.load(ifd) # type: ignore
 
-    with gzip.open(args.dev, "rb") as ifd:
-        dev_indices = pickle.load(ifd)
+    with gzip.open(args.dev, "rt") as ifd:
+        dev_ids = [x.strip() for x in ifd]
+        #dev_ids = pickle.load(ifd) # type: ignore
         
-    train_data = data.subselect_entities_by_index(train_indices)
-    dev_data = data.subselect_entities_by_index(dev_indices)
+    train_data = data.subselect_entities(train_ids)
+    dev_data = data.subselect_entities(dev_ids)
 
     global_best_dev_loss = torch.tensor(numpy.nan)
     global_best_state = None
-    traces = []
+    best_trace: List[Dict[str, Any]]
     for restart in range(args.random_restarts + 1):
 
         local_best_dev_loss = torch.tensor(numpy.nan)
-        local_best_state = None
+        local_best_state: Dict[str, Tensor]
+        current_trace = []
         
         model = GraphAutoencoder(schema=data.schema,
                                  depth=args.depth,
                                  autoencoder_shapes=args.autoencoder_shapes,
-                                 reverse_relations=True,
+                                 reverse_relationships=True,
         )
         if args.gpu:
             model.cuda()
             logger.info("CUDA memory allocated/cached: %.3fg/%.3fg", 
                          torch.cuda.memory_allocated() / 1000000000, torch.cuda.memory_cached() / 1000000000)
+            
         logger.info("Model: %s", model)
         logger.info("Model has %d parameters", model.parameter_count)
         model.init_weights()
-
+        optim: Optimizer
         if args.momentum != None:
            logger.info("Using SGD with momentum")
            optim = SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum)
         else:
            logger.info("Using Adam")        
            optim = Adam(model.parameters(), lr=args.learning_rate)
-        sched = scheduler_classes["default"](args.early_stop, optim, patience=args.patience, verbose=True) if args.patience != None else None
+        sched = scheduler_classes["basic"](args.early_stop, optim, patience=args.patience, verbose=True) if args.patience != None else None
 
         logger.info("Training StarCoder with %d/%d train/dev entities and %d/%d train/dev components and batch size %d", 
-                     len(train_indices), 
-                     len(dev_indices),
+                     len(train_ids), 
+                     len(dev_ids),
                      train_data.num_components,
                      dev_data.num_components,
                      args.batch_size)
-
-        trace = []
-
-        def policy(losses_by_field, ae_pairs):
-            loss_by_field = {k : v.sum() for k, v in losses_by_field.items()}
-            retval = sum(loss_by_field.values())
-            #assert retval.device == "cuda:0"
-            return retval
-
+        
         for e in range(1, args.max_epochs + 1):
 
             train_loss, train_loss_by_field, dev_loss, dev_loss_by_field = run_epoch(model,
                                                                                      batchifier,
                                                                                      optim,
-                                                                                     policy,
+                                                                                     simple_loss_policy,
                                                                                      train_data,
                                                                                      dev_data,
                                                                                      args.batch_size, 
@@ -231,12 +275,12 @@ if __name__ == "__main__":
                                                                                      args.subselect
             )
 
-            trace.append((train_loss, train_loss_by_field, dev_loss, dev_loss_by_field))
+            current_trace.append({"train" : train_loss_by_field, "dev" : dev_loss_by_field})
             
             logger.info("Random start %d, Epoch %d: comparable train/dev loss = %.4f/%.4f",
                          restart + 1,
                          e,
-                         len(dev_data) * (train_loss / len(train_data)),
+                         dev_data.num_entities * (train_loss / train_data.num_entities),
                          dev_loss,
             )
 
@@ -251,25 +295,45 @@ if __name__ == "__main__":
             if early_stop == True:
                 logger.info("Stopping early after no improvement for %d epochs", args.early_stop)
                 if torch.isnan(global_best_dev_loss) or local_best_dev_loss < global_best_dev_loss:
-                    gbd = "inf" if torch.isnan(global_best_dev_loss) else global_best_dev_loss / len(dev_data)
+                    best_trace = current_trace
+                    gbd = "inf" if torch.isnan(global_best_dev_loss) else global_best_dev_loss / dev_data.num_entities
                     logger.info("Random run #{}'s loss is current best ({:.4} < {:.4})".format(restart + 1, local_best_dev_loss, gbd))
                     global_best_dev_loss = local_best_dev_loss
                     global_best_state = local_best_state
-                    traces.append(trace)
                 break
             elif e == args.max_epochs:
                 logger.info("Stopping after reaching maximum epochs")
                 if torch.isnan(global_best_dev_loss) or local_best_dev_loss < global_best_dev_loss:
-                    gbd = "inf" if torch.isnan(global_best_dev_loss) else global_best_dev_loss / len(dev_data)
-                    logger.info("Random run #{}'s loss is current best ({:.4} < {:.4})".format(restart + 1, local_best_dev_loss / len(dev_data), gbd))
+                    best_trace = current_trace
+                    gbd = "inf" if torch.isnan(global_best_dev_loss) else global_best_dev_loss / dev_data.num_entities
+                    logger.info("Random run #{}'s loss is current best ({:.4} < {:.4})".format(restart + 1, local_best_dev_loss / dev_data.num_entities, gbd))
                     global_best_dev_loss = local_best_dev_loss
-                    global_best_state = local_best_state
-                    traces.append(trace)
+                    global_best_state = local_best_state                    
 
     logger.info("Final dev loss of {:.4}".format(global_best_dev_loss))
     
     with gzip.open(args.model_output, "wb") as ofd:
-        torch.save((global_best_state, args, data.schema), ofd)
+        torch.save((global_best_state, args, data.schema), ofd) # type: ignore
 
-    with gzip.open(args.trace_output, "wb") as ofd:
-        torch.save((traces, args), ofd)
+    with gzip.open(args.trace_output, "wt") as ofd:
+        #print(best_trace)
+        final_trace: Dict[str, Any] = {} #"train" : {}, "dev" : {}}
+        for epoch in best_trace:
+            for split_name, fields in epoch.items():
+                final_trace[split_name] = final_trace.get(split_name, {})
+                for field, loss in fields.items():
+                    final_trace[split_name][field.type_name] = final_trace[split_name].get(field.type_name, {})
+                    final_trace[split_name][field.type_name][field.name] = final_trace[split_name][field.type_name].get(field.name, [])
+                    final_trace[split_name][field.type_name][field.name].append(loss.item())
+                    #final_trace["train"][field.type_name] = final_trace["train"].get(field.type_name, {})
+                    #final_trace["train"][field.type_name][field.name] = final_trace["train"][field.type_name].get(field.name, [])
+                    #train_loss = [x.tolist() for x in train_loss]
+                    #final_trace["train"][field.type_name][field.name].append(train_loss)
+        #for item in best_trace[1]:
+        #    for field, dev_loss in item.items():
+        #        final_trace["dev"][field.type_name] = final_trace["dev"].get(field.type_name, {})
+        #        final_trace["dev"][field.type_name][field.name] = final_trace["dev"][field.type_name].get(field.name, [])
+        #        dev_loss = sum(sum([x.tolist() for x in dev_loss], []))
+        #        final_trace["dev"][field.type_name][field.name].append(dev_loss)
+        ofd.write(json.dumps(final_trace)) # type: ignore
+

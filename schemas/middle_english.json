@@ -15,7 +15,7 @@
 	"line" : {"data_fields" : []},
 	"word" : {"data_fields" : ["token", "lemma", "tagging", "stress"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"word_from" : {
             "source_entity_type" : "word",
             "target_entity_type" : "line"

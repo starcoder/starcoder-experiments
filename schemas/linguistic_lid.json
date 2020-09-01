@@ -18,7 +18,7 @@
 	"family" : {"data_fields" : ["family_name"]},
 	"macroarea" : {"data_fields" : ["macroarea_name"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"written_in" : {
             "source_entity_type" : "tweet",
             "target_entity_type" : "language"

@@ -34,7 +34,7 @@
 	"city" : {"data_fields" : ["city_name"]},
 	"owner" : {"data_fields" : ["owner_name", "owner_profession"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"posted_in" : {
             "source_entity_type" : "notice",
             "target_entity_type" : "city"

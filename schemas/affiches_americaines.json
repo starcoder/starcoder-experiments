@@ -1,4 +1,7 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
     "meta" : {
 	"entity_type_field" : "entity_type",
 	"id_field" : "id"
@@ -18,7 +21,7 @@
 	"product" : {"data_fields" : ["product_name", "product_description"]},
 	"listing" : {"data_fields" : ["date", "price_low", "price_high", "availability", "qualifier"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"price_for" : {
             "source_entity_type" : "listing",
             "target_entity_type" : "product"

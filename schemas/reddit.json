@@ -18,7 +18,7 @@
 	"user" : {"data_fields" : ["wrote", "user_name"]},
 	"subreddit" : {"data_fields" : ["subreddit_name"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"written_by" : {
             "source_entity_type" : "comment",
             "target_entity_type" : "user"

@@ -13,7 +13,7 @@
 	"text" : {"data_fields" : []},
 	"witness" : {"data_fields" : ["content"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"from_period" : {
             "source_entity_type" : "dynasty",
             "target_entity_type" : "period"

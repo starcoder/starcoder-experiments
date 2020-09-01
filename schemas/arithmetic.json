@@ -10,7 +10,7 @@
     "entity_types" : {
 	"node" : {"data_fields" : ["operation_name", "value"]}
     },
-    "relation_fields" : {
+    "relationship_fields" : {
 	"unary_arg" : {
             "source_entity_type" : "node",
             "target_entity_type" : "node"
