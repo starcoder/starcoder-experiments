@@ -1,0 +1,69 @@
+{
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id",
+	"name" : "Reddit Authorship ID",
+	"owners" : [],
+	"description" : "Modeling authorship of Reddit posts and comments."
+    },
+    "data_fields" : {
+	"subreddit_name" : {"type" : "categorical"},
+	"user_name" : {"type" : "categorical"},
+	"author_name" : {"type" : "categorical"},	
+	"score" : {"type" : "numeric"},
+	"text" : {"type" : "text"},
+	"title" : {"type" : "text"},
+	"creation_time" : {"type" : "datetime", "format" : "utc"}
+    },
+    "entity_types" : {
+	"comment" : {
+	    "data_fields" : ["edited", "text", "author_name", "creation_time"],
+	    "meta" : {
+		"display" : "{0.author_name} {0.creation_time}"
+	    }
+	},
+	"submission" : {
+	    "data_fields" : ["title", "text", "creation_time"],
+	    "meta" : {
+		"display" : "{0.title}"
+	    }
+	},
+	"user" : {
+	    "data_fields" : ["user_name"]
+	    "meta" : {
+		"display" : "{0.user_name}"
+	    }
+	},
+	"subreddit" : {
+	    "data_fields" : ["subreddit_name"]
+	    "meta" : {
+		"display" : "{0.subreddit_name}"
+	    }
+	}
+    },
+    "relationship_fields" : {
+	"written_by" : {
+            "source_entity_type" : "comment",
+            "target_entity_type" : "user"
+	},
+	"submitted_by" : {
+            "source_entity_type" : "submission",
+            "target_entity_type" : "user"
+	},
+	"response_to" : {
+            "source_entity_type" : "comment",
+            "target_entity_type" : "comment"
+	},
+	"posted_in" : {
+            "source_entity_type" : "submission",
+            "target_entity_type" : "subreddit"
+	},
+	"for_submission" : {
+            "source_entity_type" : "comment",
+            "target_entity_type" : "submission"	    
+	}
+    }
+}
