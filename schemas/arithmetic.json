@@ -1,14 +1,25 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },    
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Arithmetic Example",
+	"owners" : [],
+	"description" : "Example of learning to solve simple arithmetic expressions."
     },
     "data_fields" : {
 	"operation_name" : {"type" : "categorical"},
 	"value" : { "type" : "numeric"}
     },
     "entity_types" : {
-	"node" : {"data_fields" : ["operation_name", "value"]}
+	"node" : {
+	    "data_fields" : ["operation_name", "value"],
+	    "meta" : {
+		"display" : "{0.operation_name}({0.value})"
+	    }	    
+	}
     },
     "relationship_fields" : {
 	"unary_arg" : {

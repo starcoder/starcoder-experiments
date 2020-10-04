@@ -1,7 +1,13 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"owners" : [],
+	"name" : "Fluency Detection",
+	"description" : "Fluency detection on Twitter communication networks."
     },
     "data_fields" : {
 	"text" : {"type" : "text"},
@@ -14,8 +20,18 @@
 	"fluent_in_und" : {"type" : "boolean"}
     },
     "entity_types" : {
-	"tweet" : {"data_fields" : ["text", "twitter_language", "lid_scores"]},
-	"user" : {"data_fields" : ["is_bot", "fluent_in_eng", "fluent_in_ukr", "fluent_in_rus"]}
+	"tweet" : {
+	    "data_fields" : ["text", "twitter_language", "valid_vector"],
+	    "meta" : {
+		"display" : "{0.text}"
+	    }	    
+	},
+	"user" : {
+	    "data_fields" : ["is_bot", "fluent_in_eng", "fluent_in_ukr", "fluent_in_rus", "fluent_in_und"],
+	    "meta" : {
+		"display" : "{0.id}"
+	    }	    
+	}
     },
     "relationship_fields" : {
 	"written_by" : {

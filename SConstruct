@@ -12,7 +12,6 @@ import imp
 import sys
 import json
 from hashlib import md5
-#import starcoder
 import steamroller
 
 
@@ -21,6 +20,8 @@ del sys.modules['pickle']
 sys.modules['pickle'] = imp.load_module('pickle', *imp.find_module('pickle'))
 import pickle
 
+def camel_case(name):
+    return name.replace("_", " ").title().replace(" ", "")
 
 vars = Variables("custom.py")
 vars.AddVariables(
@@ -57,131 +58,83 @@ vars.AddVariables(
     ("DEPTH", "", 1),
     ("SPLITTER_CLASS", "", "sample_components"),
     ("BATCHIFIER_CLASS", "", "sample_components"),
-    ("SLAVE_TRADE_PATH", "", "${DATA_PATH}/slavery"),
-    ("MAROON_PATH", "", "${DATA_PATH}/maroon_ads"),
-    ("FLUENCY_PATH", "", "${DATA_PATH}/russian_fluency"),
-    ("SENTIMENT_PATH", "", "${DATA_PATH}/stanford_sentiment_treebank"),
-    ("SMOKING_AND_VAPING_PATH", "", "${DATA_PATH}/smoking_and_vaping.txt.bz2"),
-    ("ENTERTAINING_PATH", "", "${DATA_PATH}/entertaining_america"),
-    ("DH_PATH", "", "${DATA_PATH}/documentary_hypothesis"),
-    ("ME_PATH", "", "${DATA_PATH}/middle_english"),    
-    ("AFFICHES_PATH", "", "${DATA_PATH}/affiches_americaines"),
-    ("ROYAL_INSCRIPTIONS_PATH", "", "${DATA_PATH}"),
-    ("WALS_PATH", "", "${DATA_PATH}"),
-    ("TWITTER_LID_PATH", "", "${DATA_PATH}/twitter_lid"),
-    ("WOMEN_WRITERS_PATH", "", "${DATA_PATH}"),
-    ("PARIS_TAX_ROLLS_PATH", "", "${DATA_PATH}"),
-    ("LITBANK_PATH", "", "${DATA_PATH}/litbank"),
-    ("MULTIMODAL_WIKIPEDIA_PATH", "", "${DATA_PATH}/multimodal_wikipedia"),
     ("DATA_PATH", "", ""),
     ("EXPERIMENTS", "", {}),
-    ("ELASTIC_HOST", "", "localhost"),
-    ("ELASTIC_PORT", "", 9200),
-    ("ELASTIC_USER", "", "elastic"),
-    ("ELASTIC_PASSWORD", "", ""),
-    ("KIBANA_HOST", "", "localhost"),
-    ("KIBANA_PORT", "", 5601),
-    ("KIBANA_USER", "", "elastic"),
-    ("KIBANA_PASSWORD", "", ""),
-    ("DJANGO_USER", "", "admin"),
-    ("DJANGO_PASSWORD", "", "admin"),
-    ("DJANGO_EMAIL", "", "nothing@nothing.com"),
-    BoolVariable("ELASTIC_UPLOAD", "", False),
-    ("SERVER_HOST", "", "localhost"),
-    ("SERVER_PORT", "", 8080),
+    ("LOCATION_CACHE", "", None),    
 )
-
 
 env = Environment(variables=vars, ENV=os.environ, TARFLAGS="-c -z", TARSUFFIX=".tgz",
                   tools=["default", steamroller.generate])
 
-
-env.Append(BUILDERS={"PreprocessArithmetic" : env.Builder(**env.ActionMaker("python",
-                                                                            "scripts/preprocess_arithmetic.py",
-                                                                            "--output ${TARGETS[0]} --components ${RANDOM_COMPONENTS} --minimum_constants ${MINIMUM_CONSTANTS} --maximum_constants ${MAXIMUM_CONSTANTS}")),
-                     "PreprocessTargetedSentiment" : env.Builder(**env.ActionMaker("python",
-                                                                                   "scripts/preprocess_targeted_sentiment.py",
-                                                                                   "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessMaroonAds" : env.Builder(**env.ActionMaker("python",
-                                                                           "scripts/preprocess_maroon_ads.py",
-                                                                           "${SOURCES[0]} --output ${TARGETS[0]}")),
-                     "PreprocessFluency" : env.Builder(**env.ActionMaker("python",
-                                                                         "scripts/preprocess_fluency.py",
-                                                                         "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessSmokingAndVaping" : env.Builder(**env.ActionMaker("python",
-                                                                                  "scripts/preprocess_reddit.py",
-                                                                                  "${SOURCES} --output ${TARGETS[0]}")),                     
-                     "PreprocessMiddleEnglish" : env.Builder(**env.ActionMaker("python",
-                                                                               "scripts/preprocess_middle_english.py",
-                                                                               "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessDocumentaryHypothesis" : env.Builder(**env.ActionMaker("python",
-                                                                                       "scripts/preprocess_documentary_hypothesis.py",
-                                                                                       "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessAffichesAmericaines" : env.Builder(**env.ActionMaker("python",
-                                                                                     "scripts/preprocess_affiches_americaines.py",
-                                                                                     "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessParisTaxRolls" : env.Builder(**env.ActionMaker("python",
-                                                                               "scripts/preprocess_paris_tax_rolls.py",
-                                                                               "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessEntertainingAmerica" : env.Builder(**env.ActionMaker("python",
-                                                                                     "scripts/preprocess_entertaining_america.py",
-                                                                                     "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessWomenWriters" : env.Builder(**env.ActionMaker("python",
-                                                                              "scripts/preprocess_women_writers.py",
-                                                                              "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessRoyalInscriptions" : env.Builder(**env.ActionMaker("python",
-                                                                                   "scripts/preprocess_royal_inscriptions.py",
-                                                                                   "${SOURCES} --output ${TARGETS[0]}")),
-                     "PreprocessLinguisticLid" : env.Builder(**env.ActionMaker("python",
-                                                                               "scripts/preprocess_linguistic_lid.py",
-                                                                               "--output ${TARGETS[0]} ${SOURCES}")),
-                     "PreprocessLitbank" : env.Builder(**env.ActionMaker("python",
-                                                                         "scripts/preprocess_litbank.py",
-                                                                         "--output ${TARGETS[0]} --input ${SOURCES[0]}")),
-                     "PreprocessMultimodalWikipedia" : env.Builder(**env.ActionMaker("python",
-                                                                                     "scripts/preprocess_multimodal_wikipedia.py",
-                                                                                     "--output ${TARGETS[0]} --input ${SOURCES[0]}")),
-                     "PreprocessPostAtlanticSlaveTrade" : env.Builder(**env.ActionMaker("python",
-                                                                                        "scripts/preprocess_post_atlantic_slave_trade.py",
-                                                                                        "--output ${TARGETS[0]} ${SOURCES}")),
-                     "PrepareDataset" : env.Builder(**env.ActionMaker("python",
-                                                               "scripts/prepare_dataset.py",
-                                                               "--schema_output ${TARGETS[0]} --data_output ${TARGETS[1]} --data_input ${SOURCES[0]} --schema_input ${SOURCES[1]}",
-                                                               other_deps=[])),
-                     "SplitData" : env.Builder(**env.ActionMaker("python",
-                                                                 "scripts/split_data.py",
-                                                                 "--input ${SOURCES[0]} --proportions ${PROPORTIONS} --outputs ${TARGETS} --random_seed ${RANDOM_SEED} --splitter_class ${SPLITTER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES}",
-                                                                 other_deps=[],
-                     )),
-                     "TrainModel" : env.Builder(**env.ActionMaker("python",
-                                                           "scripts/train_model.py",
-                                                           "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask ' + ' '.join(MASK) if MASK else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES}",
-                                                           other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
-                                                                       "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP"],
-                                                                  USE_GPU=env["USE_GPU"],
-                                                           )),
-                     "ApplyModel" : env.Builder(**env.ActionMaker("python",
-                                                                  "scripts/apply_model.py",
-                                                                  "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
-                     )),
-                     "UploadResults" : env.Builder(**env.ActionMaker("python",
-                                                                  "scripts/upload_results.py",
-                                                                  "--results ${SOURCES[0]} --log ${TARGETS[0]} --elastic_host ${ELASTIC_HOST} --elastic_port ${ELASTIC_PORT} --create_indices --overwrite_existing --experiment_id ${APPLY_CONFIG_ID} --experiment_name ${EXPERIMENT_NAME} --elastic_user ${ELASTIC_USER} --elastic_password ${ELASTIC_PASSWORD} --kibana_host ${KIBANA_HOST} --kibana_port ${KIBANA_PORT} --kibana_user ${KIBANA_USER} --kibana_password ${KIBANA_PASSWORD} --model ${SOURCES[1]}",
-                     )),
-                     #"ClusterEntities" : env.Builder(**env.ActionMaker("python",
-                     #                                                  "scripts/cluster_entities.py",
-                     #                                                  "--input ${SOURCES[0]} --schema ${SOURCES[1]} --output ${TARGETS[0]} --reduction ${CLUSTER_REDUCTION}")),
-                     #"InspectClusters" : env.Builder(**env.ActionMaker("python",
-                     #                                                  "scripts/inspect_clusters.py",
-                     #                                                  "--input ${SOURCES[0]} --schema ${SOURCES[1]} --output ${TARGETS[0]}")),
-                     "PlotTrace" : env.Builder(**env.ActionMaker("python",
-                                                                 "scripts/plot_trace.py",
-                                                                 "--input ${SOURCES[0]} --output ${TARGETS[0]}")),
-                     "MakeServerConfig" : env.Builder(**env.ActionMaker("python",
-                                                                        "scripts/make_server_config.py",
-                                                                        "--models ${SOURCES} --names ${NAMES} --elastic_host ${ELASTIC_HOST} --elastic_port ${ELASTIC_PORT} --elastic_user ${ELASTIC_USER} --elastic_password ${ELASTIC_PASSWORD} --host ${SERVER_HOST} --port ${SERVER_PORT} --django_user ${DJANGO_USER} --django_password ${DJANGO_PASSWORD} --django_email ${DJANGO_EMAIL} --output ${TARGETS[0]}")),
-                 },
-           tools=["default"],
+preprocessors = {}
+for exp_name, exp_spec in env["EXPERIMENTS"].items():
+    preprocessors["preprocess_{}".format(exp_name)] = env.Builder(
+        **env.ActionMaker(
+            "python",
+            "scripts/preprocess_{}.py".format(exp_name),
+            "${SOURCES} --output ${TARGETS[0]} ${'--location_cache ' if LOCATION_CACHE != None else ''} ${LOCATION_CACHE}"
+        )
+    )
+env.Append(BUILDERS=preprocessors)
+    
+env.Append(
+    BUILDERS={
+        "PrepareDataset" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/prepare_dataset.py",
+                "--schema_output ${TARGETS[0]} --data_output ${TARGETS[1]} --data_input ${SOURCES[0]} --schema_input ${SOURCES[1]}",
+                other_deps=[]
+            )
+        ),
+        "SplitData" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/split_data.py",
+                "--input ${SOURCES[0]} --proportions ${PROPORTIONS} --outputs ${TARGETS} --random_seed ${RANDOM_SEED} --splitter_class ${SPLITTER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES}",
+                other_deps=[],
+            )
+        ),
+        "TrainModel" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/train_model.py",
+                "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask ' + ' '.join(MASK) if MASK else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES}",
+                other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
+                            "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP"],
+                USE_GPU=env["USE_GPU"],
+            )
+        ),
+        "ApplyModel" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/apply_model.py",
+                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
+            )
+        ),
+        "TopicModel" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/train_topic_model.py",
+                "--data ${SOURCES[0]} --schema ${SOURCES[1]} --output ${TARGETS[0]}",
+            )
+        ),
+        "MakeTSNE" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/make_tsne.py",
+                "--schema ${SOURCES[0]} --data ${SOURCES[1]} --output ${TARGETS[0]}",
+            )
+        ),
+        "LIWC" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/apply_liwc.py",
+                "--data ${SOURCES[0]} --schema ${SOURCES[1]} --liwc ${DATA_PATH}/liwc/liwc.json --output ${TARGETS[0]}",
+            )
+        ),
+    },
+    tools=["default"],
 )
 
 
@@ -205,23 +158,38 @@ def run_experiment(env, experiment_config, **args):
     data = sum([env.Glob(env.subst(p)) for p in experiment_config.get("DATA_FILES", [])], [])
     schema = experiment_config.get("SCHEMA", None)
     title = experiment_name.replace("_", " ").title().replace(" ", "")
-    data = getattr(env, "Preprocess{}".format(title))("work/${EXPERIMENT_NAME}/data.json.gz",
-                                                      data, **args)
+    data = getattr(env, "preprocess_{}".format(experiment_name))("work/${EXPERIMENT_NAME}/data.json.gz",
+                                                                 data, **args)
+    env.Alias("data", data)
 
     # prepare the final spec and dataset
     observed_schema, dataset = env.PrepareDataset(["work/${EXPERIMENT_NAME}/schema.json.gz", "work/${EXPERIMENT_NAME}/dataset.pkl.gz"],
                                                   [data] + ([] if schema == None else [schema]),
                                                   **args)
+    env.Alias("datasets", dataset)
+
+    tm = env.TopicModel(
+        "work/${EXPERIMENT_NAME}/topic_models.json.gz",
+        [data, schema],
+        **args
+    )
+    env.Alias("topics", tm)
+
+    liwc = env.LIWC(
+        "work/${EXPERIMENT_NAME}/liwc.json.gz",
+        [data, schema],
+        **args
+    )
+    env.Alias("liwc", liwc)
     
     split_names = [n for n, _ in experiment_config.get("SPLIT_PROPORTIONS", env["SPLIT_PROPORTIONS"])]
     split_props = [p for _, p in experiment_config.get("SPLIT_PROPORTIONS", env["SPLIT_PROPORTIONS"])]    
 
     
-    train, dev, test = env.SplitData(["work/${{EXPERIMENT_NAME}}/{0}.pkl.gz".format(n) for n in split_names], 
+    train, dev, test = env.SplitData(["work/${{EXPERIMENT_NAME}}/{0}_ids.txt.gz".format(n) for n in split_names], 
                                      dataset,
                                      **experiment_config,
                                      **args, RANDOM_SEED=0, PROPORTIONS=split_props)
-
     env.Alias("splits", [train, dev, test])
     
     # expand training configurations
@@ -245,10 +213,7 @@ def run_experiment(env, experiment_config, **args):
                                       **args,
                                       **experiment_config,
                                       **config)
-        env.PlotTrace("work/${EXPERIMENT_NAME}/traceplot_${TRAIN_CONFIG_ID}.png",
-                      trace,
-                      **args
-        )
+        env.Alias("models", model)
         for apply_config in apply_configs:
             config.update(apply_config)
             args["APPLY_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
@@ -257,21 +222,14 @@ def run_experiment(env, experiment_config, **args):
                                     **args,
                                     **experiment_config,
                                     **config)
-            if env["ELASTIC_UPLOAD"] == True:
-                upload = env.UploadResults("work/${EXPERIMENT_NAME}/${FOLD}/upload_${APPLY_CONFIG_ID}.txt",
-                                           [output, model],
-                                           **args,
-                                           **experiment_config,
-                                           **config)
-            #continue            
-            #clusters = env.ClusterEntities("work/${EXPERIMENT_NAME}/${FOLD}/clusters_${APPLY_CONFIG_ID}.json.gz",
-            #                               [output, schema],
-            #                               **args,
-            #                               **config)
-            #inspect_clusters = env.InspectClusters("work/${EXPERIMENT_NAME}/${FOLD}/inspect_clusters_${APPLY_CONFIG_ID}.txt",
-            #                                       [clusters, observed_schema],
-            #                                       **args,
-            #                                       **config)
+            env.Alias("outputs", output)
+
+            tsne = env.MakeTSNE("work/${EXPERIMENT_NAME}/${FOLD}/tsne_${APPLY_CONFIG_ID}.json.gz",
+                                [schema, output],
+                                **args,
+                                **experiment_config,
+                                **config)
+            env.Alias("tsne", tsne)
     return model
 
 
@@ -286,4 +244,3 @@ names = []
 for experiment_name, experiment_config in env["EXPERIMENTS"].items():
     names.append(experiment_name)
     models.append(env.RunExperiment(experiment_config, EXPERIMENT_NAME=experiment_name))
-env.MakeServerConfig("work/server_config.json", models, NAMES=names)

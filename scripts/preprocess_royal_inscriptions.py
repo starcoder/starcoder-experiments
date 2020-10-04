@@ -11,7 +11,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="inputs", nargs="+", help="Input files")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
-    args = parser.parse_args()
+    args, rest = parser.parse_known_args()
 
     entities = {}
     with tarfile.open(args.inputs[0], "r:gz") as ifd:
@@ -25,10 +25,10 @@ if __name__ == "__main__":
                 text_id = "text_{}_{}_{}_{}".format(period, dynasty, ruler, text_num)
                 witness_id = "witness_{}_{}_{}_{}_{}".format(period, dynasty, ruler, text_num, wit)
                 content = ifd.extractfile(mem).read().decode("utf-8")
-                entities[period_id] = {"entity_type" : "period"}
-                entities[dynasty_id] = {"entity_type" : "dynasty", "from_period" : period_id}
-                entities[ruler_id] = {"entity_type" : "ruler", "from_dynasty" : dynasty_id}
-                entities[text_id] = {"entity_type" : "text", "for_ruler" : ruler_id}
+                entities[period_id] = {"entity_type" : "period", "period_name" : period_id}
+                entities[dynasty_id] = {"entity_type" : "dynasty", "from_period" : period_id, "dynasty_name" : dynasty_id}
+                entities[ruler_id] = {"entity_type" : "ruler", "from_dynasty" : dynasty_id, "ruler_name" : ruler_id}
+                entities[text_id] = {"entity_type" : "text", "for_ruler" : ruler_id, "text_name" : text_id}
                 entities[witness_id] = {"entity_type" : "witness", "witness_of" : text_id, "content" : content}
 
     with gzip.open(args.output, "wt") as ofd:

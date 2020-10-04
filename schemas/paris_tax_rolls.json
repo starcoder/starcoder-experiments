@@ -1,26 +1,63 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },    
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Paris Tax Rolls",
+	"owners" : ["Nathan Daniels"],
+	"description" : "Tax records from Medieval Paris."
     },
     "data_fields" : {
-	"year" : {"type" : "numeric"},
+	"year" : {"type" : "date", "format" : "%Y"},
 	"amount" : {"type" : "numeric"},
 	"parish_name" : {"type" : "categorical"},
 	"street_name" : {"type" : "categorical"},
+	"street_coordinates" : {"type" : "place"},
 	"role_name" : {"type" : "categorical"},
 	"role_type" : {"type" : "categorical"},
-	"person_name" : {"type" : "categorical"},
+	"person_name" : {"type" : "text"},
 	"currency" : {"type" : "categorical"},
 	"status" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"tax_roll" : {"data_fields" : ["year"]},
-	"parish" : {"data_fields" : ["parish_name"]},
-	"street" : {"data_fields" : ["street_name"]},
-	"role" : {"data_fields" : ["role_type", "role_name"]},
-	"person" : {"data_fields" : ["person_name"]},
-	"debt" : {"data_fields" : ["amount", "currency", "status"]}
+	"tax_roll" : {
+	    "data_fields" : ["year"],
+	    "meta" : {
+		"display" : "{0.year}"
+	    }	    
+	},
+	"parish" : {
+	    "data_fields" : ["parish_name"],
+	    "meta" : {
+		"display" : "{0.parish_name}"
+	    }	    
+	},
+	"street" : {
+	    "data_fields" : ["street_name", "street_coordinates"],
+	    "meta" : {
+		"display" : "{0.street_name}"
+	    }	    
+	},
+	"role" : {
+	    "data_fields" : ["role_type", "role_name"],
+	    "meta" : {
+		"display" : "{0.role_name}"
+	    }
+	},
+	"person" : {
+	    "data_fields" : ["person_name"],
+	    "meta" : {
+		"display" : "{0.person_name}"
+	    }	    
+	},
+	"debt" : {
+	    "data_fields" : ["amount", "currency", "status"],
+	    "meta" : {
+		"display" : "{0.amount} {0.currency}"
+	    }	    
+	}
     },
     "relationship_fields" : {
 	"recorded_in" : {

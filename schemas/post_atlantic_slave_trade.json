@@ -1,70 +1,144 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Post-Atlantic Slave Trade",
+	"owners" : ["Jennie Williams"],
+	"description" : "Records of transport and escape notices of slaves in the mid-Atlantic region, after the United States outlawed the international trade."
     },
     "data_fields" : {
 	"notice_party_size" : {"type" : "numeric"},
-	"notice_event_date" : {"type" : "numeric"},
+	"notice_event_date" : {"type" : "date", "format" : "%d-%b-%Y"},
 	"notice_reward_amount" : {"type" : "numeric"},
 	"notice_reward_currency" : {"type" : "categorical"},
 	"notice_capture_location" : {"type" : "categorical"},
+	"notice_capture_location_coordinates" : {"type" : "place"},
 	"notice_headed_for_baltimore" : {"type" : "categorical"},
 	"notice_family_in_baltimore" : {"type" : "categorical"},
 	"notice_note" : {"type" : "text"},
 	"notice_justification" : {"type" : "text"},
 	"notice_clothing" : {"type" : "text"},
-	"notice_date" : {"type" : "numeric"},
-	"voyage_manifest_date" : {"type" : "numeric"},
+	"notice_date" : {"type" : "date", "format" : "%d-%b-%Y"},
+	"voyage_manifest_date" : {"type" : "date", "format" : "%d-%b-%Y"},
 	"voyage_manifest_count" : {"type" : "numeric"},
-	"voyage_arrival_date" : {"type" : "numeric"},
-	"voyage_departure_date" : {"type" : "numeric"},
+	"voyage_arrival_date" : {"type" : "date", "format" : "%d-%b-%Y"},
+	"voyage_departure_date" : {"type" : "date", "format" : "%d-%b-%Y"},
 	"voyage_duration" : {"type" : "numeric"},
-	"voyage_arrival_location" : {"type" : "categorical"},	
+	"voyage_arrival_location" : {"type" : "categorical"},
+	"voyage_arrival_location_coordinates" : {"type" : "place"},
 	"voyage_count" : {"type" : "numeric"},
 	"voyage_departure_location" : {"type" : "categorical"},
+	"voyage_departure_location_coordinates" : {"type" : "place"},
 	"slave_race" : {"type" : "categorical"},
 	"slave_type" : {"type" : "categorical"},
-	"slave_name" : {"type" : "categorical"},
-	"slave_alias" : {"type" : "categorical"},
+	"slave_name" : {"type" : "text"},
+	"slave_alias" : {"type" : "text"},
 	"slave_sex" : {"type" : "categorical"},
 	"slave_age" : {"type" : "numeric"},
 	"slave_owner_count" : {"type" : "numeric"},
 	"slave_height" : {"type" : "numeric"},
-	"owner_name" : {"type" : "categorical"},
+	"owner_name" : {"type" : "text"},
 	"owner_sex" : {"type" : "categorical"},
 	"owner_location" : {"type" : "categorical"},
-	"shipper_name" : {"type" : "categorical"},
+	"owner_location_coordinates" : {"type" : "place"},
+	"shipper_name" : {"type" : "text"},
 	"shipper_location" : {"type" : "categorical"},
-	"captain_name" : {"type" : "categorical"},
+	"shipper_location_coordinates" : {"type" : "place"},
+	"captain_name" : {"type" : "text"},
 	"source_file" : {"type" : "categorical"},
 	"source_row" : {"type" : "categorical"},
 	"source_sheet" : {"type" : "categorical"},	
-	"consignor_name" : {"type" : "categorical"},
+	"consignor_name" : {"type" : "text"},
 	"consignor_location" : {"type" : "categorical"},
+	"consignor_location_coordinates" : {"type" : "place"},
 	"vessel_tonnage" : {"type" : "numeric"},
 	"vessel_type" : {"type" : "categorical"},
 	"vessel_name" : {"type" : "categorical"},
 	"vessel_location" : {"type" : "categorical"},
+	"vessel_location_coordinates" : {"type" : "place"},
 	"gazette_name" : {"type" : "categorical"},
 	"author_type" : {"type" : "categorical"},
-	"author_name" : {"type" : "categorical"},
+	"author_name" : {"type" : "text"},
 	"jail_state" : {"type" : "categorical"},
+	"jail_state_coordinates" : {"type" : "place"},
 	"jail_name" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"notice" : {"data_fields" : []},
-	"voyage" : {"data_fields" : ["voyage_departure_location", "voyage_count", "voyage_manifest_date"]},
-	"slave" : {"data_fields" : ["slave_sex", "slave_age", "slave_name"]},
-	"owner" : {"data_fields" : ["owner_name", "owner_location"]},
-	"shipper" : {"data_fields" : ["shipper_location", "shipper_name"]},
-	"captain" : {"data_fields" : ["captain_name"]},
-	"source" : {"data_fields" : ["source_file", "source_sheet", "source_row"]},
-	"consignor" : {"data_fields" : ["consignor_name", "consignor_location"]},
-	"vessel" : {"data_fields" : ["vessel_type", "vessel_name", "vessel_tonnage"]},
-	"gazette" : {"data_fields" : ["gazette_name"]},
-	"author" : {"data_fields" : ["author_type", "author_name"]},
-	"jail" : {"data_fields" : ["jail_name"]}
+	"notice" : {
+	    "data_fields" : ["notice_reward_amount", "notice_party_size", "notice_event_date", "notice_reward_currency", "notice_capture_location", "notice_capture_location_coordinates", "notice_family_in_baltimore", "notice_headed_for_baltimore", "notice_note", "notice_justification", "notice_date", "notice_clothing"],
+	    "meta" : {
+		"display" : "{0.id}"
+	    }
+	},
+	"voyage" : {
+	    "data_fields" : ["voyage_departure_location", "voyage_departure_location_coordinates", "voyage_count", "voyage_manifest_date", "voyage_arrival_date", "voyage_arrival_location", "voyage_arrival_location_coordinates", "voyage_manifest_count", "voyage_departure_date", "voyage_duration"],
+	    "meta" : {
+		"display" : "{0.id}"
+	    }
+	},
+	"slave" : {
+	    "data_fields" : ["slave_sex", "slave_age", "slave_name", "slave_race", "slave_owner_count", "slave_height", "slave_type", "slave_alias"],
+	    "meta" : {
+		"display" : "{0.slave_name}"
+	    }
+	},
+	"owner" : {
+	    "data_fields" : ["owner_name", "owner_location", "owner_location_coordinates", "owner_sex"],
+	    "meta" : {
+		"display" : "{0.owner_name}"
+	    }
+	},
+	"shipper" : {
+	    "data_fields" : ["shipper_location", "shipper_location_coordinates", "shipper_name"],
+	    "meta" : {
+		"display" : "{0.shipper_name}"
+	    }
+	},
+	"captain" : {
+	    "data_fields" : ["captain_name"],
+	    "meta" : {
+		"display" : "{0.captain_name}"
+	    }
+	},
+	"source" : {
+	    "data_fields" : ["source_file", "source_sheet", "source_row"],
+	    "meta" : {
+		"display" : "{0.source_file}"
+	    }
+	},
+	"consignor" : {
+	    "data_fields" : ["consignor_name", "consignor_location", "consignor_location_coordinates"],
+	    "meta" : {
+		"display" : "{0.consignor_name}"
+	    }
+	},
+	"vessel" : {
+	    "data_fields" : ["vessel_type", "vessel_name", "vessel_tonnage", "vessel_location", "vessel_location_coordinates"],
+	    "meta" : {
+		"display" : "{0.vessel_name}"
+	    }
+	},
+	"gazette" : {
+	    "data_fields" : ["gazette_name"],
+	    "meta" : {
+		"display" : "{0.gazette_name}"
+	    }
+	},
+	"author" : {
+	    "data_fields" : ["author_type", "author_name"],
+	    "meta" : {
+		"display" : "{0.author_name}"
+	    }
+	},
+	"jail" : {
+	    "data_fields" : ["jail_name", "jail_state", "jail_state_coordinates"],
+	    "meta" : {
+		"display" : "{0.jail_name}"
+	    }
+	}
     },
     "relationship_fields" : {
 	"voyage_recorded_in_entry" : {

@@ -4,22 +4,41 @@
     },
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Affiches Americaines",
+	"owners" : ["Gregory Smaldone"],
+	"description" : "Product price data from French New World colonies of the 18th century."
     },
     "data_fields" : {
 	"product_name" : {"type" : "categorical"},
 	"product_description" : {"type" : "text"},
 	"city_name" : {"type" : "categorical"},
-	"date" : {"type" : "numeric"},
+	"city_coordinates" : {"type" : "place"},
+	"date" : {"type" : "date", "format" : "%d-%b-%Y"},
 	"price_low" : {"type" : "numeric"},
 	"price_high" : {"type" : "numeric"},
 	"availability" : {"type" : "categorical"},
 	"qualifier" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"city" : {"data_fields" : ["city_name"]},
-	"product" : {"data_fields" : ["product_name", "product_description"]},
-	"listing" : {"data_fields" : ["date", "price_low", "price_high", "availability", "qualifier"]}
+	"city" : {
+	    "data_fields" : ["city_name", "city_coordinates"],
+	    "meta" : {
+		"display" : "{0.city_name}"
+	    }
+	},
+	"product" : {
+	    "data_fields" : ["product_name", "product_description"],
+	    "meta" : {
+		"display" : "{0.product_name}"
+	    }	    
+	},
+	"listing" : {
+	    "data_fields" : ["date", "price_low", "price_high", "availability", "qualifier"],
+	    "meta" : {
+		"display" : "{0.date}"
+	    }	    
+	}
     },
     "relationship_fields" : {
 	"price_for" : {

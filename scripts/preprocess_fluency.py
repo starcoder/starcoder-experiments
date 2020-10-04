@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser.add_argument(nargs="+", dest="inputs", help="Input files")    
     parser.add_argument("-s", "--schema", dest="schema", help="Schema file")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
-    args = parser.parse_args()
+    args, rest = parser.parse_known_args()
 
     all_fluencies = set()
     count = 0
@@ -56,9 +56,10 @@ if __name__ == "__main__":
                                 }
                     for eid, entity in entities.items():
                         entity["id"] = eid
-                        for f in all_fluencies:
-                            if f not in entity:
-                                entity[f] = "false"
+                        if entity["entity_type"] == "user":
+                            for f in all_fluencies:
+                                if f not in entity:
+                                    entity[f] = "false"
                         try:
                             ofd.write(json.dumps(entity) + "\n")
                         except Exception as e:

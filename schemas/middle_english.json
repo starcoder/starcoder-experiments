@@ -1,19 +1,48 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },    
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Middle English Scansion",
+	"owners" : ["Chris Cannon"],
+	"description" : "The Canterbury Tales with scansion and grammatical information."
     },
     "data_fields" : {
+	"book_name" : {"type" : "categorical"},
+	"section_name" : {"type" : "categorical"},
+	"line_name" : {"type" : "categorical"},
 	"token" : {"type" : "text"},
-	"lemma" : {"type" : "text"},
+	"lemma" : {"type" : "categorical"},
 	"tagging" : {"type" : "categorical"},
 	"stress" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"book" : {"data_fields" : []},
-	"section" : {"data_fields" : []},
-	"line" : {"data_fields" : []},
-	"word" : {"data_fields" : ["token", "lemma", "tagging", "stress"]}
+	"book" : {
+	    "data_fields" : ["book_name"],
+	    "meta" : {
+		"display" : "{0.book_name}"
+	    }	    
+	},
+	"section" : {
+	    "data_fields" : ["section_name"],
+	    "meta" : {
+		"display" : "{0.section_name}"
+	    }	    
+	},
+	"line" : {
+	    "data_fields" : ["line_name"],
+	    "meta" : {
+		"display" : "{0.line_name}"
+	    }	    
+	},
+	"word" : {
+	    "data_fields" : ["token", "lemma", "tagging", "stress"],
+	    "meta" : {
+		"display" : "{0.token}"
+	    }	    
+	}
     },
     "relationship_fields" : {
 	"word_from" : {

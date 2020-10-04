@@ -29,7 +29,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="inputs", nargs="+", help="Input files")
     parser.add_argument("--output", dest="output", help="Output file")
-    args = parser.parse_args()
+    args, rest = parser.parse_known_args()
 
     trees = []
     for fname in args.inputs:

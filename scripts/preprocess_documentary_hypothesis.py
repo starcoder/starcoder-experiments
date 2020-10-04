@@ -9,7 +9,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="inputs", nargs="+", help="Input files")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
-    args = parser.parse_args()
+    args, rest = parser.parse_known_args()
 
     source_lookup = {}
     entities = {"tanach" : {"entity_type" : "document", "document_name" : "tanach"}}
@@ -41,7 +41,7 @@ if __name__ == "__main__":
                         if "s" in verse.attrib:
                             source_name = verse.attrib["s"]
                             source_id = "source_{}".format(source_name)
-                            entities[source_id] = {"entity_type" : "source", "source_description" : source_lookup[source_name]}
+                            entities[source_id] = {"entity_type" : "source", "source_name" : source_lookup[source_name]}
                             entities[verse_id]["from_source"] = source_id
 
     with gzip.open(args.output, "wt") as ofd:

@@ -1,7 +1,13 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Targeted Sentiment Analysis",
+	"owners" : [],
+	"description" : "Parse trees of IMDB reviews with nodes annotated according to sentiment."
     },
     "data_fields" : {
 	"sentiment" : {"type" : "numeric"},
@@ -9,8 +15,18 @@
 	"split" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"node" : {"data_fields" : ["sentiment"]},
-	"word" : {"data_fields" : ["text"]}
+	"node" : {
+	    "data_fields" : ["sentiment", "split"],
+	    "meta" : {
+		"display" : "{0.sentiment}"
+	    }
+	},
+	"word" : {
+	    "data_fields" : ["text", "split"],
+	    "meta" : {
+		"display" : "{0.text}"
+	    }
+	}
     },
     "relationship_fields" : {
 	"child_of" : {

@@ -1,10 +1,16 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },    
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Documentary Hypothesis",
+	"description" : "The oldest known full manuscript of the Hebrew bible, annotated according to (a version of) the compositional theory of Julius Wellhausen.",
+	"owners" : []
     },
     "data_fields" : {
-	"source_description" : {"type" : "categorical"},
+	"source_name" : {"type" : "categorical"},
 	"document_name" : {"type" : "categorical"},
 	"book_name" : {"type" : "categorical"},
 	"chapter_number" : {"type" : "numeric"},
@@ -12,11 +18,36 @@
 	"words" : {"type" : "text"}
     },
     "entity_types" : {
-	"source" : {"data_fields" : ["source_description"]},
-	"document" : {"data_fields" : ["document_name"]},
-	"book" : {"data_fields" : ["book_name"]},
-	"chapter" : {"data_fields" : ["chapter_number"]},
-	"verse" : {"data_fields" : ["verse_number", "words"]}
+	"source" : {
+	    "data_fields" : ["source_name"],
+	    "meta" : {
+		"display" : "{0.source_name}"
+	    }
+	},
+	"document" : {
+	    "data_fields" : ["document_name"],
+	    "meta" : {
+		"display" : "{0.document_name}"
+	    }
+	},
+	"book" : {
+	    "data_fields" : ["book_name"],
+	    "meta" : {
+		"display" : "{0.book_name}"
+	    }
+	},
+	"chapter" : {
+	    "data_fields" : ["chapter_number"],
+	    "meta" : {
+		"display" : "{0.chapter_name}"
+	    }
+	},
+	"verse" : {
+	    "data_fields" : ["verse_number", "words"],
+	    "meta" : {
+		"display" : "{0.verse_number}"
+	    }
+	}
     },
     "relationship_fields" : {
 	"from_document" : {

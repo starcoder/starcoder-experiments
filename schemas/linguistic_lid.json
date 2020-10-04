@@ -1,7 +1,13 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },    
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Linguistically-informed Language Identification",
+	"owners" : [],
+	"description" : "Language identification of Twitter data using the WALS hierarchy."
     },
     "data_fields" : {
 	"tweet_language" : {"type" : "categorical"},
@@ -12,11 +18,36 @@
 	"macroarea_name" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"tweet" : {"data_fields" : ["tweet_language", "tweet_text"]},
-	"language" : {"data_fields" : ["language_name"]},
-	"genus" : {"data_fields" : ["genus_name"]},
-	"family" : {"data_fields" : ["family_name"]},
-	"macroarea" : {"data_fields" : ["macroarea_name"]}
+	"tweet" : {
+	    "data_fields" : ["tweet_language", "tweet_text"],
+	    "meta" : {
+		"display" : "{0.tweet_text}"
+	    }	    
+	},
+	"language" : {
+	    "data_fields" : ["language_name"],
+	    "meta" : {
+		"display" : "{0.language_name}"
+	    }	    
+	},
+	"genus" : {
+	    "data_fields" : ["genus_name"],
+	    "meta" : {
+		"display" : "{0.genus_name}"
+	    }	    
+	},
+	"family" : {
+	    "data_fields" : ["family_name"],
+	    "meta" : {
+		"display" : "{0.family_name}"
+	    }	    
+	},
+	"macroarea" : {
+	    "data_fields" : ["macroarea_name"],
+	    "meta" : {
+		"display" : "{0.macroarea_name}"
+	    }	    
+	}
     },
     "relationship_fields" : {
 	"written_in" : {

@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="inputs", nargs="+", help="Input files")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
-    args = parser.parse_args()
+    args, rest = parser.parse_known_args()
 
     same_stress, total_stress = 0, 0
     corrections = {}
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # these are the lines that have been annotated
     training_offsets = list(range(859)) + list(range(17452, 18300))
     all_offsets = list(range(25000))
-    entities = {"canterbury" : {"entity_type" : "book"}}
+    entities = {"canterbury" : {"entity_type" : "book", "book_name" : "canterbury"}}
     section_counts = {}
     for offset in all_offsets:
         filename, section, _, _ = data.iloc[offset * 4, 0:4]
@@ -36,8 +36,10 @@ if __name__ == "__main__":
         item = data.iloc[offset * 4 : (offset + 1) * 4, 4:].T
         line_id = "canterbury_{}_{}".format(section, line_num)
         entities[section] = {"entity_type" : "section",
+                             "section_name" : section,
                              "section_from" : "canterbury"}
-        entities[line_id] = {"entity_type" : "line",                                 
+        entities[line_id] = {"entity_type" : "line",
+                             "line_name" : line_id,
                              "line_from" : section}
         c = list(item.columns)[0]
         trimmed = item[item[c].replace({float("NaN"): False}) != False]

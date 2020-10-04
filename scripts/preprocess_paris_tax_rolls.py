@@ -5,13 +5,17 @@ import re
 import gzip
 import json
 import xml.etree.ElementTree as et
+from geocoding import Geocoder
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="inputs", nargs="+", help="Input files")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
-    args = parser.parse_args()
+    parser.add_argument("--location_cache", dest="location_cache", help="")
+    args, rest = parser.parse_known_args()
+
+    geocoder = Geocoder(args.location_cache)
 
     # div-parish div-street list-payers
     # persName roleName payment status
@@ -21,7 +25,7 @@ if __name__ == "__main__":
     with tarfile.open(args.inputs[0], "r:gz") as ifd:
         for mem in ifd.getmembers():
             if mem.isfile() and re.match(r".*taxroll_\d+\.xml$", mem.name):
-                year = int(os.path.splitext(mem.name)[0].split("_")[-1])
+                year = os.path.splitext(mem.name)[0].split("_")[-1]
                 content = ifd.extractfile(mem)
                 roll_id = "year_{}".format(year)
                 entities[roll_id] = {"entity_type" : "tax_roll", "year" : year}
@@ -30,8 +34,16 @@ if __name__ == "__main__":
                     parish_id = parish.find("{0}div/{0}head/{0}rs".format(ns)).attrib["ref"]
                     entities[parish_id] = {"entity_type" : "parish", "parish_name" : parish_id}
                     for street in parish.findall(".//{}div[@type='street']".format(ns)):
-                        street_id = street.find("{0}head/{0}rs".format(ns)).attrib["ref"]
-                        entities[street_id] = {"entity_type" : "street", "street_name" : street_id}
+                        street_id = street.find("{0}head/{0}rs".format(ns)).attrib["ref"].split(" ")[0]
+                        street_name = " ".join(street_id.split("_")[1:])
+                        entities[street_id] = {"entity_type" : "street", "street_name" : street_name}
+                        g = None
+                        while g == None:
+                            try:
+                                g = geocoder("{}, Paris, France".format(street_name))
+                            except:
+                                g = None
+                        entities[street_id]["street_coordinates"] = g #{"latitude" : g.latitude, "longitude" : g.longitude}
                         for payers in street.findall(".//{}list[@type='payers']".format(ns)):
                             for item in payers.findall(".//{}item".format(ns)):
                                 payer = item.find(".//{0}seg[@type='entry']/{0}persName".format(ns))

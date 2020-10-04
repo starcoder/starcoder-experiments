@@ -1,7 +1,13 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Women Writers Project",
+	"owners" : [],
+	"description" : "Long-form writing from English-language authors from the past several hundred years."
     },
     "data_fields" : {
 	"author_name" : {"type" : "categorical"},
@@ -11,10 +17,30 @@
 	"subsection_text" : {"type" : "text"}
     },
     "entity_types" : {
-	"author" : {"data_fields" : ["author_name"]},
-	"document" : {"data_fields" : ["document_title"]},
-	"section" : {"data_fields" : ["section_name"]},
-	"subsection" : {"data_fields" : ["subsection_text", "subsection_type", "author_name"]}
+	"author" : {
+	    "data_fields" : ["author_name"],
+	    "meta" : {
+		"display" : "{0.author_name}"
+	    }
+	},
+	"document" : {
+	    "data_fields" : ["document_title"],
+	    "meta" : {
+		"display" : "{0.document_title}"
+	    }
+	},
+	"section" : {
+	    "data_fields" : ["section_name"],
+	    "meta" : {
+		"display" : "{0.section_name}"
+	    }
+	},
+	"subsection" : {
+	    "data_fields" : ["subsection_text", "subsection_type", "author_name"],
+	    "meta" : {
+		"display" : "{0.author_name}"
+	    }
+	}
     },
     "relationship_fields" : {
 	"written_by" : {

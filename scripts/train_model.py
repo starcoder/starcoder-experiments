@@ -1,10 +1,11 @@
+import tracemalloc
 import pickle
 import re
 import gzip
 import sys
 import argparse
 import json
-import random
+#import random
 import logging
 import warnings
 import numpy
@@ -18,9 +19,11 @@ from starcoder.dataset import Dataset
 from starcoder.schema import Schema
 from starcoder.batchifier import Batchifier
 from starcoder.field import CategoricalField
+from starcoder.random import random
 from torch.autograd import set_detect_anomaly
 set_detect_anomaly(True)
 from typing import Dict, List, Any, Tuple
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -40,31 +43,18 @@ def compute_losses(model: GraphAutoencoder,
     Gather and return all the field losses as a nested dictionary where the first
     level of keys are field types, and the second level are field names.
     """
-    #print({k : v.shape for k, v in entities.items()},
-    #print(entities.keys())
-    #print(reconstructions["node"].keys())
-    #print({k : v.shape for k, v in reconstructions.items()})
     losses = {}
     for field_name, field_values in entities.items():
         if field_name in schema.data_fields and field_name in reconstructions:
             field = schema.data_fields[field_name]
             logger.debug("Computing losses for field %s of type %s", field.name, field.type_name)
-            #field_type = type(schema.data_fields[field_name])
             reconstruction_values = reconstructions[field.name]
-            #losses[field] = losses.get(field, {})
-            #print("****" + field_name)
-            #print(reconstruction_values)
-            #print(field_values)
             field_losses = model.field_losses[field.name](reconstruction_values, field_values)
-            #field_model_classes[field_type][2](reconstruction_values, field_values)
-            #print(field_losses)
             mask = ~torch.isnan(field_losses)
-            #print(mask)
-            #print(torch.masked_select(field_losses, mask))
             losses[field] = torch.masked_select(field_losses, mask)
     return losses
 
-
+import gc
 def run_over_components(model: GraphAutoencoder,
                         batchifier: Batchifier,
                         optim: Optimizer,
@@ -76,12 +66,15 @@ def run_over_components(model: GraphAutoencoder,
                         subselect: bool=False,
                         strict: bool=True,
                         mask_tests: Any=[]) -> Tuple[Any, Dict[Any, Any]]:
+    #tracemalloc.start()
+    #start = tracemalloc.take_snapshot()
+    #before = len(gc.get_objects())
     old_mode = model.training
     model.train(train)
     loss_by_field: Dict[str, Any] = {}
-    loss = 0.0
+    loss = 0.0    
     for batch_num, (full_entities, full_adjacencies) in enumerate(batchifier(data, batch_size)):
-        logger.debug("Processing batch #%d", batch_num)
+        logger.debug("Processing batch #%d", batch_num + 1)
         batch_loss_by_field = {}
         if gpu:
             full_entities = {k : v.cuda() if hasattr(v, "cuda") else v for k, v in full_entities.items()}
@@ -92,7 +85,7 @@ def run_over_components(model: GraphAutoencoder,
             if losses.shape[0] > 0:
                 batch_loss_by_field[field] = losses
         batch_loss = loss_policy(batch_loss_by_field)
-        loss += batch_loss
+        loss += batch_loss.detach()
         if train:            
             batch_loss.backward()
             optim.step()
@@ -100,6 +93,14 @@ def run_over_components(model: GraphAutoencoder,
             loss_by_field[field] = loss_by_field.get(field, [])
             loss_by_field[field].append(v.clone().detach())
     model.train(old_mode)
+    #end = tracemalloc.take_snapshot()
+    #after = len(gc.get_objects())
+    #print([x for x in after if x not in before])
+    #diffs = end.compare_to(start, "lineno")
+    #for diff in diffs[:10]:
+    #    print(diff)
+    #print(after - before)
+    #sys.exit()
     return (loss, loss_by_field)
 
 
@@ -205,7 +206,8 @@ if __name__ == "__main__":
         torch.backends.cudnn.deterministic = True # type: ignore
         torch.backends.cudnn.benchmark = False # type: ignore
         numpy.random.seed(args.random_seed)
-
+        #starcoder.random.seed(args.random_seed)
+        #os.environ['PYTHONHASHSEED'] = str(args.random_seed)
     with gzip.open(args.data, "rb") as ifd:
         data = pickle.load(ifd) # type: ignore
         
@@ -213,11 +215,11 @@ if __name__ == "__main__":
     logger.info("Dataset has schema: %s", data.schema)
 
     with gzip.open(args.train, "rt") as ifd:
-        train_ids = [x.strip() for x in ifd]
+        train_ids = [x[:-1] for x in ifd]
         #pickle.load(ifd) # type: ignore
 
     with gzip.open(args.dev, "rt") as ifd:
-        dev_ids = [x.strip() for x in ifd]
+        dev_ids = [x[:-1] for x in ifd]
         #dev_ids = pickle.load(ifd) # type: ignore
         
     train_data = data.subselect_entities(train_ids)
@@ -236,7 +238,7 @@ if __name__ == "__main__":
                                  depth=args.depth,
                                  autoencoder_shapes=args.autoencoder_shapes,
                                  reverse_relationships=True,
-        )
+        )        
         if args.gpu:
             model.cuda()
             logger.info("CUDA memory allocated/cached: %.3fg/%.3fg", 
@@ -244,6 +246,7 @@ if __name__ == "__main__":
             
         logger.info("Model: %s", model)
         logger.info("Model has %d parameters", model.parameter_count)
+
         model.init_weights()
         optim: Optimizer
         if args.momentum != None:

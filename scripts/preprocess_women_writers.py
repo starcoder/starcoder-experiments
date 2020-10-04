@@ -12,7 +12,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="inputs", nargs="+", help="Input files")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
-    args = parser.parse_args()
+    args, rest = parser.parse_known_args()
 
     entities = {}
     ns = "{http://www.wwp.northeastern.edu/ns/textbase}"
@@ -23,6 +23,8 @@ if __name__ == "__main__":
                 xml = et.parse(content)
                 author = xml.find(".//{0}titleStmt/{0}author/{0}persName".format(ns)).text
                 title = xml.find(".//{0}title[@type='main']".format(ns)).text
+                #publisher
+                year = xml.find(".//{0}imprint/{0}date")
                 entities[author] = {"entity_type" : "author", "author_name" : author}
                 entities[title] = {"entity_type" : "document", "document_title" : title} #, "written_by" : author}
                 for text in xml.findall(".//{0}text".format(ns)):

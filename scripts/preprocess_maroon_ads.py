@@ -4,6 +4,7 @@ import csv
 import sys
 import gzip
 import logging
+from geocoding import Geocoder
 
 mapping = {"Date" : "notice_date",
            "City" : "city_name",
@@ -36,8 +37,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="inputs", nargs="+", help="Input files")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
-    args = parser.parse_args()
+    parser.add_argument("--location_cache", dest="location_cache", help="")
+    args, rest = parser.parse_known_args()
 
+    geocoder = Geocoder(args.location_cache)
+    
     csv.field_size_limit(sys.maxsize)
 
     seen_cities = set()
@@ -48,7 +52,7 @@ if __name__ == "__main__":
                 entities = {t : {"entity_type" : t, "id" : "row_{}_{}".format(r, t)} for t in ["notice", "city", "slave", "owner"]}
                 for k, v in mapping.items():
                     entity_type = v.split("_")[0]
-                    if row[k] != "":
+                    if row[k] != "" and row[k] != "Tuesday, December 01, 2020":
                         try:
                             entities[entity_type][v] = float(row[k]) if v in numeric_fields else row[k]
                         except Exception as e:                            
@@ -61,6 +65,17 @@ if __name__ == "__main__":
                 entities["owner"]["submitted"] = entities["notice"]["id"]
                 entities["slave"]["reported_in"] = entities["notice"]["id"]
                 if "city_name" in entities["city"]:
+                    g = geocoder(entities["city"]["city_name"])
+                    if g != None:
+                        entities["city"]["city_coordinates"] = g
+                    #g = None
+                    #while g == None:
+                    #    try:
+                    #        g = geocoder.geocode("{}".format(row["city_name"]))
+                    #    except:
+                    #        g = None
+                    #        print(row["city_name"])
+                    #cities[city_id]["city_coordinates"] = {"latitude" : g.latitude, "longitude" : g.longitude}
                     entities["city"]["id"] = entities["city"]["city_name"]
                     entities["notice"]["posted_in"] = entities["city"]["id"]
                     if entities["city"]["id"] in seen_cities:

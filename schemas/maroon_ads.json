@@ -1,16 +1,23 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Marronage",
+	"owners" : ["Gregory Smaldone"],
+	"description" : "Records of escaped slaves in New World colonies."
     },
     "data_fields" : {
 	"notice_time_escaped_is_approximate" : {"type" : "categorical"},
 	"notice_time_escaped" : {"type" : "text"},
 	"notice_escape_group_size" : {"type" : "numeric"},
 	"notice_reward" : {"type" : "numeric"},
-	"notice_date" : {"type" : "text"},
-	"notice_time_escaped" : {"type" : "text"},
+	"notice_date" : {"type" : "date", "format" : ["%d-%b-%Y", "%d-%b%Y"]},
+	"time_escaped" : {"type" : "text"},
 	"city_name" : {"type" : "categorical"},
+	"city_coordinates" : {"type" : "place"},
 	"slave_name" : {"type" : "categorical"},
 	"slave_race" : {"type" : "categorical"},
 	"slave_race_category" : {"type" : "categorical"},
@@ -25,14 +32,34 @@
 	"owner_profession" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"slave" : {"data_fields" : ["slave_name", "slave_race", "slave_race_category",
-				    "slave_gender", "slave_age_is_approximate",
-				    "slave_height_is_approximate", "slave_has_known_associates",
-				    "slave_profession", "slave_age", "slave_height"]},				    
-	"notice" : {"data_fields" : ["time_escaped_is_approximate", "time_escaped",
-				     "escape_group_size", "reward", "notice_date"]},
-	"city" : {"data_fields" : ["city_name"]},
-	"owner" : {"data_fields" : ["owner_name", "owner_profession"]}
+	"slave" : {
+	    "data_fields" : ["slave_name", "slave_race", "slave_race_category",
+			     "slave_gender", "slave_age_is_approximate",
+			     "slave_height_is_approximate", "slave_has_known_associates",
+			     "slave_profession", "slave_age", "slave_height"],
+	    "meta" : {
+		"display" : "{0.slave_name}"
+	    }
+	},
+	"notice" : {
+	    "data_fields" : ["notice_time_escaped_is_approximate", "notice_time_escaped",
+			     "notice_escape_group_size", "notice_reward", "notice_date"],
+	    "meta" : {
+		"display" : "{0.notice_date} {0.notice_reward}"
+	    }	    
+	},
+	"city" : {
+	    "data_fields" : ["city_name", "city_coordinates"],
+	    "meta" : {
+		"display" : "{0.city_name}"
+	    }	    
+	},
+	"owner" : {
+	    "data_fields" : ["owner_name", "owner_profession"],
+	    "meta" : {
+		"display" : "{0.owner_name} {0.owner_profession}"
+	    }	    
+	}
     },
     "relationship_fields" : {
 	"posted_in" : {

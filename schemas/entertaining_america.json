@@ -1,7 +1,13 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Entertaining America",
+	"owners" : ["Sam Backer"],
+	"description" : "Records of theater troupe performances in small-town America before the advent of Vaudeville."
     },
     "data_fields" : {
 	"source_type" : {"type" : "categorical"},
@@ -14,9 +20,10 @@
 	"location_venue_other" : {"type" : "categorical"},
 	"location_name" : {"type" : "categorical"},
 	"location_exact" : {"type" : "categorical"},
-	"location_owner" : {"type" : "categorical"},
+	"location_owner" : {"type" : "text"},
+	"location_coordinates" : {"type" : "place"},
 
-	"performer_name" : {"type" : "categorical"},
+	"performer_name" : {"type" : "text"},
 	"amateur" : {"type" : "categorical"},
 	"local_amateur" : {"type" : "categorical"},
 
@@ -44,10 +51,30 @@
 	"performance_notes" : { "type" : "text"}
     },
     "entity_types" : {
-	"performance" : {"data_fields" : ["amateur", "local_amateur", "performance_notes", "class", "event_type", "price", "play_name", "performance_quality", "outdoor_type", "event_type_other", "event_type_minstrel", "event_type_classical", "event_type_brass", "ethnicity", "ethnicity_list", "ethnicity_other", "ethnic_comedy", "ethnic_comedy_other", "classical_performance_other", "song_title_female", "song_title_male", "event_type_vaudeville", "audience_size"]},
-	"location" : {"data_fields" : ["venue_chain", "location_venue", "location_venue_other", "location_name", "location_exact", "location_owner"]},
-	"notice" : {"data_fields" : ["source_type", "source_type_other", "repeat", "repeat_notice", "notes"]},
-	"performer" : {"data_fields" : ["performer_name"]}
+	"performance" : {
+	    "data_fields" : ["amateur", "local_amateur", "performance_notes", "class", "event_type", "price", "play_name", "performance_quality", "outdoor_type", "event_type_other", "event_type_minstrel", "event_type_classical", "event_type_brass", "ethnicity", "ethnicity_list", "ethnicity_other", "ethnic_comedy", "ethnic_comedy_other", "classical_performance_other", "song_title_female", "song_title_male", "event_type_vaudeville", "audience_size", "popular_performance_other"],
+	    "meta" : {
+		"display" : "{0.event_type} {0.play_name}"
+	    }
+	},
+	"location" : {
+	    "data_fields" : ["location_venue", "location_venue_other", "location_name", "location_exact", "location_owner", "location_coordinates"],
+	    "meta" : {
+		"display" : "{0.location_name} {0.location_venue}"
+	    }	    
+	},
+	"notice" : {
+	    "data_fields" : ["source_type", "source_type_other", "repeat", "repeat_notice", "notes"],
+	    "meta" : {
+		"display" : "{0.source_type}"
+	    }	    
+	},
+	"performer" : {
+	    "data_fields" : ["performer_name"],
+	    "meta" : {
+		"display" : "{0.performer_name}"
+	    }
+	}
     },
     "relationship_fields" : {
 	"occurred_at" : {

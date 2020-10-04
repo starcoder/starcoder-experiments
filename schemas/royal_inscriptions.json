@@ -1,17 +1,52 @@
 {
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },
     "meta" : {
 	"entity_type_field" : "entity_type",
-	"id_field" : "id"
+	"id_field" : "id",
+	"name" : "Royal Cuneiform Inscriptions",
+	"owners" : ["Paul Delnero"],
+	"description" : "Translated Cuneiform nscriptions organized according to king and dynasty."
     },
     "data_fields" : {
+	"period_name" : {"type" : "categorical"},
+	"dynasty_name" : {"type" : "categorical"},
+	"ruler_name" : {"type" : "categorical"},
+	"text_name" : {"type" : "categorical"},	
 	"content" : {"type" : "text"}
     },
     "entity_types" : {
-	"period" : {"data_fields" : []},
-	"dynasty" : {"data_fields" : []},
-	"ruler" : {"data_fields" : []},
-	"text" : {"data_fields" : []},
-	"witness" : {"data_fields" : ["content"]}
+	"period" : {
+	    "data_fields" : ["period_name"],
+	    "meta" : {
+		"display" : "{0.period_name}"
+	    }
+	},
+	"dynasty" : {
+	    "data_fields" : ["dynasty_name"],
+	    "meta" : {
+		"display" : "{0.dynasty_name}"
+	    }	    
+	},
+	"ruler" : {
+	    "data_fields" : ["ruler_name"],
+	    "meta" : {
+		"display" : "{0.ruler_name}"
+	    }
+	},
+	"text" : {
+	    "data_fields" : ["text_name"],
+	    "meta" : {
+		"display" : "{0.text_name}"
+	    }
+	},
+	"witness" : {
+	    "data_fields" : ["content"],
+	    "meta" : {
+		"display" : "{0.id}"
+	    }
+	}
     },
     "relationship_fields" : {
 	"from_period" : {
