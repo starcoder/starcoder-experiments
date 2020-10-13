@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Linguistically-informed Language Identification",
 	"owners" : [],
-	"description" : "Language identification of Twitter data using the WALS hierarchy."
+	"description" : "Language identification of Twitter data using the WALS hierarchy.",
+	"domain" : "Computational Linguistics"
     },
     "data_fields" : {
 	"tweet_language" : {"type" : "categorical"},

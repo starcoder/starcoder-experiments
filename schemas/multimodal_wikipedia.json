@@ -1,0 +1,67 @@
+{
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },        
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id",
+	"name" : "Multimodal Wikipedia",
+	"owners" : [],
+	"description" : "Featured Wikipedia articles with associated image, audio, and video content.",
+	"domain" : "Other"
+    },
+    "data_fields" : {
+	"title" : {"type" : "categorical"},
+	"text" : {"type" : "text"},
+	"video" : {"type" : "video",
+		   "ignore" : false,
+		   "data_path" : "/home/tom/data/multimodal_wikipedia/full_media",
+		   "width" : 128,
+		   "height" : 128,
+		   "channels" : 3,
+		   "channel_size" : 24
+		  },
+	"audio" : {"type" : "audio",
+		   "ignore" : false,
+		   "data_path" : "/home/tom/data/multimodal_wikipedia/full_media",
+		   "channels" : 1,
+		   "channel_size" : 8
+		  },
+	"image" : {"type" : "image",
+		   "ignore" : false,
+		   "data_path" : "/home/tom/data/multimodal_wikipedia/full_media",
+		   "width" : 128,
+		   "height" : 128,
+		   "channels" : 3,
+		   "channel_size" : 8
+		  }
+    },
+    "entity_types" : {
+	"article" : {"data_fields" : ["title", "text"]},
+	"video" : {"data_fields" : ["audio", "video"], "ignore" : false},
+	"audio" : {"data_fields" : ["audio"], "ignore" : false},
+	"image" : {"data_fields" : ["image"], "ignore" : false}
+    },
+    "relationship_fields" : {
+	"links_to_article" : {
+	    "ignore" : false,
+	    "source_entity_type" : "article",
+	    "target_entity_type" : "article"
+	},
+	"has_audio" : {
+	    "ignore" : false,
+	    "source_entity_type" : "article",
+	    "target_entity_type" : "audio"
+	},	    
+	"has_video" : {
+	    "ignore" : false,
+	    "source_entity_type" : "article",
+	    "target_entity_type" : "video"
+	},	    
+	"has_image" : {
+	    "ignore" : false,
+	    "source_entity_type" : "article",
+	    "target_entity_type" : "image"
+	}	
+    }
+}

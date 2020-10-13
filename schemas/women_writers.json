@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Women Writers Project",
 	"owners" : [],
-	"description" : "Long-form writing from English-language authors from the past several hundred years."
+	"description" : "Long-form writing from English-language authors from the past several hundred years.",
+	"domain" : "Literature"
     },
     "data_fields" : {
 	"author_name" : {"type" : "categorical"},

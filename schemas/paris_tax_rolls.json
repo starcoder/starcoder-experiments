@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Paris Tax Rolls",
 	"owners" : ["Nathan Daniels"],
-	"description" : "Tax records from Medieval Paris."
+	"description" : "Tax records from Medieval Paris.",
+	"domain" : "History"
     },
     "data_fields" : {
 	"year" : {"type" : "date", "format" : "%Y"},

@@ -8,49 +8,62 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(dest="inputs", nargs="+", help="Input files")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
-    args = parser.parse_args()
-    # created_utc, limit number of accounts or subreddits
-    entities = {}
+    args, rest = parser.parse_known_args()
+
+    authors = {}
+    subreddits = {}
     with gzip.open(args.output, "wt") as ofd:
-        for fname in args.inputs:
-            with bz2.open(fname, "rt") as ifd:
-                for i, line in enumerate(ifd):
+        for split, (submission_file, comment_file) in [
+                ("train", args.inputs[0:2]),
+                ("dev", args.inputs[2:4]),
+                ("test", args.inputs[4:])
+        ]:
+            with bz2.open(submission_file, "rt") as ifd:
+                for line in ifd:                    
                     j = json.loads(line)
-                    author_id = "user_{}".format(j["author"]) #(j["author_fullname"] if j.get(["author_fullname"] != None else "_").split("_")[-1]
-                    subreddit_id = j["subreddit_id"] #.split("_")[-1]
-                    document_id = j["id"] #.split("_")[-1]
-                    if author_id != "":
-                        entities[author_id] = entities.get(author_id, {"id" : author_id,
-                                                                       "entity_type" : "user",
-                                                                       "user_name" : j["author"],
-                        })
-                    entities[subreddit_id] = entities.get(subreddit_id, {"id" : subreddit_id,
-                                                                         "entity_type" : "subreddit",
-                                                                         "subreddit_name" : j["subreddit"]})
-
-                    document = {
-                        "id" : document_id.split("_")[-1],
-                        "entity_type" : "submission" if "selftext" in j else "comment",
-                        "response_to" : j.get("parent_id", "").split("_")[-1] if j.get("parent_id", 1) != j.get("link_id", 2) else "",
-                        "for_submission" : j.get("link_id", "").split("_")[-1] if "link_id" in j else "",
-                        "posted_in" : subreddit_id,
-                        "score" : j["score"],
-                        #"gilded" : j["gilded"],
-                        #"edited" : str(j["edited"]),
-                        "text" : j["body"] if "body" in j else j["selftext"],
-                        "title" : j["title"] if "title" in j else "",
-                        "written_by" : author_id if "body" in j else "",
-                        "submitted_by" : author_id if "selftext" in j else "",
-                        "author_name" : j["author"],
-                        "creation_time" : int(j["created_utc"]),
-                    }
-
-                    document = {k : v for k, v in document.items() if v not in ["", None]}
-                    
-                    ofd.write(json.dumps(document) + "\n")
-
-        for eid, entity in entities.items():
-            entity["id"] = eid
-            ofd.write(json.dumps(entity) + "\n")
-
-    
+                    if "author" not in j:
+                        continue
+                    author_id = "{} author {}".format(split, j["author"])
+                    subreddit_id = "{} subreddit {}".format(split, j["subreddit"])
+                    authors[author_id] = {"author_name" : "{} {}".format(split, j["author"])}
+                    subreddits[subreddit_id] = {"subreddit_name" : j["subreddit"]}
+                    if "name" not in j:
+                        j["name"] = "t3_{}".format(j["id"])
+                    j["text"] = j["selftext"]
+                    j["creation_time"] = int(j["created_utc"])
+                    doc = {k : v for k, v in j.items() if k in ["title", "text", "creation_time"]} #"author" not in k and "subreddit" not in k}
+                    doc["entity_type"] = "submission"
+                    doc["id"] = "{} submission {}".format(split, j["name"])
+                    doc["submitted_by"] = author_id
+                    doc["posted_in"] = subreddit_id
+                    ofd.write(json.dumps(doc) + "\n")
+            with bz2.open(comment_file, "rt") as ifd:
+                for line in ifd:
+                    j = json.loads(line)
+                    if "author" not in j:
+                        continue
+                    author_id = "{} author {}".format(split, j["author"])
+                    subreddit_id = "{} subreddit {}".format(split, j["subreddit"])
+                    authors[author_id] = {"author_name" : "{} {}".format(split, j["author"])}
+                    subreddits[subreddit_id] = {"subreddit_name" : j["subreddit"]}
+                    if "name" not in j:
+                        j["name"] = "t1_{}".format(j["id"])
+                    j["text"] = j["body"]
+                    j["creation_time"] = int(j["created_utc"])
+                    doc = {k : v for k, v in j.items() if k in ["edited", "text", "creation_time"]}
+                    doc["entity_type"] = "comment"
+                    doc["id"] = "{} comment {}".format(split, j["name"])
+                    doc["written_by"] = author_id
+                    if j["parent_id"] != j["link_id"]:
+                        doc["response_to"] = "{} comment {}".format(split, j["parent_id"])
+                    doc["for_submission"] = "{} submission {}".format(split, j["link_id"])
+                    doc["posted_in"] = subreddit_id
+                    ofd.write(json.dumps(doc) + "\n")
+        for k, v in authors.items():
+            v["id"] = k
+            v["entity_type"] = "author"
+            ofd.write(json.dumps(v) + "\n")
+        for k, v in subreddits.items():
+            v["id"] = k
+            v["entity_type"] = "subreddit"
+            ofd.write(json.dumps(v) + "\n")

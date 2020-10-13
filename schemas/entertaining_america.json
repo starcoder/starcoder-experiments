@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Entertaining America",
 	"owners" : ["Sam Backer"],
-	"description" : "Records of theater troupe performances in small-town America before the advent of Vaudeville."
+	"description" : "Records of theater troupe performances in small-town America before the advent of Vaudeville.",
+	"domain" : "History"
     },
     "data_fields" : {
 	"source_type" : {"type" : "categorical"},

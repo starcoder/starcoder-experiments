@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"owners" : [],
 	"name" : "Fluency Detection",
-	"description" : "Fluency detection on Twitter communication networks."
+	"description" : "Fluency detection on Twitter communication networks.",
+	"domain" : "Computational Linguistics"
     },
     "data_fields" : {
 	"text" : {"type" : "text"},

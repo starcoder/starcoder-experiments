@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Royal Cuneiform Inscriptions",
 	"owners" : ["Paul Delnero"],
-	"description" : "Translated Cuneiform nscriptions organized according to king and dynasty."
+	"description" : "Translated Cuneiform inscriptions organized according to king and dynasty.",
+	"domain" : "Ancient Near East"
     },
     "data_fields" : {
 	"period_name" : {"type" : "categorical"},

@@ -52,8 +52,9 @@ vars.AddVariables(
     ("AUTOENCODER_SHAPES", "", [32, 16]),
     ("CLUSTER_REDUCTION", "", 0.5),
     BoolVariable("USE_GPU", "", False),
+    BoolVariable("USE_GPU_APPLY", "", False),
     BoolVariable("USE_GRID", "", False),
-    ("GPU_PREAMBLE", "", "module load cuda10.1/toolkit"),
+    ("GPU_PREAMBLE", "", "module load cuda11.0/toolkit"),
     ("SPLIT_PROPORTIONS", "", [("train", 0.80), ("dev", 0.10), ("test", 0.10)]),
     ("DEPTH", "", 1),
     ("SPLITTER_CLASS", "", "sample_components"),
@@ -72,7 +73,7 @@ for exp_name, exp_spec in env["EXPERIMENTS"].items():
         **env.ActionMaker(
             "python",
             "scripts/preprocess_{}.py".format(exp_name),
-            "${SOURCES} --output ${TARGETS[0]} ${'--location_cache ' if LOCATION_CACHE != None else ''} ${LOCATION_CACHE}"
+            "${' '.join([\"'%s'\" % (s) for s in SOURCES])} --output ${TARGETS[0]} ${'--location_cache ' if LOCATION_CACHE != None else ''} ${LOCATION_CACHE}"
         )
     )
 env.Append(BUILDERS=preprocessors)
@@ -109,7 +110,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/apply_model.py",
-                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
+                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU_APPLY else ''}",
             )
         ),
         "TopicModel" : env.Builder(

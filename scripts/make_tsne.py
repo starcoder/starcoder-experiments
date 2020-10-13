@@ -31,7 +31,6 @@ if __name__ == "__main__":
 
     with gzip.open(args.output, "wt") as ofd:
         for et, eids in indices.items():
-            print(et)
             if len(eids) == 1:
                 continue
             bns = numpy.asarray([data[eid]["bottleneck"] for eid in eids])

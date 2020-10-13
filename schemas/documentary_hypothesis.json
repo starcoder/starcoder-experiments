@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Documentary Hypothesis",
 	"description" : "The oldest known full manuscript of the Hebrew bible, annotated according to (a version of) the compositional theory of Julius Wellhausen.",
-	"owners" : []
+	"owners" : [],
+	"domain" : "Ancient Near East"
     },
     "data_fields" : {
 	"source_name" : {"type" : "categorical"},

@@ -17,8 +17,8 @@ class Geocoder(object):
 
     def __call__(self, text):
         if text not in self.cache:
-            return None
-            #print("miss: {}".format(text))
+            #return None
+            print("miss: {}".format(text))
             for i in range(self.retries):
                 try:
                     x = self._geocoder.geocode(text)

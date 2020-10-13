@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Post-Atlantic Slave Trade",
 	"owners" : ["Jennie Williams"],
-	"description" : "Records of transport and escape notices of slaves in the mid-Atlantic region, after the United States outlawed the international trade."
+	"description" : "Records of transport and escape notices of slaves in the mid-Atlantic region, after the United States outlawed the international trade.",
+	"domain" : "History"
     },
     "data_fields" : {
 	"notice_party_size" : {"type" : "numeric"},

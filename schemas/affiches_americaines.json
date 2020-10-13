@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Affiches Americaines",
 	"owners" : ["Gregory Smaldone"],
-	"description" : "Product price data from French New World colonies of the 18th century."
+	"description" : "Product price data from French New World colonies of the 18th century.",
+	"domain" : "History"
     },
     "data_fields" : {
 	"product_name" : {"type" : "categorical"},

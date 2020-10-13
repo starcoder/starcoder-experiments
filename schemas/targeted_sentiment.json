@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Targeted Sentiment Analysis",
 	"owners" : [],
-	"description" : "Parse trees of IMDB reviews with nodes annotated according to sentiment."
+	"description" : "Parse trees of IMDB reviews with nodes annotated according to sentiment.",
+	"domain" : "Computational Linguistics"
     },
     "data_fields" : {
 	"sentiment" : {"type" : "numeric"},

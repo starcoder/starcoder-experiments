@@ -5,10 +5,10 @@
     "meta" : {
 	"entity_type_field" : "entity_type",
 	"id_field" : "id",
-	"name" : "Smoking and Vaping",
-	"owners" : ["Johannes Thrul"],
-	"description" : "Differential study of how tobacco users approach and describe their attempts to quit.",
-	"domain" : "Public Health"
+	"name" : "Vaccinations",
+	"owners" : ["Deborah Xie"],
+	"description" : "Discussions and (mis)information about the risks and benefits of the HPV vaccine.",
+	"domain" : "Medicine"
     },
     "data_fields" : {
 	"subreddit_name" : {"type" : "categorical"},

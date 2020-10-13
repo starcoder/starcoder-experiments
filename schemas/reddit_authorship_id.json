@@ -7,11 +7,12 @@
 	"id_field" : "id",
 	"name" : "Reddit Authorship ID",
 	"owners" : [],
-	"description" : "Modeling authorship of Reddit posts and comments."
+	"description" : "Modeling authorship of Reddit posts and comments.",
+	"domain" : "Computational Linguistics"
     },
     "data_fields" : {
 	"subreddit_name" : {"type" : "categorical"},
-	"user_name" : {"type" : "categorical"},
+	"edited" : {"type" : "boolean"},
 	"author_name" : {"type" : "categorical"},	
 	"score" : {"type" : "numeric"},
 	"text" : {"type" : "text"},
@@ -20,7 +21,7 @@
     },
     "entity_types" : {
 	"comment" : {
-	    "data_fields" : ["edited", "text", "author_name", "creation_time"],
+	    "data_fields" : ["edited", "text", "creation_time"],
 	    "meta" : {
 		"display" : "{0.author_name} {0.creation_time}"
 	    }
@@ -31,14 +32,14 @@
 		"display" : "{0.title}"
 	    }
 	},
-	"user" : {
-	    "data_fields" : ["user_name"]
+	"author" : {
+	    "data_fields" : ["author_name"],
 	    "meta" : {
-		"display" : "{0.user_name}"
+		"display" : "{0.author_name}"
 	    }
 	},
 	"subreddit" : {
-	    "data_fields" : ["subreddit_name"]
+	    "data_fields" : ["subreddit_name"],
 	    "meta" : {
 		"display" : "{0.subreddit_name}"
 	    }
@@ -47,11 +48,11 @@
     "relationship_fields" : {
 	"written_by" : {
             "source_entity_type" : "comment",
-            "target_entity_type" : "user"
+            "target_entity_type" : "author"
 	},
 	"submitted_by" : {
             "source_entity_type" : "submission",
-            "target_entity_type" : "user"
+            "target_entity_type" : "author"
 	},
 	"response_to" : {
             "source_entity_type" : "comment",

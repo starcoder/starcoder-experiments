@@ -1,0 +1,33 @@
+{
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },        
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id",
+	"name" : "Cuneiform Digital Library Initiative",
+	"owners" : ["Paul Delnero"],
+	"description" : "Structured information, transliterations, and transcriptions of Cuneiform artifacts.",
+	"domain" : "Ancient Near East"
+    },
+    "data_fields" : {
+	"translation" : {"type" : "text"},
+	"text" : {"type" : "text"},
+	"genre" : {"type" : "categorical"},
+	"language" : {"type" : "categorical"},
+	"material" : {"type" : "categorical"},
+	"object_type" : {"type" : "categorical"},
+	"period" : {"type" : "categorical"},
+	"provenience" : {"type" : "categorical"},
+	"subgenre" : {"type" : "categorical"},
+	"thickness" : {"type" : "scalar"},
+	"width" : {"type" : "scalar"},
+	"height" : {"type" : "scalar"},
+	"location" : {"type" : "place"}
+    },
+    "entity_types" : {
+	"inscription" : {"data_fields" : ["text", "translation", "genre", "language", "material", "object_type", "period", "provenience", "subgenre", "thickness", "width", "height", "location"]}
+    },
+    "relationship_fields" : {
+    }
+}

@@ -22,6 +22,7 @@ if __name__ == "__main__":
                 content = ifd.extractfile(mem)
                 xml = et.parse(content)
                 author = xml.find(".//{0}titleStmt/{0}author/{0}persName".format(ns)).text
+                #title = re.sub(r"\s+", " ", xml.find(".//{0}title[@type='main']".format(ns)).text)
                 title = xml.find(".//{0}title[@type='main']".format(ns)).text
                 #publisher
                 year = xml.find(".//{0}imprint/{0}date")

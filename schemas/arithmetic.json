@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Arithmetic Example",
 	"owners" : [],
-	"description" : "Example of learning to solve simple arithmetic expressions."
+	"description" : "Example of learning to solve simple arithmetic expressions.",
+	"domain" : "Other"
     },
     "data_fields" : {
 	"operation_name" : {"type" : "categorical"},

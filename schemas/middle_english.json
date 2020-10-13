@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Middle English Scansion",
 	"owners" : ["Chris Cannon"],
-	"description" : "The Canterbury Tales with scansion and grammatical information."
+	"description" : "The Canterbury Tales with scansion and grammatical information.",
+	"domain" : "Literature"
     },
     "data_fields" : {
 	"book_name" : {"type" : "categorical"},

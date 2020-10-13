@@ -7,7 +7,8 @@
 	"id_field" : "id",
 	"name" : "Marronage",
 	"owners" : ["Gregory Smaldone"],
-	"description" : "Records of escaped slaves in New World colonies."
+	"description" : "Records of escaped slaves in New World colonies.",
+	"domain" : "History"
     },
     "data_fields" : {
 	"notice_time_escaped_is_approximate" : {"type" : "categorical"},
