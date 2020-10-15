@@ -54,7 +54,7 @@ if __name__ == "__main__":
                         if g:
                             entity["location"] = g
                 entity["text"] = "".join(entity["text"])
-                entity["translation"] = "".join(entity["translation"])                
+                entity["translation"] = "".join(entity["translation"])
                 entities["inscription"][eid] = {k : v for k, v in entity.items() if v}
     with gzip.open(args.output, "wt") as ofd:
         for entity_type, es in entities.items():
