@@ -1,5 +1,8 @@
 import gzip
+import logging
 from geopy.geocoders import Photon as Service
+
+logger = logging.getLogger(__name__)
 
 class Geocoder(object):
     def __init__(self, cache_file, retries=5):
@@ -17,8 +20,7 @@ class Geocoder(object):
 
     def __call__(self, text):
         if text not in self.cache:
-            #return None
-            print("miss: {}".format(text))
+            logger.info("Unknown location: {}".format(text))
             for i in range(self.retries):
                 try:
                     x = self._geocoder.geocode(text)
