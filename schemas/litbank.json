@@ -17,11 +17,26 @@
 	"mention_type" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"book" : {"data_fields" : ["title"]},
+	"book" : {
+	    "data_fields" : ["title"],
+	    "meta" : {
+		"display" : "{0.title}"
+	    }
+	},
 	"sentence" : {"data_fields" : []},
 	"word" : {"data_fields" : ["form"]},
-	"author" : {"data_fields" : ["given_name", "surname"]},
-	"year" : {"data_fields" : ["anno_domini"]},
+	"author" : {
+	    "data_fields" : ["given_name", "surname"],
+	    "meta" : {
+		"display" : "{0.given_name} {0.surname}"
+	    }
+	},
+	"year" : {
+	    "data_fields" : ["anno_domini"],
+	    "meta" : {
+		"display" : "{0.anno_domini}"
+	    }
+	},
 	"event" : {"data_fields" : []},
 	"quote" : {"data_fields" : []},
 	"discourse_entity" : {"data_fields" : []},

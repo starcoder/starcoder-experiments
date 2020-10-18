@@ -71,13 +71,13 @@
 	"notice" : {
 	    "data_fields" : ["notice_reward_amount", "notice_party_size", "notice_event_date", "notice_reward_currency", "notice_capture_location", "notice_capture_location_coordinates", "notice_family_in_baltimore", "notice_headed_for_baltimore", "notice_note", "notice_justification", "notice_date", "notice_clothing"],
 	    "meta" : {
-		"display" : "{0.id}"
+		"display" : "{0.notice_date}"
 	    }
 	},
 	"voyage" : {
 	    "data_fields" : ["voyage_departure_location", "voyage_departure_location_coordinates", "voyage_count", "voyage_manifest_date", "voyage_arrival_date", "voyage_arrival_location", "voyage_arrival_location_coordinates", "voyage_manifest_count", "voyage_departure_date", "voyage_duration"],
 	    "meta" : {
-		"display" : "{0.id}"
+		"display" : "{0.voyage_manifest_date}: {0.voyage_departure_location} to {0.voyage_arrival_location}"
 	    }
 	},
 	"slave" : {
@@ -137,7 +137,7 @@
 	"jail" : {
 	    "data_fields" : ["jail_name", "jail_state", "jail_state_coordinates"],
 	    "meta" : {
-		"display" : "{0.jail_name}"
+		"display" : "{0.jail_name}, {0.jail_state}"
 	    }
 	}
     },

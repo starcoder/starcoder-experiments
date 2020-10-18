@@ -14,7 +14,6 @@
 	"title" : {"type" : "categorical"},
 	"text" : {"type" : "text"},
 	"video" : {"type" : "video",
-		   "ignore" : false,
 		   "data_path" : "/home/tom/data/multimodal_wikipedia/full_media",
 		   "width" : 128,
 		   "height" : 128,
@@ -22,13 +21,11 @@
 		   "channel_size" : 24
 		  },
 	"audio" : {"type" : "audio",
-		   "ignore" : false,
 		   "data_path" : "/home/tom/data/multimodal_wikipedia/full_media",
 		   "channels" : 1,
 		   "channel_size" : 8
 		  },
 	"image" : {"type" : "image",
-		   "ignore" : false,
 		   "data_path" : "/home/tom/data/multimodal_wikipedia/full_media",
 		   "width" : 128,
 		   "height" : 128,
@@ -37,29 +34,30 @@
 		  }
     },
     "entity_types" : {
-	"article" : {"data_fields" : ["title", "text"]},
-	"video" : {"data_fields" : ["audio", "video"], "ignore" : false},
-	"audio" : {"data_fields" : ["audio"], "ignore" : false},
-	"image" : {"data_fields" : ["image"], "ignore" : false}
+	"article" : {
+	    "data_fields" : ["title", "text"],
+	    "meta" : {
+		"display" : "{0.title}"
+	    }
+	},
+	"video" : {"data_fields" : ["audio", "video"]},
+	"audio" : {"data_fields" : ["audio"]},
+	"image" : {"data_fields" : ["image"]}
     },
     "relationship_fields" : {
 	"links_to_article" : {
-	    "ignore" : false,
 	    "source_entity_type" : "article",
 	    "target_entity_type" : "article"
 	},
 	"has_audio" : {
-	    "ignore" : false,
 	    "source_entity_type" : "article",
 	    "target_entity_type" : "audio"
 	},	    
 	"has_video" : {
-	    "ignore" : false,
 	    "source_entity_type" : "article",
 	    "target_entity_type" : "video"
 	},	    
 	"has_image" : {
-	    "ignore" : false,
 	    "source_entity_type" : "article",
 	    "target_entity_type" : "image"
 	}	

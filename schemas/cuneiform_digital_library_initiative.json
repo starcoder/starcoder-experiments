@@ -26,7 +26,12 @@
 	"location" : {"type" : "place"}
     },
     "entity_types" : {
-	"inscription" : {"data_fields" : ["text", "translation", "genre", "language", "material", "object_type", "period", "provenience", "subgenre", "thickness", "width", "height", "location"]}
+	"inscription" : {
+	    "data_fields" : ["text", "translation", "genre", "language", "material", "object_type", "period", "provenience", "subgenre", "thickness", "width", "height", "location"],
+	    "meta" : {
+		"display" : "{0.language} {0.genre} {0.period}"
+	    }
+	}
     },
     "relationship_fields" : {
     }

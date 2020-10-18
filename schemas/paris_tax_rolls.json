@@ -27,7 +27,7 @@
 	    "data_fields" : ["year"],
 	    "meta" : {
 		"display" : "{0.year}"
-	    }	    
+	    }
 	},
 	"parish" : {
 	    "data_fields" : ["parish_name"],
