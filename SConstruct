@@ -29,6 +29,7 @@ vars.AddVariables(
     ("RANDOM_COMPONENTS", "", 1000),
     ("MINIMUM_CONSTANTS", "", 1),
     ("MAXIMUM_CONSTANTS", "", 4),
+    ("EXTRA_ARGS", "", ""),
     ("TRAIN_PROPORTION", "", 0.9),
     ("DEV_PROPORTION", "", 0.1),
     ("MAX_CATEGORICAL", "", 50),
@@ -61,7 +62,11 @@ vars.AddVariables(
     ("BATCHIFIER_CLASS", "", "sample_components"),
     ("DATA_PATH", "", ""),
     ("EXPERIMENTS", "", {}),
-    ("LOCATION_CACHE", "", None),    
+    ("LOCATION_CACHE", "", None),
+    ("TRAIN_FIELD_DROPOUT", "", 0.1),
+    ("TRAIN_NEURON_DROPOUT", "", 0.1),
+    ("DEV_FIELD_DROPOUT", "", 0.1),
+    ("TEST_FIELD_DROPOUT", "", 0.1),
 )
 
 env = Environment(variables=vars, ENV=os.environ, TARFLAGS="-c -z", TARSUFFIX=".tgz",
@@ -73,7 +78,7 @@ for exp_name, exp_spec in env["EXPERIMENTS"].items():
         **env.ActionMaker(
             "python",
             "scripts/preprocess_{}.py".format(exp_name),
-            "${' '.join([\"'%s'\" % (s) for s in SOURCES])} --output ${TARGETS[0]} ${'--location_cache ' if LOCATION_CACHE != None else ''} ${LOCATION_CACHE}"
+            "${' '.join([\"'%s'\" % (s) for s in SOURCES])} --output ${TARGETS[0]} ${'--location_cache ' if LOCATION_CACHE != None else ''} ${LOCATION_CACHE} ${EXTRA_ARGS}"
         )
     )
 env.Append(BUILDERS=preprocessors)
@@ -100,7 +105,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/train_model.py",
-                "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask ' + ' '.join(MASK) if MASK else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES}",
+                "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask ' + ' '.join(MASK) if MASK else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT}",
                 other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
                             "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP"],
                 USE_GPU=env["USE_GPU"],
@@ -110,7 +115,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/apply_model.py",
-                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU_APPLY else ''}",
+                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU_APPLY else ''} --test_field_dropout ${TEST_FIELD_DROPOUT}",
             )
         ),
         "TopicModel" : env.Builder(
@@ -158,15 +163,15 @@ env.Decider("timestamp-newer")
 def run_experiment(env, experiment_config, **args):
     data = sum([env.Glob(env.subst(p)) for p in experiment_config.get("DATA_FILES", [])], [])
     schema = experiment_config.get("SCHEMA", None)
-    title = experiment_name.replace("_", " ").title().replace(" ", "")
     data = getattr(env, "preprocess_{}".format(experiment_name))("work/${EXPERIMENT_NAME}/data.json.gz",
-                                                                 data, **args)
+                                                                 data, **args, **experiment_config)
     env.Alias("data", data)
 
     # prepare the final spec and dataset
     observed_schema, dataset = env.PrepareDataset(["work/${EXPERIMENT_NAME}/schema.json.gz", "work/${EXPERIMENT_NAME}/dataset.pkl.gz"],
                                                   [data] + ([] if schema == None else [schema]),
-                                                  **args)
+                                                  **args
+    )
     env.Alias("datasets", dataset)
 
     tm = env.TopicModel(

@@ -11,7 +11,7 @@
 	"domain" : "Computational Linguistics"
     },
     "data_fields" : {
-	"sentiment" : {"type" : "numeric"},
+	"sentiment" : {"type" : "scalar"},
 	"text" : {"type" : "text"},
 	"split" : {"type" : "categorical"}
     },

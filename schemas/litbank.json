@@ -12,7 +12,7 @@
 	"form" : {"type" : "categorical"},
 	"given_name" : {"type" : "categorical"},
 	"surname" : {"type" : "categorical"},
-	"anno_domini" : {"type" : "numeric"},
+	"anno_domini" : {"type" : "scalar"},
 	"named_entity_type" : {"type" : "categorical"},
 	"mention_type" : {"type" : "categorical"}
     },

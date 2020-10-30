@@ -28,7 +28,7 @@
 	"amateur" : {"type" : "categorical"},
 	"local_amateur" : {"type" : "categorical"},
 
-	"price" : { "type" : "numeric"},
+	"price" : { "type" : "scalar"},
 	"class" : {"type" : "categorical"},
 	"event_type" : {"type" : "categorical"},
 	"play_name" : {"type" : "categorical"},
@@ -48,7 +48,7 @@
 	"song_title_female" : {"type" : "categorical"},
 	"song_title_male" : {"type" : "categorical"},
 	"event_type_vaudeville" : {"type" : "categorical"},	
-	"audience_size" : { "type" : "numeric"},
+	"audience_size" : { "type" : "scalar"},
 	"performance_notes" : { "type" : "text"}
     },
     "entity_types" : {

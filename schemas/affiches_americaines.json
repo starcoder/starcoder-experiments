@@ -16,8 +16,8 @@
 	"city_name" : {"type" : "categorical"},
 	"city_coordinates" : {"type" : "place"},
 	"date" : {"type" : "date", "format" : "%d-%b-%Y"},
-	"price_low" : {"type" : "numeric"},
-	"price_high" : {"type" : "numeric"},
+	"price_low" : {"type" : "scalar"},
+	"price_high" : {"type" : "scalar"},
 	"availability" : {"type" : "categorical"},
 	"qualifier" : {"type" : "categorical"}
     },

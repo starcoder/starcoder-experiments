@@ -13,8 +13,8 @@
     "data_fields" : {
 	"notice_time_escaped_is_approximate" : {"type" : "categorical"},
 	"notice_time_escaped" : {"type" : "text"},
-	"notice_escape_group_size" : {"type" : "numeric"},
-	"notice_reward" : {"type" : "numeric"},
+	"notice_escape_group_size" : {"type" : "scalar"},
+	"notice_reward" : {"type" : "scalar"},
 	"notice_date" : {"type" : "date", "format" : ["%d-%b-%Y", "%d-%b%Y"]},
 	"time_escaped" : {"type" : "text"},
 	"city_name" : {"type" : "categorical"},
@@ -27,8 +27,8 @@
 	"slave_height_is_approximate" : {"type" : "categorical"},
 	"slave_has_known_associates" : {"type" : "categorical"},
 	"slave_profession" : {"type" : "categorical"},
-	"slave_age" : {"type" : "numeric"},
-	"slave_height" : {"type" : "numeric"},	
+	"slave_age" : {"type" : "scalar"},
+	"slave_height" : {"type" : "scalar"},	
 	"owner_name" : {"type" : "categorical"},
 	"owner_profession" : {"type" : "categorical"}
     },

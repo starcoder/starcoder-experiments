@@ -1,0 +1,49 @@
+{
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },    
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id",
+	"name" : "Ebola Misinformation",
+	"owners" : ["Tara Sell"],
+	"description" : "Tweets related to the 2014 Ebola outbreak.",
+	"domain" : "Public Health"
+    },
+    "data_fields" : {
+	"name" : {"type" : "categorical"},
+	"description" : {"type" : "text"},
+	"friends_count" : {"type" : "scalar"},
+	"followers_count" : {"type" : "scalar"},
+	"favourites_count" : {"type" : "scalar"},
+	"posted_at" : {"type" : "date", "format" : "%Y"},
+	"text" : {"type" : "text"},	
+	"source" : {"type" : "categorical"},
+	"lang" : {"type" : "categorical"},
+	"location" : {"type" : "place"}
+    },
+    "entity_types" : {
+	"user" : {
+	    "data_fields" : ["name", "description", "friends_count", "followers_count", "favourites_count"],
+	    "meta" : {
+		"display" : "{0.name}"
+	    }
+	},
+	"tweet" : {
+	    "data_fields" : ["text", "posted_at", "source", "lang", "location"],
+	    "meta" : {
+		"display" : "{0.lang} {0.posted_at}"
+	    }	    
+	}
+    },
+    "relationship_fields" : {
+	"tweeted_by" : {
+            "source_entity_type" : "tweet",
+            "target_entity_type" : "user"
+	},
+	"retweet_of" : {
+	    "source_entity_type" : "tweet",
+	    "target_entity_type" : "tweet"
+	}
+    }
+}

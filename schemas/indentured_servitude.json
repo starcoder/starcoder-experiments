@@ -1,0 +1,82 @@
+{
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },    
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id",
+	"name" : "Indentured Servitude",
+	"owners" : ["Francois Furstenberg"],
+	"description" : "Records of indentured servitude.",
+	"domain" : "History"
+    },
+    "data_fields" : {
+	"to_be_taught" : {"type" : "text"},
+	"other" : {"type" : "text"},
+	"at_expiration" : {"type" : "text"},
+	"to_be_found" : {"type" : "text"},
+	"term" : {"type" : "duration"},
+	"start" : {"type" : "text"},
+	"date" : {"type" : "date", "format" : "%d-%b-%Y"},
+	"bound_as" : {"type" : "categorical"},
+	"consentor_role" : {"type" : "categorical"},
+	"name" : {"type" : "text"},
+	"address" : {"type" : "text"},
+	"coordinates" : {"type" : "place"},
+	"amount" : {"type" : "scalar"}
+    },
+    "entity_types" : {
+	"contract" : {
+	    "data_fields" : [
+		"bound_as", 
+		"date", 
+		"contract_start", 
+		"term", 
+		"to_be_found", 
+		"at_expiration", 
+		"to_be_taught", 
+		"other",
+		"consentor_role"
+	    ],
+	    "meta" : {
+		"display" : "{0.date}"
+	    }
+	},
+	"person" : {
+	    "data_fields" : ["name"],
+	    "meta" : {
+		"display" : "{0.name}"
+	    }
+	},
+	"location" : {
+	    "data_fields" : ["address", "coordinates"],
+	    "display" : "{0.address}"
+	}
+    },
+    "relationship_fields" : {
+	"binds" : {
+	    "source_entity_type" : "contract",
+	    "target_entity_type" : "person"
+	},
+	"binds_to" : {
+	    "source_entity_type" : "contract",
+	    "target_entity_type" : "person"
+	},
+	"with_consent_of" : {
+	    "source_entity_type" : "contract",
+	    "target_entity_type" : "person"
+	},
+	"assigned_by" : {
+	    "source_entity_type" : "contract",
+	    "target_entity_type" : "person"
+	},	
+	"departed_from" : {
+	    "source_entity_type" : "contract",
+	    "target_entity_type" : "location"
+	},
+	"located_at" : {
+	    "source_entity_type" : "contract",
+	    "target_entity_type" : "location"
+	}
+    }
+}

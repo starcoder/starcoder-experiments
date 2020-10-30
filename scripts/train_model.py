@@ -44,10 +44,11 @@ if __name__ == "__main__":
     parser.add_argument("--embedding_size", type=int, dest="embedding_size", default=32, help="Size of embeddings")
     parser.add_argument("--hidden_size", type=int, dest="hidden_size", default=32, help="Size of embeddings")
     parser.add_argument("--rnn_max_decode", type=int, dest="rnn_max_decode", default=100, help="")
-    parser.add_argument("--hidden_dropout", type=float, dest="hidden_dropout", default=0.0, help="Size of embeddings")
-    parser.add_argument("--field_dropout", type=float, dest="field_dropout", default=0.0, help="Size of embeddings")
+    parser.add_argument("--train_neuron_dropout", type=float, dest="train_neuron_dropout", default=0.0, help="Size of embeddings")
+    parser.add_argument("--train_field_dropout", type=float, dest="train_field_dropout", default=0.0, help="Size of embeddings")
+    parser.add_argument("--dev_field_dropout", type=float, dest="dev_field_dropout", default=0.0, help="Size of embeddings")
     parser.add_argument("--autoencoder_shapes", type=int, default=[], dest="autoencoder_shapes", nargs="*", help="Autoencoder layer sizes")
-    parser.add_argument("--mask", dest="mask", default=[], nargs="*", help="Fields to mask")
+    #parser.add_argument("--mask", dest="mask", default=[], nargs="*", help="Fields to mask")
     parser.add_argument("--ae_loss", dest="ae_loss", default=False, action="store_true", help="Optimize autoencoder loss directly")
     
     # training-related
@@ -73,7 +74,7 @@ if __name__ == "__main__":
     
     args, rest = parser.parse_known_args()
     batchifier = batchifier_classes[args.batchifier_class](rest)
-    mask_tests = [eval(l) for l in args.mask]
+    #mask_tests = [eval(l) for l in args.mask]
 
     logging.basicConfig(level=getattr(logging, args.log_level))
     
@@ -117,6 +118,7 @@ if __name__ == "__main__":
                                  depth=args.depth,
                                  autoencoder_shapes=args.autoencoder_shapes,
                                  reverse_relationships=True,
+                                 train_neuron_dropout=args.train_neuron_dropout,
         )        
         if args.gpu:
             model.cuda()
@@ -145,19 +147,43 @@ if __name__ == "__main__":
         
         for e in range(1, args.max_epochs + 1):
 
-            train_loss, train_loss_by_field, dev_loss, dev_loss_by_field = run_epoch(model,
-                                                                                     batchifier,
-                                                                                     optim,
-                                                                                     simple_loss_policy,
-                                                                                     train_data,
-                                                                                     dev_data,
-                                                                                     args.batch_size, 
-                                                                                     args.gpu,
-                                                                                     mask_tests,
-                                                                                     args.subselect
+            train_loss, train_loss_by_field, dev_loss, dev_loss_by_field, train_score_by_field, dev_score_by_field = run_epoch(
+                model,
+                batchifier,
+                optim,
+                simple_loss_policy,
+                train_data,
+                dev_data,
+                args.batch_size, 
+                args.gpu,
+                subselect=args.subselect,
+                train_field_dropout=args.train_field_dropout,
+                train_neuron_dropout=args.train_neuron_dropout,
+                dev_field_dropout=args.dev_field_dropout,
             )
+            logger.info("train scores: " + " ".join(["{}={:.4}".format(k, sum(v) / len(v)) for k, v in train_score_by_field.items()]))
+            logger.info("dev scores:   " + " ".join(["{}={:.4}".format(k, sum(v) / len(v)) for k, v in dev_score_by_field.items()]))
+            trace = {
+                "iteration" : e,
+                "losses" : {
+                    "train" : {k : v.item() for k, v in train_loss_by_field.items()},
+                    "dev" : {k : v.item() for k, v in dev_loss_by_field.items()},
+                },
+                "scores" : {}
+            }
+            for k, v in dev_score_by_field.items():
+                trace["scores"][k] = 0 if len(v) == 0 else sum(v) / len(v)
+            #for field_name in dev_data.schema.data_fields.keys():
+            #    trace["scores"][field_name] = apply_to_globally_masked_components(                
+            #        [field_name],
+            #        model,
+            #        batchifier,
+            #        dev_data,
+            #        args.batch_size,
+            #        args.gpu
+            #    )
 
-            current_trace.append({"train" : train_loss_by_field, "dev" : dev_loss_by_field})
+            current_trace.append(trace)
             
             logger.info("Random start %d, Epoch %d: comparable train/dev loss = %.4f/%.4f",
                          restart + 1,
@@ -165,7 +191,6 @@ if __name__ == "__main__":
                          dev_data.num_entities * (train_loss / train_data.num_entities),
                          dev_loss,
             )
-
             reduce_rate, early_stop, new_best = sched.step(dev_loss)
             if new_best:
                 logger.info("New best dev loss: %.3f", dev_loss)
@@ -217,5 +242,5 @@ if __name__ == "__main__":
         #        final_trace["dev"][field.type_name][field.name] = final_trace["dev"][field.type_name].get(field.name, [])
         #        dev_loss = sum(sum([x.tolist() for x in dev_loss], []))
         #        final_trace["dev"][field.type_name][field.name].append(dev_loss)
-        ofd.write(json.dumps(final_trace)) # type: ignore
+        ofd.write(json.dumps(best_trace)) # type: ignore
 

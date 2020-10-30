@@ -14,7 +14,7 @@
 	"subreddit_name" : {"type" : "categorical"},
 	"edited" : {"type" : "boolean"},
 	"author_name" : {"type" : "categorical"},	
-	"score" : {"type" : "numeric"},
+	"score" : {"type" : "scalar"},
 	"text" : {"type" : "text"},
 	"title" : {"type" : "text"},
 	"creation_time" : {"type" : "datetime", "format" : "utc"}

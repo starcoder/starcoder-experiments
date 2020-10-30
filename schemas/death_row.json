@@ -5,9 +5,9 @@
     "meta" : {
 	"entity_type_field" : "entity_type",
 	"id_field" : "id",
-	"name" : "Paris Tax Rolls",
-	"owners" : ["Nathan Daniels"],
-	"description" : "Tax records from Medieval Paris.",
+	"name" : "Texas Death Row",
+	"owners" : [],
+	"description" : "Images, demographics, and final statements of Texas death row inmates.",
 	"domain" : "History"
     },
     "data_fields" : {
@@ -23,7 +23,7 @@
 	"status" : {"type" : "categorical"}
     },
     "entity_types" : {
-	"tax_roll" : {
+	"inmate" : {
 	    "data_fields" : ["year"],
 	    "meta" : {
 		"display" : "{0.year}"

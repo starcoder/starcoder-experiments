@@ -1,0 +1,23 @@
+{
+    "@context" : {
+	"@vocab" : "http://schema.org"
+    },    
+    "meta" : {
+	"entity_type_field" : "entity_type",
+	"id_field" : "id",
+	"name" : "Narrative and Character Development",
+	"owners" : [],
+	"description" : "Short stories annotated according to character motivation and sentiment.",
+	"domain" : "Literature"
+    },
+    "data_fields" : {
+    },
+    "entity_types" : {
+	"story" : {
+	},
+	"line" : {
+	}
+    },
+    "relationship_fields" : {
+    }
+}

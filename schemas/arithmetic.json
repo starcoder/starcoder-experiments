@@ -12,7 +12,7 @@
     },
     "data_fields" : {
 	"operation_name" : {"type" : "categorical"},
-	"value" : { "type" : "numeric"}
+	"value" : { "type" : "scalar"}
     },
     "entity_types" : {
 	"node" : {

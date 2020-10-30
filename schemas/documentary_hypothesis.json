@@ -14,8 +14,8 @@
 	"source_name" : {"type" : "categorical"},
 	"document_name" : {"type" : "categorical"},
 	"book_name" : {"type" : "categorical"},
-	"chapter_number" : {"type" : "numeric"},
-	"verse_number" : {"type" : "numeric"},
+	"chapter_number" : {"type" : "scalar"},
+	"verse_number" : {"type" : "scalar"},
 	"words" : {"type" : "text"}
     },
     "entity_types" : {
