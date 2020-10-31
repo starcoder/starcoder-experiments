@@ -39,7 +39,7 @@
     "relationship_fields" : {
 	"sura_of" : {
             "source_entity_type" : "sura",
-            "target_entity_type" : "text"
+            "target_entity_type" : "document"
 	},
 	"aya_of" : {
             "source_entity_type" : "aya",
