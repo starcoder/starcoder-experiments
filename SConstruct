@@ -50,13 +50,14 @@ vars.AddVariables(
     ("PATIENCE", "", 5),
     ("HIDDEN_SIZE", "", 32),
     ("EMBEDDING_SIZE", "", 32),
-    ("AUTOENCODER_SHAPES", "", [32, 16]),
+    ("AUTOENCODER_SHAPES", "", (32, 16)),
     ("CLUSTER_REDUCTION", "", 0.5),
     BoolVariable("USE_GPU", "", False),
     BoolVariable("USE_GPU_APPLY", "", False),
     BoolVariable("USE_GRID", "", False),
     ("GPU_PREAMBLE", "", "module load cuda11.0/toolkit"),
-    ("SPLIT_PROPORTIONS", "", [("train", 0.80), ("dev", 0.10), ("test", 0.10)]),
+    ("GPU_QUEUE", "", "gpu.q"),
+    ("SPLIT_PROPORTIONS", "", (("train", 0.80), ("dev", 0.10), ("test", 0.10))),
     ("DEPTH", "", 1),
     ("SPLITTER_CLASS", "", "sample_components"),
     ("BATCHIFIER_CLASS", "", "sample_components"),
@@ -109,13 +110,14 @@ env.Append(
                 other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
                             "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP"],
                 USE_GPU=env["USE_GPU"],
-            )
+            ),
+            USE_GPU=env["USE_GPU"],
         ),
         "ApplyModel" : env.Builder(
             **env.ActionMaker(
                 "python",
                 "scripts/apply_model.py",
-                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU_APPLY else ''} --test_field_dropout ${TEST_FIELD_DROPOUT}",
+                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU_APPLY else ''} --test_field_dropout ${TEST_FIELD_DROPOUT} ${'--mask_field ' + MASK_FIELD if MASK_FIELD else ''}",
             )
         ),
         "TopicModel" : env.Builder(
@@ -139,6 +141,41 @@ env.Append(
                 "--data ${SOURCES[0]} --schema ${SOURCES[1]} --liwc ${DATA_PATH}/liwc/liwc.json --output ${TARGETS[0]}",
             )
         ),
+        "Decameron" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/preprocess_decameron.py",
+                "${SOURCES[0]} --schema ${TARGETS[0]} --data ${TARGETS[1]}",
+            )
+        ),
+        "Copy" : env.Builder(
+            **env.ActionMaker(
+                "cp",
+                "",
+                "${SOURCES[0]} ${TARGETS[0]}",
+            )
+        ),
+        "SaveConfig" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/save_config.py",
+                "--output ${TARGETS[0]} --config '${CONFIG}'",
+            )
+        ),
+        "ExtractModelStructure" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/extract_model_structure.py",
+                "--model ${SOURCES[0]} --output ${TARGETS[0]}",
+            )
+        ),
+        "CollateOutputs" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/collate_outputs.py",
+                "${SOURCES[2:]} --output ${TARGETS[0]} --test ${SOURCES[0]} --schema ${SOURCES[1]}",
+            )
+        ),
     },
     tools=["default"],
 )
@@ -159,12 +196,45 @@ env['PRINT_CMD_LINE_FUNC'] = print_cmd_line
 # and how we decide if a dependency is out of date
 env.Decider("timestamp-newer")
 
+def expand_configuration(*configs):
+    unexpanded = {}
+    for config in configs:
+        for k, v in config.items():          
+            unexpanded[k] = v if isinstance(v, list) else [v]
+    expanded = [[]]
+    for arg_name, values in unexpanded.items():
+        expanded = sum(
+            [
+                [
+                    config + [
+                        (
+                            arg_name.upper(), 
+                            v
+                        )
+                    ] for config in expanded
+                ] for v in values
+            ], 
+            []
+        )
+    return [{k : v for k, v in c} for c in expanded]
 
 def run_experiment(env, experiment_config, **args):
+    outputs = []
+    experiment_name = args["EXPERIMENT_NAME"]
+    
     data = sum([env.Glob(env.subst(p)) for p in experiment_config.get("DATA_FILES", [])], [])
-    schema = experiment_config.get("SCHEMA", None)
-    data = getattr(env, "preprocess_{}".format(experiment_name))("work/${EXPERIMENT_NAME}/data.json.gz",
-                                                                 data, **args, **experiment_config)
+    if experiment_name != "decameron":
+        schema = env.Copy(
+            "work/${EXPERIMENT_NAME}/schema.json",
+            experiment_config.get("SCHEMA", None),
+            **args, **experiment_config
+        )
+        data = getattr(env, "preprocess_{}".format(experiment_name))("work/${EXPERIMENT_NAME}/data.json.gz",
+                                                                     data, **args, **experiment_config)
+    else:
+        schema, data = env.Decameron(["work/${EXPERIMENT_NAME}/schema.json", "work/${EXPERIMENT_NAME}/data.json.gz"],
+                                     data, **args, **experiment_config)
+    env.Alias("schemas", schema)
     env.Alias("data", data)
 
     # prepare the final spec and dataset
@@ -197,12 +267,27 @@ def run_experiment(env, experiment_config, **args):
                                      **experiment_config,
                                      **args, RANDOM_SEED=0, PROPORTIONS=split_props)
     env.Alias("splits", [train, dev, test])
-    
+
+    #print(experiment_config)
+    train_configs = expand_configuration(experiment_config, args)
+    #sys.exit()
     # expand training configurations
-    train_configs = [[]]
-    for arg_name, values in experiment_config.get("TRAIN_CONFIG", {}).items():        
-       train_configs = sum([[config + [(arg_name.upper(), v)] for config in train_configs] for v in values], [])
-    train_configs = [dict(config) for config in train_configs]
+    #train_configs = [[]]
+    #for arg_name, values in experiment_config.get("TRAIN_CONFIG", {}).items():        
+    #    train_configs = sum(
+    #        [
+    #            [
+    #                config + [
+    #                    (
+    #                        arg_name.upper(), 
+    #                        v
+    #                    )
+    #                ] for config in train_configs
+    #            ] for v in values
+    #        ], 
+    #        []
+    #    )
+    # train_configs = [dict(config) for config in train_configs]
     
     # expand apply configurations
     apply_configs = [[]]
@@ -211,31 +296,55 @@ def run_experiment(env, experiment_config, **args):
     apply_configs = [dict(config) for config in apply_configs]
     
     results = []
+    #print(train_configs)
+
     for config in train_configs:
-        args["TRAIN_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
+        #args["TRAIN_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
+        config["TRAIN_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
+        #args["LOG_LEVEL"] = "DEBUG"
         model, trace = env.TrainModel(["work/${EXPERIMENT_NAME}/model_${TRAIN_CONFIG_ID}.pkl.gz", 
                                        "work/${EXPERIMENT_NAME}/trace_${TRAIN_CONFIG_ID}.json.gz"],
                                       [dataset, train, dev],
-                                      **args,
-                                      **experiment_config,
+                                      #**args,
+                                      #**experiment_config,
                                       **config)
         env.Alias("models", model)
+        struct = env.ExtractModelStructure("work/${EXPERIMENT_NAME}/structure_${TRAIN_CONFIG_ID}.json.gz",
+                                           model,
+                                           #**args,
+                                           #**experiment_config,
+                                           **config)
+        env.Alias("structure", struct)
+
+        #continue
         for apply_config in apply_configs:
             config.update(apply_config)
-            args["APPLY_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
+            config["APPLY_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
+            config_file = env.SaveConfig(
+                "work/${EXPERIMENT_NAME}/${FOLD}/config_${APPLY_CONFIG_ID}.json.gz",
+                [],
+                CONFIG=json.dumps(config),
+                **config
+            )
             output = env.ApplyModel("work/${EXPERIMENT_NAME}/${FOLD}/output_${APPLY_CONFIG_ID}.json.gz",
                                     [model, dataset],
-                                    **args,
-                                    **experiment_config,
+                                    #**args,
+                                    #**experiment_config,
                                     **config)
             env.Alias("outputs", output)
+            outputs.append((config_file, output))
 
             tsne = env.MakeTSNE("work/${EXPERIMENT_NAME}/${FOLD}/tsne_${APPLY_CONFIG_ID}.json.gz",
                                 [schema, output],
-                                **args,
-                                **experiment_config,
+                                #**args,
+                                #**experiment_config,
                                 **config)
             env.Alias("tsne", tsne)
+    results = env.CollateOutputs(
+        "work/${EXPERIMENT_NAME}/results.csv.gz", 
+        [test, schema] + outputs, 
+        **config
+    )
     return model
 
 

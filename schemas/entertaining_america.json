@@ -16,8 +16,9 @@
 	"repeat" : {"type" : "categorical"},
 	"repeat_notice" : {"type" : "categorical"},
 	"notes" : { "type" : "text"},
-
+	
 	"location_venue" : {"type" : "categorical"},
+	"venue_chain" : {"type" : "categorical"},
 	"location_venue_other" : {"type" : "categorical"},
 	"location_name" : {"type" : "categorical"},
 	"location_exact" : {"type" : "categorical"},
@@ -59,7 +60,7 @@
 	    }
 	},
 	"location" : {
-	    "data_fields" : ["location_venue", "location_venue_other", "location_name", "location_exact", "location_owner", "location_coordinates"],
+	    "data_fields" : ["location_venue", "venue_chain", "location_venue_other", "location_name", "location_exact", "location_owner", "location_coordinates"],
 	    "meta" : {
 		"display" : "{0.location_name} {0.location_venue}"
 	    }	    

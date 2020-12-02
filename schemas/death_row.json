@@ -11,75 +11,69 @@
 	"domain" : "History"
     },
     "data_fields" : {
-	"year" : {"type" : "date", "format" : "%Y"},
-	"amount" : {"type" : "scalar"},
-	"parish_name" : {"type" : "categorical"},
-	"street_name" : {"type" : "categorical"},
-	"street_coordinates" : {"type" : "place"},
-	"role_name" : {"type" : "categorical"},
-	"role_type" : {"type" : "categorical"},
-	"person_name" : {"type" : "text"},
-	"currency" : {"type" : "categorical"},
-	"status" : {"type" : "categorical"}
+	"prior_occupation" : {"type" : "categorical"},
+	"prior_prison_record" : {"type" : "categorical"},
+	"race" : {"type" : "categorical"},
+	"gender" : {"type" : "categorical"},
+	"hair_color" : {"type" : "categorical"},
+	"eye_color" : {"type" : "categorical"},
+	"county" : {"type" : "categorical"},
+	"native_county" : {"type" : "categorical"},
+	"native_state" : {"type" : "categorical"},
+	"education" : {"type" : "categorical"},
+	"victim_race" : {"type" : "categorical"},
+	"victim_gender" : {"type" : "categorical"},
+	"birth_date" : {"type" : "date", "format" : "%m/%d/%Y"},
+	"execution_date" : {"type" : "date", "format" : "%m/%d/%Y"},
+	"imprisoned_date" : {"type" : "date", "format" : "%m/%d/%Y"},
+	"offense_date" : {"type" : "date", "format" : "%m/%d/%Y"},
+	"height" : {"type" : "scalar"},
+	"weight" : {"type" : "scalar"},
+	"age" : {"type" : "scalar"},
+	"age_at_incarceration" : {"type" : "scalar"},
+	"age_at_offense" : {"type" : "scalar"},
+	"age_at_death" : {"type" : "scalar"},
+	"summary" : {"type" : "text"},
+	"statement" : {"type" : "text"},
+	"name" : {"type" : "text"},
+	"image" : {
+	    "type" : "image",
+	    "width" : 128,
+	    "height" : 128,
+	    "channels" : 3,
+	    "channel_size" : 8	    
+	}
     },
     "entity_types" : {
-	"inmate" : {
-	    "data_fields" : ["year"],
-	    "meta" : {
-		"display" : "{0.year}"
-	    }
-	},
-	"parish" : {
-	    "data_fields" : ["parish_name"],
-	    "meta" : {
-		"display" : "{0.parish_name}"
-	    }	    
-	},
-	"street" : {
-	    "data_fields" : ["street_name", "street_coordinates"],
-	    "meta" : {
-		"display" : "{0.street_name}"
-	    }	    
-	},
-	"role" : {
-	    "data_fields" : ["role_type", "role_name"],
-	    "meta" : {
-		"display" : "{0.role_name}"
-	    }
-	},
 	"person" : {
-	    "data_fields" : ["person_name"],
+	    "data_fields" : ["height", "weight", "age", "age_at_incarceration", "age_at_offense", "age_at_death",
+			     "image",
+			     "name",
+			     "birth_date",
+			     "prior_occupation", "prior_prison_record", "race", "gender", "hair_color", "eye_color", "native_county", "native_state", "education"
+			    ],
 	    "meta" : {
-		"display" : "{0.person_name}"
-	    }	    
+		"display" : "{0.name}"
+	    }
 	},
-	"debt" : {
-	    "data_fields" : ["amount", "currency", "status"],
+	"crime" : {
+	    "data_fields" : ["execution_date", "imprisoned_date", "offense_date",
+			     "summary", "statement",
+			     "county", "victim_race", "victim_gender"
+			    ],
 	    "meta" : {
-		"display" : "{0.amount} {0.currency}"
+		"display" : "{0.summary}"
 	    }	    
 	}
     },
     "relationship_fields" : {
-	"recorded_in" : {
-            "source_entity_type" : "debt",
-            "target_entity_type" : "tax_roll"
-	},
-	"owed_by" : {
-            "source_entity_type" : "debt",
-            "target_entity_type" : "person"
-	},
-	"lives_on" : {
+	"participated_in" : {
             "source_entity_type" : "person",
-            "target_entity_type" : "street"
+            "target_entity_type" : "crime"
 	},
-	"part_of" : {
-            "source_entity_type" : "street",
-            "target_entity_type" : "parish"
-	},
-	"acts_as" : {
+	"executed_for" : {
             "source_entity_type" : "person",
-            "target_entity_type" : "role"
+            "target_entity_type" : "crime"
 	}
     }
 }

@@ -12,13 +12,12 @@
     },
     "data_fields" : {
 	"to_be_taught" : {"type" : "text"},
-	"other" : {"type" : "text"},
 	"at_expiration" : {"type" : "text"},
 	"to_be_found" : {"type" : "text"},
-	"term" : {"type" : "duration"},
+	"term" : {"type" : "text"},
 	"start" : {"type" : "text"},
 	"date" : {"type" : "date", "format" : "%d-%b-%Y"},
-	"bound_as" : {"type" : "categorical"},
+	"binds_as" : {"type" : "categorical"},
 	"consentor_role" : {"type" : "categorical"},
 	"name" : {"type" : "text"},
 	"address" : {"type" : "text"},
@@ -28,14 +27,14 @@
     "entity_types" : {
 	"contract" : {
 	    "data_fields" : [
-		"bound_as", 
+		"amount",
+		"binds_as", 
 		"date", 
 		"start", 
 		"term", 
 		"to_be_found", 
 		"at_expiration", 
 		"to_be_taught", 
-		"other",
 		"consentor_role"
 	    ],
 	    "meta" : {

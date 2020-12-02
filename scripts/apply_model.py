@@ -14,6 +14,7 @@ from starcoder.adjacency import Adjacencies
 from starcoder.utils import apply_to_components
 import json
 import tempfile
+import random
 import os
 from typing import List, Type
 
@@ -24,12 +25,14 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", dest="dataset", help="Input dataset file")
     parser.add_argument("--split", dest="split", default=None, help="Data split (if none specified, run over everything)")
     parser.add_argument("--model", dest="model", help="Model file")
+    parser.add_argument("--mask_field", dest="mask_field", help="Mask field")
+    parser.add_argument("--mask_probability", dest="mask_probability", default=0.5, help="Mask probability")
     parser.add_argument("--output", dest="output", help="Output file")
     parser.add_argument("--gpu", dest="gpu", default=False, action="store_true", help="Use GPU")
     parser.add_argument("--batch_size", dest="batch_size", default=512, type=int, help="")
     parser.add_argument("--log_level", dest="log_level", default="INFO", 
                         choices=["ERROR", "WARNING", "INFO", "DEBUG"], help="Logging level")
-    args = parser.parse_args()
+    args, rest = parser.parse_known_args()
     
     logging.basicConfig(level=getattr(logging, args.log_level))
 
@@ -64,8 +67,11 @@ if __name__ == "__main__":
     logging.info("Dataset has %d entities", dataset.num_entities)
     bottlenecks = {}
     reconstructions = {}
-    for decoded_fields, norm, bns in apply_to_components(model, batchifier_classes["sample_components"]([]), dataset, args.batch_size, args.gpu):
-
+    for decoded_fields, norm, bns, masking in apply_to_components(model, batchifier_classes["sample_components"]([]), dataset, args.batch_size, args.gpu, args.mask_field, args.mask_probability):
+        #print({k : type(v) for k, v in norm.items()})
+        #print({k : type(v) for k, v in decoded_fields.items()})
+        #print(norm["street_coordinates"].shape)
+        #print(decoded_fields["street_coordinates"].shape)
         #first = list(norm["id"])
         #second = list(bns.keys())
         #print([x for x in first if x not in second])

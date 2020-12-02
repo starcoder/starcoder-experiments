@@ -16,7 +16,6 @@
 	"notice_escape_group_size" : {"type" : "scalar"},
 	"notice_reward" : {"type" : "scalar"},
 	"notice_date" : {"type" : "date", "format" : ["%d-%b-%Y", "%d-%b%Y"]},
-	"time_escaped" : {"type" : "text"},
 	"city_name" : {"type" : "categorical"},
 	"city_coordinates" : {"type" : "place"},
 	"slave_name" : {"type" : "categorical"},

@@ -17,19 +17,17 @@
 	"gilded" : {"type" : "scalar"},
 	"text" : {"type" : "text"},
 	"title" : {"type" : "text"},
-	"creation_time" : {"type" : "datetime", "format" : "utc"},
-	"comment_time" : {"type" : "datetime", "format" : "utc"},
-	"submission_time" : {"type" : "datetime", "format" : "utc"}
+	"creation_time" : {"type" : "datetime", "format" : "utc"}
     },
     "entity_types" : {
 	"comment" : {
-	    "data_fields" : ["gilded", "text", "comment_time"],
+	    "data_fields" : ["gilded", "text", "creation_time", "score"],
 	    "meta" : {
 		"display" : "{0.id}"
 	    }
 	},
 	"submission" : {
-	    "data_fields" : ["title", "text", "submission_time"],
+	    "data_fields" : ["title", "text", "creation_time", "gilded", "score"],
 	    "meta" : {
 		"display" : "{0.title}"
 	    }

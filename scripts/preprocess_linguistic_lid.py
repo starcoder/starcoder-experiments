@@ -5,6 +5,15 @@ import csv
 import pycountry
 import os.path
 
+def ngrams(text, n):
+    counts = {}
+    chars = [""] * (n-1) + list(text) + [""] * (n-1)
+    total = len(chars) - n + 1
+    for i in range(total):
+        ngram = "_".join(chars[i : i + n])
+        counts[ngram] = counts.get(ngram, 0) + 1
+    return {k : v / total for k, v in counts.items()}
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -39,8 +48,8 @@ if __name__ == "__main__":
                 lang_code = lang.alpha_2
                 wals_langs.add(lang_code)
                 macroareas[row["macroarea"]] = {"id" : "macroarea {}".format(row["macroarea"]),
-                                               "entity_type" : "macroarea",
-                                               "macroarea_name" : row["macroarea"]}
+                                                "entity_type" : "macroarea",
+                                                "macroarea_name" : row["macroarea"]}
                 families[row["family"]] = {"id" : "family {}".format(row["family"]),
                                            "entity_type" : "family",
                                            "from_macroarea" : row["macroarea"],
@@ -63,15 +72,15 @@ if __name__ == "__main__":
             tweet_langs.add(lang_code)
             tweets.append({"id" : tid,
                            "entity_type" : "tweet",
-                           "written_in" : lang_code,
-                           "tweet_text" : text.lower(),
+                           "written_in" : "language {}".format(lang_code),
+                           "tweet_text" : ngrams(text.lower(), 1),
                            "tweet_language" : lang_code,
             })
 
     slanguages, sgenuses, sfamilies, smacroareas = set(), set(), set(), set()
     with gzip.open(args.output_file, "wt") as ofd:
         for tweet in tweets:
-            lang = tweet["written_in"]
+            lang = tweet["tweet_language"]
             if lang in wals_langs:
                 ofd.write(json.dumps(tweet) + "\n")
                 slanguages.add(lang)
@@ -86,3 +95,4 @@ if __name__ == "__main__":
             ofd.write(json.dumps(families[family]) + "\n")            
         for macroarea in smacroareas:
             ofd.write(json.dumps(macroareas[macroarea]) + "\n")
+         

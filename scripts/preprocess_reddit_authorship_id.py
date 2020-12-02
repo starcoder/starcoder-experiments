@@ -19,7 +19,9 @@ if __name__ == "__main__":
                 ("test", args.inputs[4:])
         ]:
             with bz2.open(submission_file, "rt") as ifd:
-                for line in ifd:                    
+                for ln, line in enumerate(ifd):
+                    if ln > 1000:
+                        break
                     j = json.loads(line)
                     if "author" not in j:
                         continue
@@ -36,9 +38,12 @@ if __name__ == "__main__":
                     doc["id"] = "{} submission {}".format(split, j["name"])
                     doc["submitted_by"] = author_id
                     doc["posted_in"] = subreddit_id
+                    doc = {k : v for k, v in doc.items() if v}
                     ofd.write(json.dumps(doc) + "\n")
             with bz2.open(comment_file, "rt") as ifd:
-                for line in ifd:
+                for ln, line in enumerate(ifd):
+                    if ln > 1000:
+                        break
                     j = json.loads(line)
                     if "author" not in j:
                         continue
@@ -58,12 +63,15 @@ if __name__ == "__main__":
                         doc["response_to"] = "{} comment {}".format(split, j["parent_id"])
                     doc["for_submission"] = "{} submission {}".format(split, j["link_id"])
                     doc["posted_in"] = subreddit_id
+                    doc = {k : v for k, v in doc.items() if v}
                     ofd.write(json.dumps(doc) + "\n")
         for k, v in authors.items():
             v["id"] = k
             v["entity_type"] = "author"
+            v = {k : vv for k, vv in v.items() if vv}
             ofd.write(json.dumps(v) + "\n")
         for k, v in subreddits.items():
             v["id"] = k
             v["entity_type"] = "subreddit"
+            v = {k : vv for k, vv in v.items() if vv}
             ofd.write(json.dumps(v) + "\n")

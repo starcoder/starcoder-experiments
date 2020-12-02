@@ -11,29 +11,38 @@
 	"domain" : "Public Health"
     },
     "data_fields" : {
-	"name" : {"type" : "categorical"},
+	"name" : {"type" : "text"},
+	"screen_name" : {"type" : "text"},
 	"description" : {"type" : "text"},
 	"friends_count" : {"type" : "scalar"},
 	"followers_count" : {"type" : "scalar"},
+	"statuses_count" : {"type" : "scalar"},
 	"favourites_count" : {"type" : "scalar"},
-	"posted_at" : {"type" : "date", "format" : "%Y"},
-	"text" : {"type" : "text"},	
+	"reply_count" : {"type" : "scalar"},
+	"created_at" : {"type" : "datetime", "format" : "%a %b %d %H:%M:%S %z %Y"},
+	"text" : {"type" : "text"},
 	"source" : {"type" : "categorical"},
-	"lang" : {"type" : "categorical"},
+	"language" : {"type" : "categorical"},
 	"location" : {"type" : "place"}
     },
     "entity_types" : {
 	"user" : {
-	    "data_fields" : ["name", "description", "friends_count", "followers_count", "favourites_count"],
+	    "data_fields" : ["name", "screen_name", "description", "friends_count", "followers_count", "favourites_count", "statuses_count", "created_at"],
 	    "meta" : {
 		"display" : "{0.name}"
 	    }
 	},
 	"tweet" : {
-	    "data_fields" : ["text", "posted_at", "source", "lang", "location"],
+	    "data_fields" : ["text", "created_at", "source", "language", "location", "reply_count"],
 	    "meta" : {
 		"display" : "{0.lang} {0.posted_at}"
 	    }	    
+	},
+	"retweet" : {
+	    "data_fields" : ["created_at", "source"]
+	},
+	"quote" : {
+	    "data_fields" : ["created_at", "source"]
 	}
     },
     "relationship_fields" : {
@@ -42,8 +51,20 @@
             "target_entity_type" : "user"
 	},
 	"retweet_of" : {
-	    "source_entity_type" : "tweet",
+	    "source_entity_type" : "retweet",
 	    "target_entity_type" : "tweet"
+	},
+	"quote_of" : {
+	    "source_entity_type" : "quote",
+	    "target_entity_type" : "tweet"
+	},
+	"retweeted_by" : {
+	    "source_entity_type" : "retweet",
+	    "target_entity_type" : "user"
+	},
+	"quoted_by" : {
+	    "source_entity_type" : "quote",
+	    "target_entity_type" : "user"
 	}
     }
 }

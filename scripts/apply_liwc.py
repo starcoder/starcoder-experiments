@@ -4,11 +4,12 @@ Compute LIWC weights for each element in a JSON-lines file.
 
 Author: Arya D. McCarthy
 """
-from __future__ import annotations
+#from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import gzip
 import json
+import numpy
 from pathlib import Path
 import sys
 from typing import (
@@ -52,7 +53,7 @@ class Liwc:
     lexicon: Lexicon
 
     @classmethod
-    def from_file(cls, file: IO) -> Liwc:
+    def from_file(cls, file: IO):
         lexicon = cls._extract_mapping_from_stream(file)
         return Liwc(lexicon)
 
@@ -94,7 +95,8 @@ def main():
 
     with open(args.schema, "rt") as ifd:
         schema = json.loads(ifd.read())
-
+    idf = schema["meta"]["id_field"]
+    etf = schema["meta"]["entity_type_field"]
     with gzip.open(args.output, "wt") as ofd:
         with gzip.open(args.data, "rt") as reader:
             for line in tqdm.tqdm(reader):
@@ -104,8 +106,13 @@ def main():
                     if schema["data_fields"].get(k, {}).get("type", None) == "text":
                         texts.append(tweet_tokenizer.tokenize(v))
                 tokens = sum(texts, [])
-                j["liwc_features"] = liwc.compute_features(tokens)
-                ofd.write(json.dumps(j) + "\n")
+                item = {
+                    "liwc_features" : {k : v for k, v in liwc.compute_features(tokens).items() if not numpy.isnan(v) and v > 0},
+                    "id" : j[idf],
+                    "entity_type" : j[etf]
+                }
+                if len(item["liwc_features"]) > 0:
+                    ofd.write(json.dumps(item) + "\n")
 
 
 if __name__ == "__main__":

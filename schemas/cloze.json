@@ -11,13 +11,61 @@
 	"domain" : "Literature"
     },
     "data_fields" : {
+	"title" : {"type" : "text"},
+	"name" : {"type" : "text"},
+	"text" : {"type" : "text"},
+	"ann_type" : {"type" : "categorical"},
+	"ann_subtype" : {"type" : "categorical"},
+	"value" : {"type" : "categorical"},
+	"explanation" : {"type" : "text"},
+	"split" : {"type" : "categorical"},
+	"username" : {"type" : "categorical"}
     },
     "entity_types" : {
 	"story" : {
+	    "data_fields" : ["title", "split"]
 	},
 	"line" : {
+	    "data_fields" : ["text"]
+	},
+	"character" : {
+	    "data_fields" : ["name"]
+	},
+	"annotator" : {
+	    "data_fields" : ["username"]
+	},
+	"annotation" : {
+	    "data_fields" : ["ann_type", "ann_subtype", "value", "explanation"]
 	}
     },
     "relationship_fields" : {
+	"precedes" : {
+	    "source_entity_type" : "line",
+	    "target_entity_type" : "line"
+	},
+	"occurs_in" : {
+	    "source_entity_type" : "character",
+	    "target_entity_type" : "story"	    
+	},
+	"mentioned_in" : {
+	    "source_entity_type" : "character",
+	    "target_entity_type" : "line"
+	},
+	"annotates_line" : {
+	    "source_entity_type" : "annotation",
+	    "target_entity_type" : "line"
+	},
+	"annotates_character" : {
+	    "source_entity_type" : "annotation",
+	    "target_entity_type" : "character"
+	},
+	"created_by" : {
+	    "source_entity_type" : "annotation",
+	    "target_entity_type" : "annotator"	    
+	},
+	"line_of" : {
+	    "source_entity_type" : "line",
+	    "target_entity_type" : "story"
+	}
     }
 }

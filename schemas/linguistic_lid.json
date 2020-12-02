@@ -12,7 +12,7 @@
     },
     "data_fields" : {
 	"tweet_language" : {"type" : "categorical"},
-	"tweet_text" : {"type" : "text"},
+	"tweet_text" : {"type" : "distribution"},
 	"language_name" : {"type" : "categorical"},
 	"genus_name" : {"type" : "categorical"},
 	"family_name" : {"type" : "categorical"},

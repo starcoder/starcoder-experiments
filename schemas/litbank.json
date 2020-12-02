@@ -40,7 +40,7 @@
 	"event" : {"data_fields" : []},
 	"quote" : {"data_fields" : []},
 	"discourse_entity" : {"data_fields" : []},
-	"mention" : {"data_fields" : []},
+	"mention" : {"data_fields" : ["mention_type", "named_entity_type"]},
 	"coreference" : {"data_fields" : []},
 	"copula" : {"data_fields" : []},
 	"appositive" : {"data_fields" : []}	
@@ -95,7 +95,7 @@
             "target_entity_type" : "mention"
 	},
 	"renames_to" : {
-            "source_entity_type" : "renames_to",
+            "source_entity_type" : "appositive",
             "target_entity_type" : "mention"
 	},
 	"spoken_by" : {

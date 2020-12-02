@@ -161,18 +161,18 @@ if __name__ == "__main__":
                 train_neuron_dropout=args.train_neuron_dropout,
                 dev_field_dropout=args.dev_field_dropout,
             )
-            logger.info("train scores: " + " ".join(["{}={:.4}".format(k, sum(v) / len(v)) for k, v in train_score_by_field.items()]))
-            logger.info("dev scores:   " + " ".join(["{}={:.4}".format(k, sum(v) / len(v)) for k, v in dev_score_by_field.items()]))
+            #logger.info("train scores: " + " ".join(["{}={:.4}".format(k, sum(v) / len(v)) for k, v in train_score_by_field.items()]))
+            #logger.info("dev scores:   " + " ".join(["{}={:.4}".format(k, sum(v) / len(v)) for k, v in dev_score_by_field.items()]))
             trace = {
                 "iteration" : e,
                 "losses" : {
-                    "train" : {k : v.item() for k, v in train_loss_by_field.items()},
-                    "dev" : {k : v.item() for k, v in dev_loss_by_field.items()},
+                    #"train" : {k : v.item() for k, v in train_loss_by_field.items()},
+                    #"dev" : {k : v.item() for k, v in dev_loss_by_field.items()},
                 },
                 "scores" : {}
             }
-            for k, v in dev_score_by_field.items():
-                trace["scores"][k] = 0 if len(v) == 0 else sum(v) / len(v)
+            #for k, v in dev_score_by_field.items():
+                #trace["scores"][k] = 0 if len(v) == 0 else sum(v) / len(v)
             #for field_name in dev_data.schema.data_fields.keys():
             #    trace["scores"][field_name] = apply_to_globally_masked_components(                
             #        [field_name],

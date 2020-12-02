@@ -5,6 +5,8 @@ import json
 import re
 from geocoding import Geocoder
 
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -43,8 +45,8 @@ if __name__ == "__main__":
                 "binds_to" : bound_to.get("name"),
                 "with_consent_of" : consentor.get("name"),
                 "assigned_by" : assignor.get("name"),
-                "departed_from" : departure_location.get("address"),
-                "located_at" : bondage_location.get("address"),
+                "departed_from" : "loc ".format(departure_location.get("address")),
+                "located_at" : "loc ".format(bondage_location.get("address")),
                 "at_expiration" : row["At Expiration"],
                 "to_be_found" : row["To Be Found"],
                 "to_be_taught" : row["To Be Taught"],
@@ -72,7 +74,7 @@ if __name__ == "__main__":
                     g = geocoder(loc["address"])
                     if g != None:
                         loc["coordinates"] = g
-                    entities["location"][loc["address"]] = loc
+                    entities["location"]["loc ".format(loc["address"])] = loc
             for person in [bound, bound_to, assignor, consentor, ]:
                 if person:
                     entities["person"][person["name"]] = person

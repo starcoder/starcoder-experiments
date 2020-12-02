@@ -37,6 +37,8 @@ if __name__ == "__main__":
     all_entities = []
     with gzip.open(args.inputs[0], "rt") as ifd:
         for i, line in list(enumerate(ifd)):
+            if i > 10000:
+                break
             entities = {}
             for k, v in json.loads(line).items():
                 entity_type = k.split("_")[0]

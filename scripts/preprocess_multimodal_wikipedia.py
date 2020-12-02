@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     data_path = os.path.dirname(args.inputs[0])
     with gzip.open(args.inputs[0], "rt") as ifd, gzip.open(args.output, "wt") as ofd:
-        for line in ifd:
+        for i, line in enumerate(ifd):
             j = json.loads(line)
             #for field_name in ["has_image", "image"]:
             #    if field_name in j:
