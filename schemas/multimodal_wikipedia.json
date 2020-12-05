@@ -1,62 +1,85 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },        
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Multimodal Wikipedia",
-	"owners" : [],
-	"description" : "Featured Wikipedia articles with associated image, audio, and video content.",
-	"domain" : "Other"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Multimodal Wikipedia",
+    "owners": [],
+    "description": "Featured Wikipedia articles with associated image, audio, and video content.",
+    "domain": "Other",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "article": {
+      "meta": {
+        "display": "{0.title}"
+      },
+      "properties": [
+        "title",
+        "text"
+      ]
     },
-    "data_fields" : {
-	"title" : {"type" : "categorical"},
-	"text" : {"type" : "text"},
-	"video" : {"type" : "video",
-		   "width" : 128,
-		   "height" : 128,
-		   "channels" : 3,
-		   "channel_size" : 24
-		  },
-	"audio" : {"type" : "audio",
-		   "channels" : 1,
-		   "channel_size" : 8
-		  },
-	"image" : {"type" : "image",
-		   "width" : 128,
-		   "height" : 128,
-		   "channels" : 3,
-		   "channel_size" : 8
-		  }
+    "video": {
+      "properties": [
+        "audio",
+        "video"
+      ]
     },
-    "entity_types" : {
-	"article" : {
-	    "data_fields" : ["title", "text"],
-	    "meta" : {
-		"display" : "{0.title}"
-	    }
-	},
-	"video" : {"data_fields" : ["audio", "video"]},
-	"audio" : {"data_fields" : ["audio"]},
-	"image" : {"data_fields" : ["image"]}
+    "audio": {
+      "properties": [
+        "audio"
+      ]
     },
-    "relationship_fields" : {
-	"links_to_article" : {
-	    "source_entity_type" : "article",
-	    "target_entity_type" : "article"
-	},
-	"has_audio" : {
-	    "source_entity_type" : "article",
-	    "target_entity_type" : "audio"
-	},	    
-	"has_video" : {
-	    "source_entity_type" : "article",
-	    "target_entity_type" : "video"
-	},	    
-	"has_image" : {
-	    "source_entity_type" : "article",
-	    "target_entity_type" : "image"
-	}	
+    "image": {
+      "properties": [
+        "image"
+      ]
     }
+  },
+  "properties": {
+    "title": {
+      "type": "categorical"
+    },
+    "text": {
+      "type": "text"
+    },
+    "video": {
+      "type": "video",
+      "width": 128,
+      "height": 128,
+      "channels": 3,
+      "channel_size": 24
+    },
+    "audio": {
+      "type": "audio",
+      "channels": 1,
+      "channel_size": 8
+    },
+    "image": {
+      "type": "image",
+      "width": 128,
+      "height": 128,
+      "channels": 3,
+      "channel_size": 8
+    }
+  },
+  "relationships": {
+    "links_to_article": {
+      "source_entity_type": "article",
+      "target_entity_type": "article"
+    },
+    "has_audio": {
+      "source_entity_type": "article",
+      "target_entity_type": "audio"
+    },
+    "has_video": {
+      "source_entity_type": "article",
+      "target_entity_type": "video"
+    },
+    "has_image": {
+      "source_entity_type": "article",
+      "target_entity_type": "image"
+    }
+  }
 }

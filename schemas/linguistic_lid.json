@@ -1,71 +1,94 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Linguistically-informed Language Identification",
-	"owners" : [],
-	"description" : "Language identification of Twitter data using the WALS hierarchy.",
-	"domain" : "Computational Linguistics"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Linguistically-informed Language Identification",
+    "owners": [],
+    "description": "Language identification of Twitter data using the WALS hierarchy.",
+    "domain": "Computational Linguistics",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "tweet": {
+      "meta": {
+        "display": "{0.tweet_text}"
+      },
+      "properties": [
+        "tweet_language",
+        "tweet_text"
+      ]
     },
-    "data_fields" : {
-	"tweet_language" : {"type" : "categorical"},
-	"tweet_text" : {"type" : "distribution"},
-	"language_name" : {"type" : "categorical"},
-	"genus_name" : {"type" : "categorical"},
-	"family_name" : {"type" : "categorical"},
-	"macroarea_name" : {"type" : "categorical"}
+    "language": {
+      "meta": {
+        "display": "{0.language_name}"
+      },
+      "properties": [
+        "language_name"
+      ]
     },
-    "entity_types" : {
-	"tweet" : {
-	    "data_fields" : ["tweet_language", "tweet_text"],
-	    "meta" : {
-		"display" : "{0.tweet_text}"
-	    }	    
-	},
-	"language" : {
-	    "data_fields" : ["language_name"],
-	    "meta" : {
-		"display" : "{0.language_name}"
-	    }	    
-	},
-	"genus" : {
-	    "data_fields" : ["genus_name"],
-	    "meta" : {
-		"display" : "{0.genus_name}"
-	    }	    
-	},
-	"family" : {
-	    "data_fields" : ["family_name"],
-	    "meta" : {
-		"display" : "{0.family_name}"
-	    }	    
-	},
-	"macroarea" : {
-	    "data_fields" : ["macroarea_name"],
-	    "meta" : {
-		"display" : "{0.macroarea_name}"
-	    }	    
-	}
+    "genus": {
+      "meta": {
+        "display": "{0.genus_name}"
+      },
+      "properties": [
+        "genus_name"
+      ]
     },
-    "relationship_fields" : {
-	"written_in" : {
-            "source_entity_type" : "tweet",
-            "target_entity_type" : "language"
-	},
-	"from_genus" : {
-            "source_entity_type" : "language",
-            "target_entity_type" : "genus"
-	},
-	"from_family" : {
-            "source_entity_type" : "genus",
-            "target_entity_type" : "family"
-	},
-	"from_macroarea" : {
-            "source_entity_type" : "family",
-            "target_entity_type" : "macroarea"
-	}
+    "family": {
+      "meta": {
+        "display": "{0.family_name}"
+      },
+      "properties": [
+        "family_name"
+      ]
+    },
+    "macroarea": {
+      "meta": {
+        "display": "{0.macroarea_name}"
+      },
+      "properties": [
+        "macroarea_name"
+      ]
     }
+  },
+  "properties": {
+    "tweet_language": {
+      "type": "categorical"
+    },
+    "tweet_text": {
+      "type": "text"
+    },
+    "language_name": {
+      "type": "categorical"
+    },
+    "genus_name": {
+      "type": "categorical"
+    },
+    "family_name": {
+      "type": "categorical"
+    },
+    "macroarea_name": {
+      "type": "categorical"
+    }
+  },
+  "relationships": {
+    "written_in": {
+      "source_entity_type": "tweet",
+      "target_entity_type": "language"
+    },
+    "from_genus": {
+      "source_entity_type": "language",
+      "target_entity_type": "genus"
+    },
+    "from_family": {
+      "source_entity_type": "genus",
+      "target_entity_type": "family"
+    },
+    "from_macroarea": {
+      "source_entity_type": "family",
+      "target_entity_type": "macroarea"
+    }
+  }
 }

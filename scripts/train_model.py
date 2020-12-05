@@ -12,12 +12,12 @@ from torch.optim import Adam, SGD
 from torch.optim.optimizer import Optimizer
 import torch
 from torch import Tensor
-from starcoder.registry import field_model_classes, batchifier_classes, field_classes, scheduler_classes
+from starcoder.registry import property_model_classes, batchifier_classes, property_classes, scheduler_classes
 from starcoder.ensemble_model import GraphAutoencoder
 from starcoder.dataset import Dataset
 from starcoder.schema import Schema
 from starcoder.batchifier import Batchifier
-from starcoder.field import CategoricalField
+from starcoder.property import CategoricalProperty
 from starcoder.random import random
 from starcoder.utils import run_epoch, simple_loss_policy
 from torch.autograd import set_detect_anomaly
@@ -25,10 +25,9 @@ set_detect_anomaly(True)
 from typing import Dict, List, Any, Tuple
 import os
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("train_model")
 
 warnings.filterwarnings("ignore")
-
 
 if __name__ == "__main__":
 
@@ -45,11 +44,12 @@ if __name__ == "__main__":
     parser.add_argument("--hidden_size", type=int, dest="hidden_size", default=32, help="Size of embeddings")
     parser.add_argument("--rnn_max_decode", type=int, dest="rnn_max_decode", default=100, help="")
     parser.add_argument("--train_neuron_dropout", type=float, dest="train_neuron_dropout", default=0.0, help="Size of embeddings")
-    parser.add_argument("--train_field_dropout", type=float, dest="train_field_dropout", default=0.0, help="Size of embeddings")
-    parser.add_argument("--dev_field_dropout", type=float, dest="dev_field_dropout", default=0.0, help="Size of embeddings")
+    parser.add_argument("--train_property_dropout", type=float, dest="train_property_dropout", default=0.0, help="Size of embeddings")
+    parser.add_argument("--dev_property_dropout", type=float, dest="dev_property_dropout", default=0.0, help="Size of embeddings")
     parser.add_argument("--autoencoder_shapes", type=int, default=[], dest="autoencoder_shapes", nargs="*", help="Autoencoder layer sizes")
-    #parser.add_argument("--mask", dest="mask", default=[], nargs="*", help="Fields to mask")
     parser.add_argument("--ae_loss", dest="ae_loss", default=False, action="store_true", help="Optimize autoencoder loss directly")
+    parser.add_argument("--depthwise_boost", dest="depthwise_boost", default="none", choices=["none", "residual", "reconstruction"],
+                        help="Method to address vanishing gradient in stacked autoencoders")
     
     # training-related
     parser.add_argument("--batchifier_class", dest="batchifier_class", default="sample_entities", choices=batchifier_classes.keys(),
@@ -70,13 +70,14 @@ if __name__ == "__main__":
 
     # miscellaneous
     parser.add_argument("--random_seed", dest="random_seed", default=None, type=int, help="Random seed")
-    parser.add_argument("--log_level", dest="log_level", default="INFO", choices=["ERROR", "WARNING", "INFO", "DEBUG"], help="Logging level")
-    
+    parser.add_argument("--log_level", dest="log_level", default="ERROR", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], help="Logging level")
     args, rest = parser.parse_known_args()
     batchifier = batchifier_classes[args.batchifier_class](rest)
-    #mask_tests = [eval(l) for l in args.mask]
 
-    logging.basicConfig(level=getattr(logging, args.log_level))
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format='%(name)s - %(asctime)s - %(levelname)s - %(message)s'
+    )
     
     if isinstance(args.random_seed, int):
         logger.info("Setting random seed to %d across the board", args.random_seed)
@@ -86,8 +87,6 @@ if __name__ == "__main__":
         torch.backends.cudnn.deterministic = True # type: ignore
         torch.backends.cudnn.benchmark = False # type: ignore
         numpy.random.seed(args.random_seed)
-        #starcoder.random.seed(args.random_seed)
-        #os.environ['PYTHONHASHSEED'] = str(args.random_seed)
     with gzip.open(args.data, "rb") as ifd:
         data = pickle.load(ifd) # type: ignore
         
@@ -96,11 +95,9 @@ if __name__ == "__main__":
 
     with gzip.open(args.train, "rt") as ifd:
         train_ids = [x[:-1] for x in ifd]
-        #pickle.load(ifd) # type: ignore
 
     with gzip.open(args.dev, "rt") as ifd:
         dev_ids = [x[:-1] for x in ifd]
-        #dev_ids = pickle.load(ifd) # type: ignore
         
     train_data = data.subselect_entities(train_ids)
     dev_data = data.subselect_entities(dev_ids)
@@ -119,6 +116,7 @@ if __name__ == "__main__":
                                  autoencoder_shapes=args.autoencoder_shapes,
                                  reverse_relationships=True,
                                  train_neuron_dropout=args.train_neuron_dropout,
+                                 depthwise_boost=args.depthwise_boost,
         )        
         if args.gpu:
             model.cuda()
@@ -147,7 +145,7 @@ if __name__ == "__main__":
         
         for e in range(1, args.max_epochs + 1):
 
-            train_loss, train_loss_by_field, dev_loss, dev_loss_by_field, train_score_by_field, dev_score_by_field = run_epoch(
+            train_loss, train_loss_by_property, dev_loss, dev_loss_by_property, train_score_by_property, dev_score_by_property = run_epoch(
                 model,
                 batchifier,
                 optim,
@@ -157,31 +155,16 @@ if __name__ == "__main__":
                 args.batch_size, 
                 args.gpu,
                 subselect=args.subselect,
-                train_field_dropout=args.train_field_dropout,
+                train_property_dropout=args.train_property_dropout,
                 train_neuron_dropout=args.train_neuron_dropout,
-                dev_field_dropout=args.dev_field_dropout,
+                dev_property_dropout=args.dev_property_dropout,
             )
-            #logger.info("train scores: " + " ".join(["{}={:.4}".format(k, sum(v) / len(v)) for k, v in train_score_by_field.items()]))
-            #logger.info("dev scores:   " + " ".join(["{}={:.4}".format(k, sum(v) / len(v)) for k, v in dev_score_by_field.items()]))
             trace = {
                 "iteration" : e,
                 "losses" : {
-                    #"train" : {k : v.item() for k, v in train_loss_by_field.items()},
-                    #"dev" : {k : v.item() for k, v in dev_loss_by_field.items()},
                 },
                 "scores" : {}
             }
-            #for k, v in dev_score_by_field.items():
-                #trace["scores"][k] = 0 if len(v) == 0 else sum(v) / len(v)
-            #for field_name in dev_data.schema.data_fields.keys():
-            #    trace["scores"][field_name] = apply_to_globally_masked_components(                
-            #        [field_name],
-            #        model,
-            #        batchifier,
-            #        dev_data,
-            #        args.batch_size,
-            #        args.gpu
-            #    )
 
             current_trace.append(trace)
             
@@ -223,24 +206,9 @@ if __name__ == "__main__":
         torch.save((global_best_state, args, data.schema), ofd) # type: ignore
 
     with gzip.open(args.trace_output, "wt") as ofd:
-        #print(best_trace)
-        final_trace: Dict[str, Any] = {} #"train" : {}, "dev" : {}}
+        final_trace: Dict[str, Any] = {}
         for epoch in best_trace:
-            for split_name, fields in epoch.items():
+            for split_name, properties in epoch.items():
                 final_trace[split_name] = final_trace.get(split_name, {})
-                #for field, loss in fields.items():
-                #    final_trace[split_name][field.type_name] = final_trace[split_name].get(field.type_name, {})
-                #    final_trace[split_name][field.type_name][field.name] = final_trace[split_name][field.type_name].get(field.name, [])
-                #    final_trace[split_name][field.type_name][field.name].append(loss.item())
-                    #final_trace["train"][field.type_name] = final_trace["train"].get(field.type_name, {})
-                    #final_trace["train"][field.type_name][field.name] = final_trace["train"][field.type_name].get(field.name, [])
-                    #train_loss = [x.tolist() for x in train_loss]
-                    #final_trace["train"][field.type_name][field.name].append(train_loss)
-        #for item in best_trace[1]:
-        #    for field, dev_loss in item.items():
-        #        final_trace["dev"][field.type_name] = final_trace["dev"].get(field.type_name, {})
-        #        final_trace["dev"][field.type_name][field.name] = final_trace["dev"][field.type_name].get(field.name, [])
-        #        dev_loss = sum(sum([x.tolist() for x in dev_loss], []))
-        #        final_trace["dev"][field.type_name][field.name].append(dev_loss)
         ofd.write(json.dumps(best_trace)) # type: ignore
 

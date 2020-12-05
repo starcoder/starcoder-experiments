@@ -1,39 +1,46 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Arithmetic Example",
-	"owners" : [],
-	"description" : "Example of learning to solve simple arithmetic expressions.",
-	"domain" : "Other"
-    },
-    "data_fields" : {
-	"operation_name" : {"type" : "categorical"},
-	"value" : { "type" : "scalar"}
-    },
-    "entity_types" : {
-	"node" : {
-	    "data_fields" : ["operation_name", "value"],
-	    "meta" : {
-		"display" : "{0.operation_name}({0.value})"
-	    }	    
-	}
-    },
-    "relationship_fields" : {
-	"unary_arg" : {
-            "source_entity_type" : "node",
-            "target_entity_type" : "node"
-	},
-	"left_arg" : {
-            "source_entity_type" : "node",
-            "target_entity_type" : "node"
-	},
-	"right_arg" : {
-            "source_entity_type" : "node",
-            "target_entity_type" : "node"
-	}
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Arithmetic Example",
+    "owners": [],
+    "description": "Example of learning to solve simple arithmetic expressions.",
+    "domain": "Other",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "node": {
+      "meta": {
+        "display": "{0.operation_name}({0.value})"
+      },
+      "properties": [
+        "operation_name",
+        "value"
+      ]
     }
+  },
+  "properties": {
+    "operation_name": {
+      "type": "categorical"
+    },
+    "value": {
+      "type": "scalar"
+    }
+  },
+  "relationships": {
+    "unary_arg": {
+      "source_entity_type": "node",
+      "target_entity_type": "node"
+    },
+    "left_arg": {
+      "source_entity_type": "node",
+      "target_entity_type": "node"
+    },
+    "right_arg": {
+      "source_entity_type": "node",
+      "target_entity_type": "node"
+    }
+  }
 }

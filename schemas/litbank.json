@@ -1,106 +1,150 @@
 {
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "LitBank",
-	"owners" : [],
-	"description" : "Excerpts from English-language novels annotated for entities and coreference.",
-	"domain" : "Literature"
+  "meta": {
+    "name": "LitBank",
+    "owners": [],
+    "description": "Excerpts from English-language novels annotated for entities and coreference.",
+    "domain": "Literature",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "book": {
+      "meta": {
+        "display": "{0.title}"
+      },
+      "properties": [
+        "title"
+      ]
     },
-    "data_fields" : {
-	"title" : {"type" : "categorical"},
-	"form" : {"type" : "categorical"},
-	"given_name" : {"type" : "categorical"},
-	"surname" : {"type" : "categorical"},
-	"anno_domini" : {"type" : "scalar"},
-	"named_entity_type" : {"type" : "categorical"},
-	"mention_type" : {"type" : "categorical"}
+    "sentence": {
+      "properties": []
     },
-    "entity_types" : {
-	"book" : {
-	    "data_fields" : ["title"],
-	    "meta" : {
-		"display" : "{0.title}"
-	    }
-	},
-	"sentence" : {"data_fields" : []},
-	"word" : {"data_fields" : ["form"]},
-	"author" : {
-	    "data_fields" : ["given_name", "surname"],
-	    "meta" : {
-		"display" : "{0.given_name} {0.surname}"
-	    }
-	},
-	"year" : {
-	    "data_fields" : ["anno_domini"],
-	    "meta" : {
-		"display" : "{0.anno_domini}"
-	    }
-	},
-	"event" : {"data_fields" : []},
-	"quote" : {"data_fields" : []},
-	"discourse_entity" : {"data_fields" : []},
-	"mention" : {"data_fields" : ["mention_type", "named_entity_type"]},
-	"coreference" : {"data_fields" : []},
-	"copula" : {"data_fields" : []},
-	"appositive" : {"data_fields" : []}	
+    "word": {
+      "properties": [
+        "form"
+      ]
     },
-    "relationship_fields" : {
-	"written_by" : {
-            "source_entity_type" : "book",
-            "target_entity_type" : "author"
-	},
-	"from_book" : {
-            "source_entity_type" : "sentence",
-            "target_entity_type" : "book"
-	},
-	"from_sentence" : {
-            "source_entity_type" : "word",
-            "target_entity_type" : "sentence"
-	},
-	"published_in" : {
-            "source_entity_type" : "book",
-            "target_entity_type" : "year"
-	},
-	"part_of_mention" : {
-            "source_entity_type" : "word",
-            "target_entity_type" : "mention"
-	},
-	"part_of_quote" : {
-            "source_entity_type" : "word",
-            "target_entity_type" : "quote"
-	},
-	"realizes_event" : {
-            "source_entity_type" : "word",
-            "target_entity_type" : "event"
-	},	
-	"realized_by_mention" : {
-            "source_entity_type" : "coreference",
-            "target_entity_type" : "mention"
-	},
-	"realizes_discourse_entity" : {
-            "source_entity_type" : "coreference",
-            "target_entity_type" : "discourse_entity"
-	},
-	"copula_object" : {
-            "source_entity_type" : "copula",
-            "target_entity_type" : "mention"
-	},
-	"copula_attribute" : {
-            "source_entity_type" : "copula",
-            "target_entity_type" : "mention"
-	},
-	"renames" : {
-            "source_entity_type" : "appositive",
-            "target_entity_type" : "mention"
-	},
-	"renames_to" : {
-            "source_entity_type" : "appositive",
-            "target_entity_type" : "mention"
-	},
-	"spoken_by" : {
-            "source_entity_type" : "quote",
-            "target_entity_type" : "discourse_entity"	    
-	}
+    "author": {
+      "meta": {
+        "display": "{0.given_name} {0.surname}"
+      },
+      "properties": [
+        "given_name",
+        "surname"
+      ]
+    },
+    "year": {
+      "meta": {
+        "display": "{0.anno_domini}"
+      },
+      "properties": [
+        "anno_domini"
+      ]
+    },
+    "event": {
+      "properties": []
+    },
+    "quote": {
+      "properties": []
+    },
+    "discourse_entity": {
+      "properties": []
+    },
+    "mention": {
+      "properties": [
+        "mention_type",
+        "named_entity_type"
+      ]
+    },
+    "coreference": {
+      "properties": []
+    },
+    "copula": {
+      "properties": []
+    },
+    "appositive": {
+      "properties": []
     }
+  },
+  "properties": {
+    "title": {
+      "type": "categorical"
+    },
+    "form": {
+      "type": "categorical"
+    },
+    "given_name": {
+      "type": "categorical"
+    },
+    "surname": {
+      "type": "categorical"
+    },
+    "anno_domini": {
+      "type": "scalar"
+    },
+    "named_entity_type": {
+      "type": "categorical"
+    },
+    "mention_type": {
+      "type": "categorical"
+    }
+  },
+  "relationships": {
+    "written_by": {
+      "source_entity_type": "book",
+      "target_entity_type": "author"
+    },
+    "from_book": {
+      "source_entity_type": "sentence",
+      "target_entity_type": "book"
+    },
+    "from_sentence": {
+      "source_entity_type": "word",
+      "target_entity_type": "sentence"
+    },
+    "published_in": {
+      "source_entity_type": "book",
+      "target_entity_type": "year"
+    },
+    "part_of_mention": {
+      "source_entity_type": "word",
+      "target_entity_type": "mention"
+    },
+    "part_of_quote": {
+      "source_entity_type": "word",
+      "target_entity_type": "quote"
+    },
+    "realizes_event": {
+      "source_entity_type": "word",
+      "target_entity_type": "event"
+    },
+    "realized_by_mention": {
+      "source_entity_type": "coreference",
+      "target_entity_type": "mention"
+    },
+    "realizes_discourse_entity": {
+      "source_entity_type": "coreference",
+      "target_entity_type": "discourse_entity"
+    },
+    "copula_object": {
+      "source_entity_type": "copula",
+      "target_entity_type": "mention"
+    },
+    "copula_attribute": {
+      "source_entity_type": "copula",
+      "target_entity_type": "mention"
+    },
+    "renames": {
+      "source_entity_type": "appositive",
+      "target_entity_type": "mention"
+    },
+    "renames_to": {
+      "source_entity_type": "appositive",
+      "target_entity_type": "mention"
+    },
+    "spoken_by": {
+      "source_entity_type": "quote",
+      "target_entity_type": "discourse_entity"
+    }
+  }
 }

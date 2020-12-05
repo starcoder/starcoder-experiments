@@ -1,72 +1,94 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Documentary Hypothesis",
-	"description" : "The oldest known full manuscript of the Hebrew bible, annotated according to (a version of) the compositional theory of Julius Wellhausen.",
-	"owners" : [],
-	"domain" : "Ancient Near East"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Documentary Hypothesis",
+    "description": "The oldest known full manuscript of the Hebrew bible, annotated according to (a version of) the compositional theory of Julius Wellhausen.",
+    "owners": [],
+    "domain": "Ancient Near East",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "source": {
+      "meta": {
+        "display": "{0.source_name}"
+      },
+      "properties": [
+        "source_name"
+      ]
     },
-    "data_fields" : {
-	"source_name" : {"type" : "categorical"},
-	"document_name" : {"type" : "categorical"},
-	"book_name" : {"type" : "categorical"},
-	"chapter_number" : {"type" : "scalar"},
-	"verse_number" : {"type" : "scalar"},
-	"words" : {"type" : "text"}
+    "document": {
+      "meta": {
+        "display": "{0.document_name}"
+      },
+      "properties": [
+        "document_name"
+      ]
     },
-    "entity_types" : {
-	"source" : {
-	    "data_fields" : ["source_name"],
-	    "meta" : {
-		"display" : "{0.source_name}"
-	    }
-	},
-	"document" : {
-	    "data_fields" : ["document_name"],
-	    "meta" : {
-		"display" : "{0.document_name}"
-	    }
-	},
-	"book" : {
-	    "data_fields" : ["book_name"],
-	    "meta" : {
-		"display" : "{0.book_name}"
-	    }
-	},
-	"chapter" : {
-	    "data_fields" : ["chapter_number"],
-	    "meta" : {
-		"display" : "{0.chapter_name}"
-	    }
-	},
-	"verse" : {
-	    "data_fields" : ["verse_number", "words"],
-	    "meta" : {
-		"display" : "{0.verse_number}"
-	    }
-	}
+    "book": {
+      "meta": {
+        "display": "{0.book_name}"
+      },
+      "properties": [
+        "book_name"
+      ]
     },
-    "relationship_fields" : {
-	"from_document" : {
-            "source_entity_type" : "book",
-            "target_entity_type" : "document"
-	},
-	"from_book" : {
-            "source_entity_type" : "chapter",
-            "target_entity_type" : "book"
-	},
-	"from_chapter" : {
-            "source_entity_type" : "verse",
-            "target_entity_type" : "chapter"
-	},
-	"from_source" : {
-            "source_entity_type" : "verse",
-            "target_entity_type" : "source"
-	}	
-
+    "chapter": {
+      "meta": {
+        "display": "{0.chapter_name}"
+      },
+      "properties": [
+        "chapter_number"
+      ]
+    },
+    "verse": {
+      "meta": {
+        "display": "{0.verse_number}"
+      },
+      "properties": [
+        "verse_number",
+        "words"
+      ]
     }
+  },
+  "properties": {
+    "source_name": {
+      "type": "categorical"
+    },
+    "document_name": {
+      "type": "categorical"
+    },
+    "book_name": {
+      "type": "categorical"
+    },
+    "chapter_number": {
+      "type": "scalar"
+    },
+    "verse_number": {
+      "type": "scalar"
+    },
+    "words": {
+      "type": "text"
+    }
+  },
+  "relationships": {
+    "from_document": {
+      "source_entity_type": "book",
+      "target_entity_type": "document"
+    },
+    "from_book": {
+      "source_entity_type": "chapter",
+      "target_entity_type": "book"
+    },
+    "from_chapter": {
+      "source_entity_type": "verse",
+      "target_entity_type": "chapter"
+    },
+    "from_source": {
+      "source_entity_type": "verse",
+      "target_entity_type": "source"
+    }
+  }
 }

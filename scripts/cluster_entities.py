@@ -6,6 +6,7 @@ import numpy
 import sklearn.cluster
 import json
 from starcoder.schema import Schema
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     with gzip.open(args.input, "rt") as ifd:        
         for line in ifd:
             entity = json.loads(line)
-            entity_type_name = entity["original"][schema.entity_type_field.name]
+            entity_type_name = entity["original"][schema.entity_type_property.name]
             entities[entity_type_name] = entities.get(entity_type_name, []) + [entity]
 
     clusters = sum([run_clustering(v) for v in entities.values()], [])

@@ -1,7 +1,11 @@
 import argparse
 import gzip
+import logging
 import json
+import csv
 from sklearn.metrics import f1_score
+
+logger = logging.getLogger("collate_outputs")
 
 if __name__ == "__main__":
 
@@ -10,8 +14,14 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--test", dest="test", help="Test IDs")
     parser.add_argument("-s", "--schema", dest="schema", help="Schema")
     parser.add_argument("-o", "--output", dest="output", help="Output file")
+    parser.add_argument("--log_level", dest="log_level", default="ERROR", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], help="Logging level")
     args, rest = parser.parse_known_args()
 
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format='%(name)s - %(asctime)s - %(levelname)s - %(message)s'
+    )
+    
     with open(args.schema, "rt") as ifd:
         schema = json.loads(ifd.read())
 
@@ -20,7 +30,8 @@ if __name__ == "__main__":
         for line in ifd:
             test_ids.add(line[:-1])
 
-    data = {}
+    cols = set()
+    data = []
     for i in range(len(args.inputs) // 2):
         cname = args.inputs[i * 2]
         oname = args.inputs[i * 2 + 1]
@@ -36,19 +47,25 @@ if __name__ == "__main__":
                     for k, v in entity["original"].items():
                         rv = entity["reconstruction"].get(k, None)
                         if rv != None:
-                            tp = schema["data_fields"].get(k, {}).get("type")
+                            tp = schema["properties"].get(k, {}).get("type")
                             if tp in ["scalar", "categorical"]:
                                 datum[k] = datum.get(k, [])
                                 datum[k].append((v, rv))
                     #entities.append(entity)
         #print(len(entities))
         for k in list(datum.keys()):
-            tp = schema["data_fields"].get(k, {}).get("type")
+            cols.add(k)
+            tp = schema["properties"].get(k, {}).get("type")
             if tp == "categorical":
                 datum[k] = f1_score(
                     [x for x, _ in datum[k]],
                     [x for _, x in datum[k]],
                     average="macro",
                 )
-        print(datum)
+        data.append(datum)
     
+    with open(args.output, "wt") as ofd:
+        cofd = csv.DictWriter(ofd, fieldnames=list(cols), delimiter="\t")
+        cofd.writeheader()
+        for row in data:
+            cofd.writerow(row)

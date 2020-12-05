@@ -1,37 +1,75 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },        
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Cuneiform Digital Library Initiative",
-	"owners" : ["Paul Delnero"],
-	"description" : "Structured information, transliterations, and transcriptions of Cuneiform artifacts.",
-	"domain" : "Ancient Near East"
-    },
-    "data_fields" : {
-	"text" : {"type" : "text"},
-	"genre" : {"type" : "categorical"},
-	"language" : {"type" : "categorical"},
-	"material" : {"type" : "categorical"},
-	"object_type" : {"type" : "categorical"},
-	"period" : {"type" : "categorical"},
-	"provenience" : {"type" : "categorical"},
-	"subgenre" : {"type" : "categorical"},
-	"thickness" : {"type" : "scalar"},
-	"width" : {"type" : "scalar"},
-	"height" : {"type" : "scalar"},
-	"location" : {"type" : "place"}
-    },
-    "entity_types" : {
-	"inscription" : {
-	    "data_fields" : ["text", "genre", "language", "material", "object_type", "period", "provenience", "subgenre", "thickness", "width", "height", "location"],
-	    "meta" : {
-		"display" : "{0.language} {0.genre} {0.period}"
-	    }
-	}
-    },
-    "relationship_fields" : {
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Cuneiform Digital Library Initiative",
+    "owners": [
+      "Paul Delnero"
+    ],
+    "description": "Structured information, transliterations, and transcriptions of Cuneiform artifacts.",
+    "domain": "Ancient Near East",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "inscription": {
+      "meta": {
+        "display": "{0.language} {0.genre} {0.period}"
+      },
+      "properties": [
+        "text",
+        "genre",
+        "language",
+        "material",
+        "object_type",
+        "period",
+        "provenience",
+        "subgenre",
+        "thickness",
+        "width",
+        "height",
+        "location"
+      ]
     }
+  },
+  "properties": {
+    "text": {
+      "type": "text"
+    },
+    "genre": {
+      "type": "categorical"
+    },
+    "language": {
+      "type": "categorical"
+    },
+    "material": {
+      "type": "categorical"
+    },
+    "object_type": {
+      "type": "categorical"
+    },
+    "period": {
+      "type": "categorical"
+    },
+    "provenience": {
+      "type": "categorical"
+    },
+    "subgenre": {
+      "type": "categorical"
+    },
+    "thickness": {
+      "type": "scalar"
+    },
+    "width": {
+      "type": "scalar"
+    },
+    "height": {
+      "type": "scalar"
+    },
+    "location": {
+      "type": "place"
+    }
+  },
+  "relationships": {}
 }

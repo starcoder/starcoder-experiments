@@ -1,69 +1,94 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Reddit Authorship ID",
+    "owners": [],
+    "description": "Modeling authorship of Reddit posts and comments.",
+    "domain": "Computational Linguistics",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "comment": {
+      "meta": {
+        "display": "{0.author_name} {0.creation_time}"
+      },
+      "properties": [
+        "edited",
+        "text",
+        "creation_time"
+      ]
     },
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Reddit Authorship ID",
-	"owners" : [],
-	"description" : "Modeling authorship of Reddit posts and comments.",
-	"domain" : "Computational Linguistics"
+    "submission": {
+      "meta": {
+        "display": "{0.title}"
+      },
+      "properties": [
+        "title",
+        "text",
+        "creation_time"
+      ]
     },
-    "data_fields" : {
-	"subreddit_name" : {"type" : "categorical"},
-	"edited" : {"type" : "boolean"},
-	"author_name" : {"type" : "categorical"},	
-	"text" : {"type" : "text"},
-	"title" : {"type" : "text"},
-	"creation_time" : {"type" : "datetime", "format" : "utc"}
+    "author": {
+      "meta": {
+        "display": "{0.author_name}"
+      },
+      "properties": [
+        "author_name"
+      ]
     },
-    "entity_types" : {
-	"comment" : {
-	    "data_fields" : ["edited", "text", "creation_time"],
-	    "meta" : {
-		"display" : "{0.author_name} {0.creation_time}"
-	    }
-	},
-	"submission" : {
-	    "data_fields" : ["title", "text", "creation_time"],
-	    "meta" : {
-		"display" : "{0.title}"
-	    }
-	},
-	"author" : {
-	    "data_fields" : ["author_name"],
-	    "meta" : {
-		"display" : "{0.author_name}"
-	    }
-	},
-	"subreddit" : {
-	    "data_fields" : ["subreddit_name"],
-	    "meta" : {
-		"display" : "{0.subreddit_name}"
-	    }
-	}
-    },
-    "relationship_fields" : {
-	"written_by" : {
-            "source_entity_type" : "comment",
-            "target_entity_type" : "author"
-	},
-	"submitted_by" : {
-            "source_entity_type" : "submission",
-            "target_entity_type" : "author"
-	},
-	"response_to" : {
-            "source_entity_type" : "comment",
-            "target_entity_type" : "comment"
-	},
-	"posted_in" : {
-            "source_entity_type" : "submission",
-            "target_entity_type" : "subreddit"
-	},
-	"for_submission" : {
-            "source_entity_type" : "comment",
-            "target_entity_type" : "submission"	    
-	}
+    "subreddit": {
+      "meta": {
+        "display": "{0.subreddit_name}"
+      },
+      "properties": [
+        "subreddit_name"
+      ]
     }
+  },
+  "properties": {
+    "subreddit_name": {
+      "type": "categorical"
+    },
+    "edited": {
+      "type": "boolean"
+    },
+    "author_name": {
+      "type": "categorical"
+    },
+    "text": {
+      "type": "text"
+    },
+    "title": {
+      "type": "text"
+    },
+    "creation_time": {
+      "type": "datetime",
+      "format": "utc"
+    }
+  },
+  "relationships": {
+    "written_by": {
+      "source_entity_type": "comment",
+      "target_entity_type": "author"
+    },
+    "submitted_by": {
+      "source_entity_type": "submission",
+      "target_entity_type": "author"
+    },
+    "response_to": {
+      "source_entity_type": "comment",
+      "target_entity_type": "comment"
+    },
+    "posted_in": {
+      "source_entity_type": "submission",
+      "target_entity_type": "subreddit"
+    },
+    "for_submission": {
+      "source_entity_type": "comment",
+      "target_entity_type": "submission"
+    }
+  }
 }

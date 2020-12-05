@@ -1,71 +1,103 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Narrative and Character Development",
-	"owners" : [],
-	"description" : "Short stories annotated according to character motivation and sentiment.",
-	"domain" : "Literature"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Narrative and Character Development",
+    "owners": [],
+    "description": "Short stories annotated according to character motivation and sentiment.",
+    "domain": "Literature",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "story": {
+      "properties": [
+        "title",
+        "split"
+      ]
     },
-    "data_fields" : {
-	"title" : {"type" : "text"},
-	"name" : {"type" : "text"},
-	"text" : {"type" : "text"},
-	"ann_type" : {"type" : "categorical"},
-	"ann_subtype" : {"type" : "categorical"},
-	"value" : {"type" : "categorical"},
-	"explanation" : {"type" : "text"},
-	"split" : {"type" : "categorical"},
-	"username" : {"type" : "categorical"}
+    "line": {
+      "properties": [
+        "text"
+      ]
     },
-    "entity_types" : {
-	"story" : {
-	    "data_fields" : ["title", "split"]
-	},
-	"line" : {
-	    "data_fields" : ["text"]
-	},
-	"character" : {
-	    "data_fields" : ["name"]
-	},
-	"annotator" : {
-	    "data_fields" : ["username"]
-	},
-	"annotation" : {
-	    "data_fields" : ["ann_type", "ann_subtype", "value", "explanation"]
-	}
+    "character": {
+      "properties": [
+        "name"
+      ]
     },
-    "relationship_fields" : {
-	"precedes" : {
-	    "source_entity_type" : "line",
-	    "target_entity_type" : "line"
-	},
-	"occurs_in" : {
-	    "source_entity_type" : "character",
-	    "target_entity_type" : "story"	    
-	},
-	"mentioned_in" : {
-	    "source_entity_type" : "character",
-	    "target_entity_type" : "line"
-	},
-	"annotates_line" : {
-	    "source_entity_type" : "annotation",
-	    "target_entity_type" : "line"
-	},
-	"annotates_character" : {
-	    "source_entity_type" : "annotation",
-	    "target_entity_type" : "character"
-	},
-	"created_by" : {
-	    "source_entity_type" : "annotation",
-	    "target_entity_type" : "annotator"	    
-	},
-	"line_of" : {
-	    "source_entity_type" : "line",
-	    "target_entity_type" : "story"
-	}
+    "annotator": {
+      "properties": [
+        "username"
+      ]
+    },
+    "annotation": {
+      "properties": [
+        "ann_type",
+        "ann_subtype",
+        "value",
+        "explanation"
+      ]
     }
+  },
+  "properties": {
+    "title": {
+      "type": "text"
+    },
+    "name": {
+      "type": "text"
+    },
+    "text": {
+      "type": "text"
+    },
+    "ann_type": {
+      "type": "categorical"
+    },
+    "ann_subtype": {
+      "type": "categorical"
+    },
+    "value": {
+      "type": "categorical"
+    },
+    "explanation": {
+      "type": "text"
+    },
+    "split": {
+      "type": "categorical"
+    },
+    "username": {
+      "type": "categorical"
+    }
+  },
+  "relationships": {
+    "precedes": {
+      "source_entity_type": "line",
+      "target_entity_type": "line"
+    },
+    "occurs_in": {
+      "source_entity_type": "character",
+      "target_entity_type": "story"
+    },
+    "mentioned_in": {
+      "source_entity_type": "character",
+      "target_entity_type": "line"
+    },
+    "annotates_line": {
+      "source_entity_type": "annotation",
+      "target_entity_type": "line"
+    },
+    "annotates_character": {
+      "source_entity_type": "annotation",
+      "target_entity_type": "character"
+    },
+    "created_by": {
+      "source_entity_type": "annotation",
+      "target_entity_type": "annotator"
+    },
+    "line_of": {
+      "source_entity_type": "line",
+      "target_entity_type": "story"
+    }
+  }
 }

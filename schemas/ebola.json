@@ -1,41 +1,64 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Ebola Misinformation",
-	"owners" : ["Tara Sell"],
-	"description" : "Tweets related to the 2014 Ebola outbreak.",
-	"domain" : "Public Health"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Ebola Misinformation",
+    "owners": [
+      "Tara Sell"
+    ],
+    "description": "Tweets related to the 2014 Ebola outbreak.",
+    "domain": "Public Health",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "user": {
+      "meta": {
+        "display": "{0.name}"
+      },
+      "properties": [
+        "name",
+        "screen_name"
+      ]
     },
-    "data_fields" : {
-	"name" : {"type" : "text"},
-	"screen_name" : {"type" : "text"},
-	"retweet_count" : {"type" : "scalar"},
-	"favorite_count" : {"type" : "scalar"},
-	"created_at" : {"type" : "date", "format" : "%Y"},
-	"text" : {"type" : "text"}
-    },
-    "entity_types" : {
-	"user" : {
-	    "data_fields" : ["name", "screen_name"],
-	    "meta" : {
-		"display" : "{0.name}"
-	    }
-	},
-	"tweet" : {
-	    "data_fields" : ["text", "created_at", "retweet_count", "favorite_count"],
-	    "meta" : {
-		"display" : "{0.lang} {0.posted_at}"
-	    }	    
-	}
-    },
-    "relationship_fields" : {
-	"tweeted_by" : {
-            "source_entity_type" : "tweet",
-            "target_entity_type" : "user"
-	}
+    "tweet": {
+      "meta": {
+        "display": "{0.lang} {0.posted_at}"
+      },
+      "properties": [
+        "text",
+        "created_at",
+        "retweet_count",
+        "favorite_count"
+      ]
     }
+  },
+  "properties": {
+    "name": {
+      "type": "text"
+    },
+    "screen_name": {
+      "type": "text"
+    },
+    "retweet_count": {
+      "type": "scalar"
+    },
+    "favorite_count": {
+      "type": "scalar"
+    },
+    "created_at": {
+      "type": "date",
+      "format": "%Y"
+    },
+    "text": {
+      "type": "text"
+    }
+  },
+  "relationships": {
+    "tweeted_by": {
+      "source_entity_type": "tweet",
+      "target_entity_type": "user"
+    }
+  }
 }

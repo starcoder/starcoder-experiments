@@ -1,85 +1,124 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Paris Tax Rolls",
-	"owners" : ["Nathan Daniels"],
-	"description" : "Tax records from Medieval Paris.",
-	"domain" : "History"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Paris Tax Rolls",
+    "owners": [
+      "Nathan Daniels"
+    ],
+    "description": "Tax records from Medieval Paris.",
+    "domain": "History",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "tax_roll": {
+      "meta": {
+        "display": "{0.year}"
+      },
+      "properties": [
+        "year"
+      ]
     },
-    "data_fields" : {
-	"year" : {"type" : "date", "format" : "%Y"},
-	"amount" : {"type" : "scalar"},
-	"parish_name" : {"type" : "categorical"},
-	"street_name" : {"type" : "categorical"},
-	"street_coordinates" : {"type" : "place"},
-	"role_name" : {"type" : "categorical"},
-	"role_type" : {"type" : "categorical"},
-	"person_name" : {"type" : "text"},
-	"currency" : {"type" : "categorical"},
-	"status" : {"type" : "categorical"}
+    "parish": {
+      "meta": {
+        "display": "{0.parish_name}"
+      },
+      "properties": [
+        "parish_name"
+      ]
     },
-    "entity_types" : {
-	"tax_roll" : {
-	    "data_fields" : ["year"],
-	    "meta" : {
-		"display" : "{0.year}"
-	    }
-	},
-	"parish" : {
-	    "data_fields" : ["parish_name"],
-	    "meta" : {
-		"display" : "{0.parish_name}"
-	    }	    
-	},
-	"street" : {
-	    "data_fields" : ["street_name", "street_coordinates"],
-	    "meta" : {
-		"display" : "{0.street_name}"
-	    }	    
-	},
-	"role" : {
-	    "data_fields" : ["role_type", "role_name"],
-	    "meta" : {
-		"display" : "{0.role_name}"
-	    }
-	},
-	"person" : {
-	    "data_fields" : ["person_name"],
-	    "meta" : {
-		"display" : "{0.person_name}"
-	    }	    
-	},
-	"debt" : {
-	    "data_fields" : ["amount", "currency", "status"],
-	    "meta" : {
-		"display" : "{0.amount} {0.currency}"
-	    }	    
-	}
+    "street": {
+      "meta": {
+        "display": "{0.street_name}"
+      },
+      "properties": [
+        "street_name",
+        "street_coordinates"
+      ]
     },
-    "relationship_fields" : {
-	"recorded_in" : {
-            "source_entity_type" : "debt",
-            "target_entity_type" : "tax_roll"
-	},
-	"owed_by" : {
-            "source_entity_type" : "debt",
-            "target_entity_type" : "person"
-	},
-	"lives_on" : {
-            "source_entity_type" : "person",
-            "target_entity_type" : "street"
-	},
-	"part_of" : {
-            "source_entity_type" : "street",
-            "target_entity_type" : "parish"
-	},
-	"acts_as" : {
-            "source_entity_type" : "person",
-            "target_entity_type" : "role"
-	}
+    "role": {
+      "meta": {
+        "display": "{0.role_name}"
+      },
+      "properties": [
+        "role_type",
+        "role_name"
+      ]
+    },
+    "person": {
+      "meta": {
+        "display": "{0.person_name}"
+      },
+      "properties": [
+        "person_name"
+      ]
+    },
+    "debt": {
+      "meta": {
+        "display": "{0.amount} {0.currency}"
+      },
+      "properties": [
+        "amount",
+        "currency",
+        "status"
+      ]
     }
+  },
+  "properties": {
+    "year": {
+      "type": "date",
+      "format": "%Y"
+    },
+    "amount": {
+      "type": "scalar"
+    },
+    "parish_name": {
+      "type": "categorical"
+    },
+    "street_name": {
+      "type": "categorical"
+    },
+    "street_coordinates": {
+      "type": "place"
+    },
+    "role_name": {
+      "type": "categorical"
+    },
+    "role_type": {
+      "type": "categorical"
+    },
+    "person_name": {
+      "type": "text"
+    },
+    "currency": {
+      "type": "categorical"
+    },
+    "status": {
+      "type": "categorical"
+    }
+  },
+  "relationships": {
+    "recorded_in": {
+      "source_entity_type": "debt",
+      "target_entity_type": "tax_roll"
+    },
+    "owed_by": {
+      "source_entity_type": "debt",
+      "target_entity_type": "person"
+    },
+    "lives_on": {
+      "source_entity_type": "person",
+      "target_entity_type": "street"
+    },
+    "part_of": {
+      "source_entity_type": "street",
+      "target_entity_type": "parish"
+    },
+    "acts_as": {
+      "source_entity_type": "person",
+      "target_entity_type": "role"
+    }
+  }
 }

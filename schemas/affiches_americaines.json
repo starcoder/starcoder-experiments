@@ -1,54 +1,87 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Affiches Americaines",
+    "owners": [
+      "Gregory Smaldone"
+    ],
+    "description": "Product price data from French New World colonies of the 18th century.",
+    "domain": "History",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "city": {
+      "meta": {
+        "display": "{0.city_name}"
+      },
+      "properties": [
+        "city_name",
+        "city_coordinates"
+      ]
     },
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Affiches Americaines",
-	"owners" : ["Gregory Smaldone"],
-	"description" : "Product price data from French New World colonies of the 18th century.",
-	"domain" : "History"
+    "product": {
+      "meta": {
+        "display": "{0.product_name}"
+      },
+      "properties": [
+        "product_name",
+        "product_description"
+      ]
     },
-    "data_fields" : {
-	"product_name" : {"type" : "categorical"},
-	"product_description" : {"type" : "text"},
-	"city_name" : {"type" : "categorical"},
-	"city_coordinates" : {"type" : "place"},
-	"date" : {"type" : "date", "format" : "%d-%b-%Y"},
-	"price_low" : {"type" : "scalar"},
-	"price_high" : {"type" : "scalar"},
-	"availability" : {"type" : "categorical"},
-	"qualifier" : {"type" : "categorical"}
-    },
-    "entity_types" : {
-	"city" : {
-	    "data_fields" : ["city_name", "city_coordinates"],
-	    "meta" : {
-		"display" : "{0.city_name}"
-	    }
-	},
-	"product" : {
-	    "data_fields" : ["product_name", "product_description"],
-	    "meta" : {
-		"display" : "{0.product_name}"
-	    }	    
-	},
-	"listing" : {
-	    "data_fields" : ["date", "price_low", "price_high", "availability", "qualifier"],
-	    "meta" : {
-		"display" : "{0.date}"
-	    }	    
-	}
-    },
-    "relationship_fields" : {
-	"price_for" : {
-            "source_entity_type" : "listing",
-            "target_entity_type" : "product"
-	},
-	"price_in" : {
-            "source_entity_type" : "listing",
-            "target_entity_type" : "city"
-	}	
+    "listing": {
+      "meta": {
+        "display": "{0.date}"
+      },
+      "properties": [
+        "date",
+        "price_low",
+        "price_high",
+        "availability",
+        "qualifier"
+      ]
     }
+  },
+  "properties": {
+    "product_name": {
+      "type": "categorical"
+    },
+    "product_description": {
+      "type": "text"
+    },
+    "city_name": {
+      "type": "categorical"
+    },
+    "city_coordinates": {
+      "type": "place"
+    },
+    "date": {
+      "type": "date",
+      "format": "%d-%b-%Y"
+    },
+    "price_low": {
+      "type": "scalar"
+    },
+    "price_high": {
+      "type": "scalar"
+    },
+    "availability": {
+      "type": "categorical"
+    },
+    "qualifier": {
+      "type": "categorical"
+    }
+  },
+  "relationships": {
+    "price_for": {
+      "source_entity_type": "listing",
+      "target_entity_type": "product"
+    },
+    "price_in": {
+      "source_entity_type": "listing",
+      "target_entity_type": "city"
+    }
+  }
 }

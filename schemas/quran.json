@@ -1,49 +1,65 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Quran",
-	"owners" : [],
-	"description" : "The Uthmani text.",
-	"domain" : "Literature"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Quran",
+    "owners": [],
+    "description": "The Uthmani text.",
+    "domain": "Literature",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "document": {
+      "meta": {
+        "display": "{0.title}"
+      },
+      "properties": [
+        "title"
+      ]
     },
-    "data_fields" : {
-	"title" : {"type" : "categorical"},
-	"number" : {"type" : "scalar"},
-	"name" : {"type" : "categorical"},
-	"text" : {"type" : "text"}
+    "sura": {
+      "meta": {
+        "display": "{0.number} {0.name}"
+      },
+      "properties": [
+        "number",
+        "name"
+      ]
     },
-    "entity_types" : {
-	"document" : {
-	    "data_fields" : ["title"],
-	    "meta" : {
-		"display" : "{0.title}"
-	    }
-	},
-	"sura" : {
-	    "data_fields" : ["number", "name"],
-	    "meta" : {
-		"display" : "{0.number} {0.name}"
-	    }	    
-	},
-	"aya" : {
-	    "data_fields" : ["number", "text"],
-	    "meta" : {
-		"display" : "{0.number}"
-	    }	    
-	}
-    },
-    "relationship_fields" : {
-	"sura_of" : {
-            "source_entity_type" : "sura",
-            "target_entity_type" : "document"
-	},
-	"aya_of" : {
-            "source_entity_type" : "aya",
-            "target_entity_type" : "sura"
-	}
+    "aya": {
+      "meta": {
+        "display": "{0.number}"
+      },
+      "properties": [
+        "number",
+        "text"
+      ]
     }
+  },
+  "properties": {
+    "title": {
+      "type": "categorical"
+    },
+    "number": {
+      "type": "scalar"
+    },
+    "name": {
+      "type": "categorical"
+    },
+    "text": {
+      "type": "text"
+    }
+  },
+  "relationships": {
+    "sura_of": {
+      "source_entity_type": "sura",
+      "target_entity_type": "document"
+    },
+    "aya_of": {
+      "source_entity_type": "aya",
+      "target_entity_type": "sura"
+    }
+  }
 }

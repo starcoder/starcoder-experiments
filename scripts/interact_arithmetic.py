@@ -4,7 +4,7 @@ import logging
 import argparse
 import torch
 from starcoder.dataset import Dataset
-from starcoder.fields import NumericField, DistributionField, IdField, EntityTypeField, RelationField
+from starcoder.property import NumericProperty, DistributionProperty, IdProperty, EntityTypeProperty, RelationProperty
 from starcoder.models import GraphAutoencoder
 from arithmetic import render_tree, flatten_tree, grow_tree, reverse_edges, populate_tree, to_json
 from starcoder.utils import batchify, batch_to_list
@@ -29,7 +29,7 @@ if __name__ == "__main__":
                              margs.autoencoder_shapes,
                              embedding_size=margs.embedding_size,
                              hidden_size=margs.hidden_size,
-                             field_dropout=margs.field_dropout,
+                             property_dropout=margs.property_dropout,
                              hidden_dropout=margs.hidden_dropout,
                              reverse_relations=True
     )
@@ -54,8 +54,8 @@ if __name__ == "__main__":
             #print(num_consts)
             #model._depth = num_consts - 1
             reconstructions, bottlenecks, _ = model(ments, madjs)
-            reconstructions = {k : (v if k == schema.entity_type_field.name or k == schema.id_field.name or isinstance(schema.data_fields[k], (DistributionField, NumericField, IdField, EntityTypeField, RelationField))
-                                    else torch.argmax(v, -1, False)) for k, v in reconstructions.items() if k not in schema.relation_fields}
+            reconstructions = {k : (v if k == schema.entity_type_property.name or k == schema.id_property.name or isinstance(schema.properties[k], (DistributionProperty, NumericProperty, IdProperty, EntityTypeProperty, Relationship))
+                                    else torch.argmax(v, -1, False)) for k, v in reconstructions.items() if k not in schema.relationships}
             for entity in [schema.decode(b) for b in batch_to_list(reconstructions)]:
                 print("Entity {} should be {:.3f}, got {:.3f}".format(entity["id"], correct[entity["id"]], entity["value"]))
 

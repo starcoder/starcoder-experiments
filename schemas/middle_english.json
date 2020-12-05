@@ -1,62 +1,89 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Middle English Scansion",
-	"owners" : ["Chris Cannon"],
-	"description" : "The Canterbury Tales with scansion and grammatical information.",
-	"domain" : "Literature"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Middle English Scansion",
+    "owners": [
+      "Chris Cannon"
+    ],
+    "description": "The Canterbury Tales with scansion and grammatical information.",
+    "domain": "Literature",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "book": {
+      "meta": {
+        "display": "{0.book_name}"
+      },
+      "properties": [
+        "book_name"
+      ]
     },
-    "data_fields" : {
-	"book_name" : {"type" : "categorical"},
-	"section_name" : {"type" : "categorical"},
-	"line_name" : {"type" : "categorical"},
-	"token" : {"type" : "text"},
-	"lemma" : {"type" : "categorical"},
-	"tagging" : {"type" : "categorical"},
-	"stress" : {"type" : "categorical"}
+    "section": {
+      "meta": {
+        "display": "{0.section_name}"
+      },
+      "properties": [
+        "section_name"
+      ]
     },
-    "entity_types" : {
-	"book" : {
-	    "data_fields" : ["book_name"],
-	    "meta" : {
-		"display" : "{0.book_name}"
-	    }	    
-	},
-	"section" : {
-	    "data_fields" : ["section_name"],
-	    "meta" : {
-		"display" : "{0.section_name}"
-	    }	    
-	},
-	"line" : {
-	    "data_fields" : ["line_name"],
-	    "meta" : {
-		"display" : "{0.line_name}"
-	    }	    
-	},
-	"word" : {
-	    "data_fields" : ["token", "lemma", "tagging", "stress"],
-	    "meta" : {
-		"display" : "{0.token}"
-	    }	    
-	}
+    "line": {
+      "meta": {
+        "display": "{0.line_name}"
+      },
+      "properties": [
+        "line_name"
+      ]
     },
-    "relationship_fields" : {
-	"word_from" : {
-            "source_entity_type" : "word",
-            "target_entity_type" : "line"
-	},
-	"line_from" : {
-            "source_entity_type" : "line",
-            "target_entity_type" : "section"
-	},
-	"section_from" : {
-            "source_entity_type" : "section",
-            "target_entity_type" : "book"
-	}
+    "word": {
+      "meta": {
+        "display": "{0.token}"
+      },
+      "properties": [
+        "token",
+        "lemma",
+        "tagging",
+        "stress"
+      ]
     }
+  },
+  "properties": {
+    "book_name": {
+      "type": "categorical"
+    },
+    "section_name": {
+      "type": "categorical"
+    },
+    "line_name": {
+      "type": "categorical"
+    },
+    "token": {
+      "type": "text"
+    },
+    "lemma": {
+      "type": "categorical"
+    },
+    "tagging": {
+      "type": "categorical"
+    },
+    "stress": {
+      "type": "categorical"
+    }
+  },
+  "relationships": {
+    "word_from": {
+      "source_entity_type": "word",
+      "target_entity_type": "line"
+    },
+    "line_from": {
+      "source_entity_type": "line",
+      "target_entity_type": "section"
+    },
+    "section_from": {
+      "source_entity_type": "section",
+      "target_entity_type": "book"
+    }
+  }
 }

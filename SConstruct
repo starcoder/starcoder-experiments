@@ -106,9 +106,9 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/train_model.py",
-                "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask ' + ' '.join(MASK) if MASK else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT}",
+                "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask ' + ' '.join(MASK) if MASK else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT} --depthwise_boost ${DEPTHWISE_BOOST}",
                 other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
-                            "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP"],
+                            "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP", "DEPTHWISE_BOOST"],
                 USE_GPU=env["USE_GPU"],
             ),
             USE_GPU=env["USE_GPU"],
@@ -267,56 +267,25 @@ def run_experiment(env, experiment_config, **args):
                                      **experiment_config,
                                      **args, RANDOM_SEED=0, PROPORTIONS=split_props)
     env.Alias("splits", [train, dev, test])
-
-    #print(experiment_config)
     train_configs = expand_configuration(experiment_config, args)
-    #sys.exit()
-    # expand training configurations
-    #train_configs = [[]]
-    #for arg_name, values in experiment_config.get("TRAIN_CONFIG", {}).items():        
-    #    train_configs = sum(
-    #        [
-    #            [
-    #                config + [
-    #                    (
-    #                        arg_name.upper(), 
-    #                        v
-    #                    )
-    #                ] for config in train_configs
-    #            ] for v in values
-    #        ], 
-    #        []
-    #    )
-    # train_configs = [dict(config) for config in train_configs]
     
     # expand apply configurations
     apply_configs = [[]]
     for arg_name, values in experiment_config.get("APPLY_CONFIG", {}).items():
        apply_configs = sum([[config + [(arg_name.upper(), v)] for config in apply_configs] for v in values], [])
-    apply_configs = [dict(config) for config in apply_configs]
-    
+    apply_configs = [dict(config) for config in apply_configs]    
     results = []
-    #print(train_configs)
-
     for config in train_configs:
-        #args["TRAIN_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
         config["TRAIN_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
-        #args["LOG_LEVEL"] = "DEBUG"
         model, trace = env.TrainModel(["work/${EXPERIMENT_NAME}/model_${TRAIN_CONFIG_ID}.pkl.gz", 
                                        "work/${EXPERIMENT_NAME}/trace_${TRAIN_CONFIG_ID}.json.gz"],
                                       [dataset, train, dev],
-                                      #**args,
-                                      #**experiment_config,
                                       **config)
         env.Alias("models", model)
         struct = env.ExtractModelStructure("work/${EXPERIMENT_NAME}/structure_${TRAIN_CONFIG_ID}.json.gz",
                                            model,
-                                           #**args,
-                                           #**experiment_config,
                                            **config)
         env.Alias("structure", struct)
-
-        #continue
         for apply_config in apply_configs:
             config.update(apply_config)
             config["APPLY_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
@@ -326,24 +295,21 @@ def run_experiment(env, experiment_config, **args):
                 CONFIG=json.dumps(config),
                 **config
             )
+            env.Alias("configs", config_file)
             output = env.ApplyModel("work/${EXPERIMENT_NAME}/${FOLD}/output_${APPLY_CONFIG_ID}.json.gz",
                                     [model, dataset],
-                                    #**args,
-                                    #**experiment_config,
                                     **config)
             env.Alias("outputs", output)
             outputs.append((config_file, output))
 
             tsne = env.MakeTSNE("work/${EXPERIMENT_NAME}/${FOLD}/tsne_${APPLY_CONFIG_ID}.json.gz",
-                                [schema, output],
-                                #**args,
-                                #**experiment_config,
-                                **config)
+                               [schema, output],
+                               **config)
             env.Alias("tsne", tsne)
     results = env.CollateOutputs(
         "work/${EXPERIMENT_NAME}/results.csv.gz", 
         [test, schema] + outputs, 
-        **config
+        EXPERIMENT_NAME=experiment_name
     )
     return model
 

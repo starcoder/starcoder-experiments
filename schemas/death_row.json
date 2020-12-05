@@ -1,79 +1,153 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Texas Death Row",
-	"owners" : [],
-	"description" : "Images, demographics, and final statements of Texas death row inmates.",
-	"domain" : "History"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Texas Death Row",
+    "owners": [],
+    "description": "Images, demographics, and final statements of Texas death row inmates.",
+    "domain": "History",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "person": {
+      "meta": {
+        "display": "{0.name}"
+      },
+      "properties": [
+        "height",
+        "weight",
+        "age",
+        "age_at_incarceration",
+        "age_at_offense",
+        "age_at_death",
+        "image",
+        "name",
+        "birth_date",
+        "prior_occupation",
+        "prior_prison_record",
+        "race",
+        "gender",
+        "hair_color",
+        "eye_color",
+        "native_county",
+        "native_state",
+        "education"
+      ]
     },
-    "data_fields" : {
-	"prior_occupation" : {"type" : "categorical"},
-	"prior_prison_record" : {"type" : "categorical"},
-	"race" : {"type" : "categorical"},
-	"gender" : {"type" : "categorical"},
-	"hair_color" : {"type" : "categorical"},
-	"eye_color" : {"type" : "categorical"},
-	"county" : {"type" : "categorical"},
-	"native_county" : {"type" : "categorical"},
-	"native_state" : {"type" : "categorical"},
-	"education" : {"type" : "categorical"},
-	"victim_race" : {"type" : "categorical"},
-	"victim_gender" : {"type" : "categorical"},
-	"birth_date" : {"type" : "date", "format" : "%m/%d/%Y"},
-	"execution_date" : {"type" : "date", "format" : "%m/%d/%Y"},
-	"imprisoned_date" : {"type" : "date", "format" : "%m/%d/%Y"},
-	"offense_date" : {"type" : "date", "format" : "%m/%d/%Y"},
-	"height" : {"type" : "scalar"},
-	"weight" : {"type" : "scalar"},
-	"age" : {"type" : "scalar"},
-	"age_at_incarceration" : {"type" : "scalar"},
-	"age_at_offense" : {"type" : "scalar"},
-	"age_at_death" : {"type" : "scalar"},
-	"summary" : {"type" : "text"},
-	"statement" : {"type" : "text"},
-	"name" : {"type" : "text"},
-	"image" : {
-	    "type" : "image",
-	    "width" : 128,
-	    "height" : 128,
-	    "channels" : 3,
-	    "channel_size" : 8	    
-	}
-    },
-    "entity_types" : {
-	"person" : {
-	    "data_fields" : ["height", "weight", "age", "age_at_incarceration", "age_at_offense", "age_at_death",
-			     "image",
-			     "name",
-			     "birth_date",
-			     "prior_occupation", "prior_prison_record", "race", "gender", "hair_color", "eye_color", "native_county", "native_state", "education"
-			    ],
-	    "meta" : {
-		"display" : "{0.name}"
-	    }
-	},
-	"crime" : {
-	    "data_fields" : ["execution_date", "imprisoned_date", "offense_date",
-			     "summary", "statement",
-			     "county", "victim_race", "victim_gender"
-			    ],
-	    "meta" : {
-		"display" : "{0.summary}"
-	    }	    
-	}
-    },
-    "relationship_fields" : {
-	"participated_in" : {
-            "source_entity_type" : "person",
-            "target_entity_type" : "crime"
-	},
-	"executed_for" : {
-            "source_entity_type" : "person",
-            "target_entity_type" : "crime"
-	}
+    "crime": {
+      "meta": {
+        "display": "{0.summary}"
+      },
+      "properties": [
+        "execution_date",
+        "imprisoned_date",
+        "offense_date",
+        "summary",
+        "statement",
+        "county",
+        "victim_race",
+        "victim_gender"
+      ]
     }
+  },
+  "properties": {
+    "prior_occupation": {
+      "type": "categorical"
+    },
+    "prior_prison_record": {
+      "type": "categorical"
+    },
+    "race": {
+      "type": "categorical"
+    },
+    "gender": {
+      "type": "categorical"
+    },
+    "hair_color": {
+      "type": "categorical"
+    },
+    "eye_color": {
+      "type": "categorical"
+    },
+    "county": {
+      "type": "categorical"
+    },
+    "native_county": {
+      "type": "categorical"
+    },
+    "native_state": {
+      "type": "categorical"
+    },
+    "education": {
+      "type": "categorical"
+    },
+    "victim_race": {
+      "type": "categorical"
+    },
+    "victim_gender": {
+      "type": "categorical"
+    },
+    "birth_date": {
+      "type": "date",
+      "format": "%m/%d/%Y"
+    },
+    "execution_date": {
+      "type": "date",
+      "format": "%m/%d/%Y"
+    },
+    "imprisoned_date": {
+      "type": "date",
+      "format": "%m/%d/%Y"
+    },
+    "offense_date": {
+      "type": "date",
+      "format": "%m/%d/%Y"
+    },
+    "height": {
+      "type": "scalar"
+    },
+    "weight": {
+      "type": "scalar"
+    },
+    "age": {
+      "type": "scalar"
+    },
+    "age_at_incarceration": {
+      "type": "scalar"
+    },
+    "age_at_offense": {
+      "type": "scalar"
+    },
+    "age_at_death": {
+      "type": "scalar"
+    },
+    "summary": {
+      "type": "text"
+    },
+    "statement": {
+      "type": "text"
+    },
+    "name": {
+      "type": "text"
+    },
+    "image": {
+      "type": "image",
+      "width": 128,
+      "height": 128,
+      "channels": 3,
+      "channel_size": 8
+    }
+  },
+  "relationships": {
+    "participated_in": {
+      "source_entity_type": "person",
+      "target_entity_type": "crime"
+    },
+    "executed_for": {
+      "source_entity_type": "person",
+      "target_entity_type": "crime"
+    }
+  }
 }

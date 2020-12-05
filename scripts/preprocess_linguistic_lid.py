@@ -47,22 +47,28 @@ if __name__ == "__main__":
             if hasattr(lang, "alpha_2"):
                 lang_code = lang.alpha_2
                 wals_langs.add(lang_code)
-                macroareas[row["macroarea"]] = {"id" : "macroarea {}".format(row["macroarea"]),
-                                                "entity_type" : "macroarea",
-                                                "macroarea_name" : row["macroarea"]}
-                families[row["family"]] = {"id" : "family {}".format(row["family"]),
-                                           "entity_type" : "family",
-                                           "from_macroarea" : row["macroarea"],
-                                           "family_name" : row["family"]}
-                genuses[row["genus"]] = {"id" : "genus {}".format(row["genus"]),
-                                         "from_family" : row["family"], 
-                                         "entity_type" : "genus",
-                                         "genus_name" : row["genus"]
+                macroareas["macroarea {}".format(row["macroarea"])] = {
+                    "id" : "macroarea {}".format(row["macroarea"]),
+                    "entity_type" : "macroarea",
+                    "macroarea_name" : row["macroarea"]
                 }
-                languages[lang_code] = {"id" : "language {}".format(lang_code),
-                                        "entity_type" : "language",
-                                        "from_genus" : row["genus"],
-                                        "language_name" : row["Name"]
+                families["family {}".format(row["family"])] = {
+                    "id" : "family {}".format(row["family"]),
+                    "entity_type" : "family",
+                    "from_macroarea" : "macroarea {}".format(row["macroarea"]),
+                    "family_name" : row["family"]
+                }
+                genuses["genus {}".format(row["genus"])] = {
+                    "id" : "genus {}".format(row["genus"]),
+                    "from_family" : "family {}".format(row["family"]),
+                    "entity_type" : "genus",
+                    "genus_name" : row["genus"]
+                }
+                languages["language {}".format(lang_code)] = {
+                    "id" : "language {}".format(lang_code),
+                    "entity_type" : "language",
+                    "from_genus" : "genus {}".format(row["genus"]),
+                    "language_name" : row["Name"]
                 }
 
     tweets = []
@@ -73,7 +79,7 @@ if __name__ == "__main__":
             tweets.append({"id" : tid,
                            "entity_type" : "tweet",
                            "written_in" : "language {}".format(lang_code),
-                           "tweet_text" : ngrams(text.lower(), 1),
+                           "tweet_text" : text, #ngrams(text.lower(), 1),
                            "tweet_language" : lang_code,
             })
 
@@ -82,6 +88,7 @@ if __name__ == "__main__":
         for tweet in tweets:
             lang = tweet["tweet_language"]
             if lang in wals_langs:
+                lang = "language {}".format(lang)
                 ofd.write(json.dumps(tweet) + "\n")
                 slanguages.add(lang)
                 sgenuses.add(languages[lang]["from_genus"])

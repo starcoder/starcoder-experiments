@@ -1,81 +1,113 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
-    },    
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Indentured Servitude",
-	"owners" : ["Francois Furstenberg"],
-	"description" : "Records of indentured servitude.",
-	"domain" : "History"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Indentured Servitude",
+    "owners": [
+      "Francois Furstenberg"
+    ],
+    "description": "Records of indentured servitude.",
+    "domain": "History",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "contract": {
+      "meta": {
+        "display": "{0.date}"
+      },
+      "properties": [
+        "amount",
+        "binds_as",
+        "date",
+        "start",
+        "term",
+        "to_be_found",
+        "at_expiration",
+        "to_be_taught",
+        "consentor_role"
+      ]
     },
-    "data_fields" : {
-	"to_be_taught" : {"type" : "text"},
-	"at_expiration" : {"type" : "text"},
-	"to_be_found" : {"type" : "text"},
-	"term" : {"type" : "text"},
-	"start" : {"type" : "text"},
-	"date" : {"type" : "date", "format" : "%d-%b-%Y"},
-	"binds_as" : {"type" : "categorical"},
-	"consentor_role" : {"type" : "categorical"},
-	"name" : {"type" : "text"},
-	"address" : {"type" : "text"},
-	"coordinates" : {"type" : "place"},
-	"amount" : {"type" : "scalar"}
+    "person": {
+      "meta": {
+        "display": "{0.name}"
+      },
+      "properties": [
+        "name"
+      ]
     },
-    "entity_types" : {
-	"contract" : {
-	    "data_fields" : [
-		"amount",
-		"binds_as", 
-		"date", 
-		"start", 
-		"term", 
-		"to_be_found", 
-		"at_expiration", 
-		"to_be_taught", 
-		"consentor_role"
-	    ],
-	    "meta" : {
-		"display" : "{0.date}"
-	    }
-	},
-	"person" : {
-	    "data_fields" : ["name"],
-	    "meta" : {
-		"display" : "{0.name}"
-	    }
-	},
-	"location" : {
-	    "data_fields" : ["address", "coordinates"],
-	    "display" : "{0.address}"
-	}
-    },
-    "relationship_fields" : {
-	"binds" : {
-	    "source_entity_type" : "contract",
-	    "target_entity_type" : "person"
-	},
-	"binds_to" : {
-	    "source_entity_type" : "contract",
-	    "target_entity_type" : "person"
-	},
-	"with_consent_of" : {
-	    "source_entity_type" : "contract",
-	    "target_entity_type" : "person"
-	},
-	"assigned_by" : {
-	    "source_entity_type" : "contract",
-	    "target_entity_type" : "person"
-	},	
-	"departed_from" : {
-	    "source_entity_type" : "contract",
-	    "target_entity_type" : "location"
-	},
-	"located_at" : {
-	    "source_entity_type" : "contract",
-	    "target_entity_type" : "location"
-	}
+    "location": {
+      "display": "{0.address}",
+      "properties": [
+        "address",
+        "coordinates"
+      ]
     }
+  },
+  "properties": {
+    "to_be_taught": {
+      "type": "text"
+    },
+    "at_expiration": {
+      "type": "text"
+    },
+    "to_be_found": {
+      "type": "text"
+    },
+    "term": {
+      "type": "text"
+    },
+    "start": {
+      "type": "text"
+    },
+    "date": {
+      "type": "date",
+      "format": "%d-%b-%Y"
+    },
+    "binds_as": {
+      "type": "categorical"
+    },
+    "consentor_role": {
+      "type": "categorical"
+    },
+    "name": {
+      "type": "text"
+    },
+    "address": {
+      "type": "text"
+    },
+    "coordinates": {
+      "type": "place"
+    },
+    "amount": {
+      "type": "scalar"
+    }
+  },
+  "relationships": {
+    "binds": {
+      "source_entity_type": "contract",
+      "target_entity_type": "person"
+    },
+    "binds_to": {
+      "source_entity_type": "contract",
+      "target_entity_type": "person"
+    },
+    "with_consent_of": {
+      "source_entity_type": "contract",
+      "target_entity_type": "person"
+    },
+    "assigned_by": {
+      "source_entity_type": "contract",
+      "target_entity_type": "person"
+    },
+    "departed_from": {
+      "source_entity_type": "contract",
+      "target_entity_type": "location"
+    },
+    "located_at": {
+      "source_entity_type": "contract",
+      "target_entity_type": "location"
+    }
+  }
 }

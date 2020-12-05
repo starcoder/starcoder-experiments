@@ -4,9 +4,9 @@ Compute LIWC weights for each element in a JSON-lines file.
 
 Author: Arya D. McCarthy
 """
-#from __future__ import annotations
 import argparse
 from dataclasses import dataclass
+import logging
 import gzip
 import json
 import numpy
@@ -20,14 +20,14 @@ from typing import (
     Mapping,
     Pattern,
     NewType,
-#    TypedDict,
     Union,
 )
 
 from nltk.tokenize import TweetTokenizer
-import tqdm
 
 from combine_expressions_for_search import make_pattern
+
+logger = logging.getLogger("apply_liwc")
 
 Category = NewType("Category", str)
 Lexicon = Mapping[Category, Pattern]
@@ -39,10 +39,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--schema", type=Path, required=True)
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--liwc", type=argparse.FileType("rt"), required=True)
+    parser.add_argument("--log_level", dest="log_level", default="ERROR", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], help="Logging level")
     parser.add_argument("--output")
-    args = parser.parse_args(
-        # ["--lexicon", "../work/liwc.json", "--input", "../work/ebola/data.json.gz"]
-    )
+    args = parser.parse_args()
     return args
 
 
@@ -89,21 +88,27 @@ class StudyItem(Dict):
 
 def main():
     args = parse_args()
+
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format='%(name)s - %(asctime)s - %(levelname)s - %(message)s'
+    )
+
     liwc = Liwc.from_file(args.liwc)
 
     tweet_tokenizer = TweetTokenizer()
 
     with open(args.schema, "rt") as ifd:
         schema = json.loads(ifd.read())
-    idf = schema["meta"]["id_field"]
-    etf = schema["meta"]["entity_type_field"]
+    idf = schema["meta"]["id_property"]
+    etf = schema["meta"]["entity_type_property"]
     with gzip.open(args.output, "wt") as ofd:
         with gzip.open(args.data, "rt") as reader:
-            for line in tqdm.tqdm(reader):
+            for line in reader:
                 j: StudyItem = json.loads(line)
                 texts = []
                 for k, v in j.items():
-                    if schema["data_fields"].get(k, {}).get("type", None) == "text":
+                    if schema["properties"].get(k, {}).get("type", None) == "text":
                         texts.append(tweet_tokenizer.tokenize(v))
                 tokens = sum(texts, [])
                 item = {

@@ -1,70 +1,92 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Royal Cuneiform Inscriptions",
+    "owners": [
+      "Paul Delnero"
+    ],
+    "description": "Translated Cuneiform inscriptions organized according to king and dynasty.",
+    "domain": "Ancient Near East",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "period": {
+      "meta": {
+        "display": "{0.period_name}"
+      },
+      "properties": [
+        "period_name"
+      ]
     },
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Royal Cuneiform Inscriptions",
-	"owners" : ["Paul Delnero"],
-	"description" : "Translated Cuneiform inscriptions organized according to king and dynasty.",
-	"domain" : "Ancient Near East"
+    "dynasty": {
+      "meta": {
+        "display": "{0.dynasty_name}"
+      },
+      "properties": [
+        "dynasty_name"
+      ]
     },
-    "data_fields" : {
-	"period_name" : {"type" : "categorical"},
-	"dynasty_name" : {"type" : "categorical"},
-	"ruler_name" : {"type" : "categorical"},
-	"text_name" : {"type" : "categorical"},	
-	"content" : {"type" : "text"}
+    "ruler": {
+      "meta": {
+        "display": "{0.ruler_name}"
+      },
+      "properties": [
+        "ruler_name"
+      ]
     },
-    "entity_types" : {
-	"period" : {
-	    "data_fields" : ["period_name"],
-	    "meta" : {
-		"display" : "{0.period_name}"
-	    }
-	},
-	"dynasty" : {
-	    "data_fields" : ["dynasty_name"],
-	    "meta" : {
-		"display" : "{0.dynasty_name}"
-	    }	    
-	},
-	"ruler" : {
-	    "data_fields" : ["ruler_name"],
-	    "meta" : {
-		"display" : "{0.ruler_name}"
-	    }
-	},
-	"text" : {
-	    "data_fields" : ["text_name"],
-	    "meta" : {
-		"display" : "{0.text_name}"
-	    }
-	},
-	"witness" : {
-	    "data_fields" : ["content"],
-	    "meta" : {
-		"display" : "{0.id}"
-	    }
-	}
+    "text": {
+      "meta": {
+        "display": "{0.text_name}"
+      },
+      "properties": [
+        "text_name"
+      ]
     },
-    "relationship_fields" : {
-	"from_period" : {
-            "source_entity_type" : "dynasty",
-            "target_entity_type" : "period"
-	},
-	"from_dynasty" : {
-            "source_entity_type" : "ruler",
-            "target_entity_type" : "dynasty"
-	},
-	"for_ruler" : {
-            "source_entity_type" : "text",
-            "target_entity_type" : "ruler"
-	},
-	"witness_of" : {
-            "source_entity_type" : "witness",
-            "target_entity_type" : "text"
-	}	
+    "witness": {
+      "meta": {
+        "display": "{0.id}"
+      },
+      "properties": [
+        "content"
+      ]
     }
+  },
+  "properties": {
+    "period_name": {
+      "type": "categorical"
+    },
+    "dynasty_name": {
+      "type": "categorical"
+    },
+    "ruler_name": {
+      "type": "categorical"
+    },
+    "text_name": {
+      "type": "categorical"
+    },
+    "content": {
+      "type": "text"
+    }
+  },
+  "relationships": {
+    "from_period": {
+      "source_entity_type": "dynasty",
+      "target_entity_type": "period"
+    },
+    "from_dynasty": {
+      "source_entity_type": "ruler",
+      "target_entity_type": "dynasty"
+    },
+    "for_ruler": {
+      "source_entity_type": "text",
+      "target_entity_type": "ruler"
+    },
+    "witness_of": {
+      "source_entity_type": "witness",
+      "target_entity_type": "text"
+    }
+  }
 }

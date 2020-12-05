@@ -1,78 +1,141 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Marronage",
+    "owners": [
+      "Gregory Smaldone"
+    ],
+    "description": "Records of escaped slaves in New World colonies.",
+    "domain": "History",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "slave": {
+      "meta": {
+        "display": "{0.slave_name}"
+      },
+      "properties": [
+        "slave_name",
+        "slave_race",
+        "slave_race_category",
+        "slave_gender",
+        "slave_age_is_approximate",
+        "slave_height_is_approximate",
+        "slave_has_known_associates",
+        "slave_profession",
+        "slave_age",
+        "slave_height"
+      ]
     },
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Marronage",
-	"owners" : ["Gregory Smaldone"],
-	"description" : "Records of escaped slaves in New World colonies.",
-	"domain" : "History"
+    "notice": {
+      "meta": {
+        "display": "{0.notice_date} {0.notice_reward}"
+      },
+      "properties": [
+        "notice_time_escaped_is_approximate",
+        "notice_time_escaped",
+        "notice_escape_group_size",
+        "notice_reward",
+        "notice_date"
+      ]
     },
-    "data_fields" : {
-	"notice_time_escaped_is_approximate" : {"type" : "categorical"},
-	"notice_time_escaped" : {"type" : "text"},
-	"notice_escape_group_size" : {"type" : "scalar"},
-	"notice_reward" : {"type" : "scalar"},
-	"notice_date" : {"type" : "date", "format" : ["%d-%b-%Y", "%d-%b%Y"]},
-	"city_name" : {"type" : "categorical"},
-	"city_coordinates" : {"type" : "place"},
-	"slave_name" : {"type" : "categorical"},
-	"slave_race" : {"type" : "categorical"},
-	"slave_race_category" : {"type" : "categorical"},
-	"slave_gender" : {"type" : "categorical"},
-	"slave_age_is_approximate" : {"type" : "categorical"},
-	"slave_height_is_approximate" : {"type" : "categorical"},
-	"slave_has_known_associates" : {"type" : "categorical"},
-	"slave_profession" : {"type" : "categorical"},
-	"slave_age" : {"type" : "scalar"},
-	"slave_height" : {"type" : "scalar"},	
-	"owner_name" : {"type" : "categorical"},
-	"owner_profession" : {"type" : "categorical"}
+    "city": {
+      "meta": {
+        "display": "{0.city_name}"
+      },
+      "properties": [
+        "city_name",
+        "city_coordinates"
+      ]
     },
-    "entity_types" : {
-	"slave" : {
-	    "data_fields" : ["slave_name", "slave_race", "slave_race_category",
-			     "slave_gender", "slave_age_is_approximate",
-			     "slave_height_is_approximate", "slave_has_known_associates",
-			     "slave_profession", "slave_age", "slave_height"],
-	    "meta" : {
-		"display" : "{0.slave_name}"
-	    }
-	},
-	"notice" : {
-	    "data_fields" : ["notice_time_escaped_is_approximate", "notice_time_escaped",
-			     "notice_escape_group_size", "notice_reward", "notice_date"],
-	    "meta" : {
-		"display" : "{0.notice_date} {0.notice_reward}"
-	    }	    
-	},
-	"city" : {
-	    "data_fields" : ["city_name", "city_coordinates"],
-	    "meta" : {
-		"display" : "{0.city_name}"
-	    }	    
-	},
-	"owner" : {
-	    "data_fields" : ["owner_name", "owner_profession"],
-	    "meta" : {
-		"display" : "{0.owner_name} {0.owner_profession}"
-	    }	    
-	}
-    },
-    "relationship_fields" : {
-	"posted_in" : {
-            "source_entity_type" : "notice",
-            "target_entity_type" : "city"
-	},
-	"submitted" : {
-            "source_entity_type" : "owner",
-            "target_entity_type" : "notice"
-	},
-	"reported_in" : {
-            "source_entity_type" : "slave",
-            "target_entity_type" : "notice"
-	}	
+    "owner": {
+      "meta": {
+        "display": "{0.owner_name} {0.owner_profession}"
+      },
+      "properties": [
+        "owner_name",
+        "owner_profession"
+      ]
     }
+  },
+  "properties": {
+    "notice_time_escaped_is_approximate": {
+      "type": "categorical"
+    },
+    "notice_time_escaped": {
+      "type": "text"
+    },
+    "notice_escape_group_size": {
+      "type": "scalar"
+    },
+    "notice_reward": {
+      "type": "scalar"
+    },
+    "notice_date": {
+      "type": "date",
+      "format": [
+        "%d-%b-%Y",
+        "%d-%b%Y"
+      ]
+    },
+    "city_name": {
+      "type": "categorical"
+    },
+    "city_coordinates": {
+      "type": "place"
+    },
+    "slave_name": {
+      "type": "categorical"
+    },
+    "slave_race": {
+      "type": "categorical"
+    },
+    "slave_race_category": {
+      "type": "categorical"
+    },
+    "slave_gender": {
+      "type": "categorical"
+    },
+    "slave_age_is_approximate": {
+      "type": "categorical"
+    },
+    "slave_height_is_approximate": {
+      "type": "categorical"
+    },
+    "slave_has_known_associates": {
+      "type": "categorical"
+    },
+    "slave_profession": {
+      "type": "categorical"
+    },
+    "slave_age": {
+      "type": "scalar"
+    },
+    "slave_height": {
+      "type": "scalar"
+    },
+    "owner_name": {
+      "type": "categorical"
+    },
+    "owner_profession": {
+      "type": "categorical"
+    }
+  },
+  "relationships": {
+    "posted_in": {
+      "source_entity_type": "notice",
+      "target_entity_type": "city"
+    },
+    "submitted": {
+      "source_entity_type": "owner",
+      "target_entity_type": "notice"
+    },
+    "reported_in": {
+      "source_entity_type": "slave",
+      "target_entity_type": "notice"
+    }
+  }
 }

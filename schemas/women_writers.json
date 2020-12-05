@@ -1,60 +1,80 @@
 {
-    "@context" : {
-	"@vocab" : "http://schema.org"
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "name": "Women Writers Project",
+    "owners": [],
+    "description": "Long-form writing from English-language authors from the past several hundred years.",
+    "domain": "Literature",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "author": {
+      "meta": {
+        "display": "{0.author_name}"
+      },
+      "properties": [
+        "author_name"
+      ]
     },
-    "meta" : {
-	"entity_type_field" : "entity_type",
-	"id_field" : "id",
-	"name" : "Women Writers Project",
-	"owners" : [],
-	"description" : "Long-form writing from English-language authors from the past several hundred years.",
-	"domain" : "Literature"
+    "document": {
+      "meta": {
+        "display": "{0.document_title}"
+      },
+      "properties": [
+        "document_title"
+      ]
     },
-    "data_fields" : {
-	"author_name" : {"type" : "categorical"},
-	"document_title" : {"type" : "categorical"},
-	"section_name" : {"type" : "categorical"},
-	"subsection_type" : {"type" : "categorical"},
-	"subsection_text" : {"type" : "text"}
+    "section": {
+      "meta": {
+        "display": "{0.section_name}"
+      },
+      "properties": [
+        "section_name"
+      ]
     },
-    "entity_types" : {
-	"author" : {
-	    "data_fields" : ["author_name"],
-	    "meta" : {
-		"display" : "{0.author_name}"
-	    }
-	},
-	"document" : {
-	    "data_fields" : ["document_title"],
-	    "meta" : {
-		"display" : "{0.document_title}"
-	    }
-	},
-	"section" : {
-	    "data_fields" : ["section_name"],
-	    "meta" : {
-		"display" : "{0.section_name}"
-	    }
-	},
-	"subsection" : {
-	    "data_fields" : ["subsection_text", "subsection_type", "author_name"],
-	    "meta" : {
-		"display" : "{0.author_name}"
-	    }
-	}
-    },
-    "relationship_fields" : {
-	"written_by" : {
-	    "source_entity_type" : "subsection",
-	    "target_entity_type" : "author"
-	},
-	"section_of" : {
-	    "source_entity_type" : "section",
-	    "target_entity_type" : "document"	    
-	},
-	"subsection_of" : {
-	    "source_entity_type" : "subsection",
-	    "target_entity_type" : "section"	    
-	}
+    "subsection": {
+      "meta": {
+        "display": "{0.author_name}"
+      },
+      "properties": [
+        "subsection_text",
+        "subsection_type",
+        "author_name"
+      ]
     }
+  },
+  "properties": {
+    "author_name": {
+      "type": "categorical"
+    },
+    "document_title": {
+      "type": "categorical"
+    },
+    "section_name": {
+      "type": "categorical"
+    },
+    "subsection_type": {
+      "type": "categorical"
+    },
+    "subsection_text": {
+      "type": "text"
+    }
+  },
+  "relationships": {
+    "written_by": {
+      "source_entity_type": "subsection",
+      "target_entity_type": "author"
+    },
+    "section_of": {
+      "source_entity_type": "section",
+      "target_entity_type": "document"
+    },
+    "subsection_of": {
+      "source_entity_type": "subsection",
+      "target_entity_type": "section"
+    }
+  }
 }
