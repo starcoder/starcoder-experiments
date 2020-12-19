@@ -1,0 +1,93 @@
+{
+    "@context": {
+	"@vocab": "http://schema.org"
+    },
+    "meta": {
+	"owners": [],
+	"name": "Conference proceedings from the ACL",
+	"description": "Conferences and workshops with paper titles, authors, and (sometimes) abstracts.",
+	"domain": "Computational Linguistics",
+	"id_property": "id",
+	"entity_type_property": "entity_type"
+    },
+    "entity_types": {
+	"person": {
+	    "properties": [
+		"first_name",
+		"last_name"
+	    ]
+	},
+	"collection": {
+	    "properties": [
+	    ]
+	},
+	"volume": {
+	    "properties": [
+		"title",
+		"address",
+		"date"
+	    ]
+	},
+	"paper": {
+	    "properties": [
+		"title",
+		"abstract",
+		"length"
+	    ]
+	},
+	"publisher": {
+	    "properties": [
+		"name"
+	    ]
+	}
+    },
+    "properties": {
+	"date": {
+	    "type": "date",
+	    "format" : "%Y"
+	},
+	"length": {
+	    "type": "scalar"
+	},
+	"address": {
+	    "type": "text"
+	},
+	"first_name": {
+	    "type": "text"
+	},	
+	"last_name": {
+	    "type": "text"
+	},
+	"title": {
+	    "type": "text"
+	},
+	"name": {
+	    "type": "text"
+	},
+	"abstract": {
+	    "type": "text"
+	}	
+    },
+    "relationships": {
+	"written_by" : {
+	    "source_entity_type" : "paper",
+	    "target_entity_type" : "person"
+	},
+	"published_by" : {
+	    "source_entity_type" : "volume",
+	    "target_entity_type" : "publisher"
+	},
+	"contains_volume" : {
+	    "source_entity_type" : "collection",
+	    "target_entity_type" : "volume"
+	},
+	"contains_paper" : {
+	    "source_entity_type" : "volume",
+	    "target_entity_type" : "paper"	    
+	},
+	"edited_by" : {
+	    "source_entity_type" : "volume",
+	    "target_entity_type" : "person"
+	}	
+    }
+}

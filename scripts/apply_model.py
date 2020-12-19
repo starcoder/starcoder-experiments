@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", dest="dataset", help="Input dataset file")
     parser.add_argument("--split", dest="split", default=None, help="Data split (if none specified, run over everything)")
     parser.add_argument("--model", dest="model", help="Model file")
-    parser.add_argument("--mask_property", dest="mask_property", help="Mask property")
+    parser.add_argument("--mask_properties", dest="mask_properties", default=[], nargs="+", help="Mask properties")
     parser.add_argument("--mask_probability", dest="mask_probability", default=0.5, help="Mask probability")
     parser.add_argument("--output", dest="output", help="Output file")
     parser.add_argument("--gpu", dest="gpu", default=False, action="store_true", help="Use GPU")
@@ -44,12 +44,14 @@ if __name__ == "__main__":
 
     with gzip.open(args.dataset, "rb") as ifd:
         dataset = pickle.load(ifd) # type: ignore
-
+    
+        
     logger.info("Loading model")
     model = GraphAutoencoder(schema, 
                              margs.depth, 
                              margs.autoencoder_shapes,
                              reverse_relationships=True,
+                             depthwise_boost=margs.depthwise_boost
     )
     model.load_state_dict(state)
     model.eval()
@@ -62,12 +64,21 @@ if __name__ == "__main__":
     if args.split == None:
         components = [i for i in range(dataset.num_components)]
     else:
-        raise Exception()
+        dataset = dataset.subselect_entities(entity_ids)
+        components = [i for i in range(dataset.num_components)]
     
     logging.info("Dataset has %d entities", dataset.num_entities)
     bottlenecks = {}
     reconstructions = {}
-    for decoded_properties, norm, bns, masking in apply_to_components(model, batchifier_classes["sample_components"]([]), dataset, args.batch_size, args.gpu, args.mask_property, args.mask_probability):
+    for decoded_properties, norm, bns, masking in apply_to_components(
+            model,
+            batchifier_classes["sample_components"]([]),
+            dataset,
+            args.batch_size,
+            args.gpu,
+            args.mask_properties,
+            args.mask_probability
+    ):
         for entity in [dataset.schema.unpack(e) for e in unstack_entities(norm, dataset.schema)]:
             reconstructions[entity[dataset.schema.id_property.name]] = entity
             bottlenecks[entity[dataset.schema.id_property.name]] = bns[entity[dataset.schema.id_property.name]].tolist()

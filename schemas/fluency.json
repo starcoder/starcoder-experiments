@@ -17,8 +17,7 @@
       },
       "properties": [
         "text",
-        "twitter_language",
-        "valid_vector"
+        "twitter_language"
       ]
     },
     "user": {
@@ -40,9 +39,6 @@
     },
     "twitter_language": {
       "type": "categorical"
-    },
-    "valid_vector": {
-      "type": "distribution"
     },
     "is_bot": {
       "type": "boolean"

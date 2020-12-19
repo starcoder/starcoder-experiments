@@ -41,6 +41,7 @@ if __name__ == "__main__":
                              margs.depth, 
                              margs.autoencoder_shapes,
                              reverse_relationships=True,
+                             depthwise_boost=margs.depthwise_boost,
     )
     model.load_state_dict(state)
     structure = get_structure(model)

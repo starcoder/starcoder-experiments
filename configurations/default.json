@@ -1,0 +1,46 @@
+[
+    [
+	"$.properties.*",
+	{
+	    "encoder" : "starcoder.property_encoder.NullEncoder",
+	    "decoder" : "starcoder.property_encoder.NullDecoder",
+	    "loss" : "starcoder.property_encoder.NullLoss"
+	}
+    ],
+    [
+	"$.properties[?(@.type=='text')]",
+	{
+	    "class" : "starcoder.property.CharacterSequenceProperty",
+	    "encoder" : "starcoder.property_encoder.SequenceEncoder",
+	    "decoder" : "starcoder.property_decoder.SequenceDecoder",
+	    "loss" : "starcoder.property_loss.SequenceLoss"
+	}
+    ],
+    [
+	"$.properties[?(@.type=='categorical')]",
+	{
+	    "class" : "starcoder.property.CategoricalProperty",
+	    "encoder" : "starcoder.property_encoder.CategoricalEncoder",
+	    "decoder" : "starcoder.property_decoder.CategoricalDecoder",
+	    "loss" : "starcoder.property_loss.CategoricalLoss"
+	}
+    ],
+    [
+	"$.properties[?(@.type=='boolean')]",
+	{
+	    "class" : "starcoder.property.CategoricalProperty",
+	    "encoder" : "starcoder.property_encoder.CategoricalEncoder",
+	    "decoder" : "starcoder.property_decoder.CategoricalDecoder",
+	    "loss" : "starcoder.property_loss.CategoricalLoss"
+	}
+    ],
+    [
+	"$.properties[?(@.type=='distribution')]",
+	{
+	    "class" : "starcoder.property.DistributionProperty",
+	    "encoder" : "starcoder.property_encoder.DistributionEncoder",
+	    "decoder" : "starcoder.property_decoder.DistributionDecoder",
+	    "loss" : "starcoder.property_loss.DistributionLoss"
+	}
+    ]
+]

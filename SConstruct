@@ -50,7 +50,7 @@ vars.AddVariables(
     ("PATIENCE", "", 5),
     ("HIDDEN_SIZE", "", 32),
     ("EMBEDDING_SIZE", "", 32),
-    ("AUTOENCODER_SHAPES", "", (32, 16)),
+    ("AUTOENCODER_SHAPES", "", (1024, 512)),
     ("CLUSTER_REDUCTION", "", 0.5),
     BoolVariable("USE_GPU", "", False),
     BoolVariable("USE_GPU_APPLY", "", False),
@@ -67,7 +67,7 @@ vars.AddVariables(
     ("TRAIN_FIELD_DROPOUT", "", 0.1),
     ("TRAIN_NEURON_DROPOUT", "", 0.1),
     ("DEV_FIELD_DROPOUT", "", 0.1),
-    ("TEST_FIELD_DROPOUT", "", 0.1),
+    ("TEST_FIELD_DROPOUT", "", 1.0),
 )
 
 env = Environment(variables=vars, ENV=os.environ, TARFLAGS="-c -z", TARSUFFIX=".tgz",
@@ -106,7 +106,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/train_model.py",
-                "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask ' + ' '.join(MASK) if MASK else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT} --depthwise_boost ${DEPTHWISE_BOOST}",
+                "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask_properties ' + ' '.join(MASK_PROPERTIES) if MASK_PROPERTIES else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT} ${'--depthwise_boost ' + DEPTHWISE_BOOST if DEPTHWISE_BOOST else ''}",
                 other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
                             "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP", "DEPTHWISE_BOOST"],
                 USE_GPU=env["USE_GPU"],
@@ -117,7 +117,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/apply_model.py",
-                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU_APPLY else ''} --test_field_dropout ${TEST_FIELD_DROPOUT} ${'--mask_field ' + MASK_FIELD if MASK_FIELD else ''}",
+                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU_APPLY else ''} --test_field_dropout ${TEST_FIELD_DROPOUT} ${'--mask_properties ' + ' '.join(MASK_PROPERTIES) if MASK_PROPERTIES else ''}",
             )
         ),
         "TopicModel" : env.Builder(
@@ -148,11 +148,11 @@ env.Append(
                 "${SOURCES[0]} --schema ${TARGETS[0]} --data ${TARGETS[1]}",
             )
         ),
-        "Copy" : env.Builder(
+        "ExpandSchema" : env.Builder(
             **env.ActionMaker(
-                "cp",
-                "",
-                "${SOURCES[0]} ${TARGETS[0]}",
+                "python",
+                "scripts/expand_schema.py",
+                "--schema ${SOURCES[0]} ${SOURCES[1:]} --output ${TARGETS[0]}",
             )
         ),
         "SaveConfig" : env.Builder(
@@ -174,6 +174,13 @@ env.Append(
                 "python",
                 "scripts/collate_outputs.py",
                 "${SOURCES[2:]} --output ${TARGETS[0]} --test ${SOURCES[0]} --schema ${SOURCES[1]}",
+            )
+        ),
+        "VisualizeImages" : env.Builder(
+            **env.ActionMaker(
+                "python",
+                "scripts/visualize_images.py",
+                "--input ${SOURCES[0]} --output ${TARGETS[0]}"
             )
         ),
     },
@@ -224,9 +231,9 @@ def run_experiment(env, experiment_config, **args):
     
     data = sum([env.Glob(env.subst(p)) for p in experiment_config.get("DATA_FILES", [])], [])
     if experiment_name != "decameron":
-        schema = env.Copy(
+        schema = env.ExpandSchema(
             "work/${EXPERIMENT_NAME}/schema.json",
-            experiment_config.get("SCHEMA", None),
+            [experiment_config.get("SCHEMA", None), "configurations/default.json"] + env.Glob("configurations/{}.json".format(experiment_name)),
             **args, **experiment_config
         )
         data = getattr(env, "preprocess_{}".format(experiment_name))("work/${EXPERIMENT_NAME}/data.json.gz",
@@ -301,13 +308,18 @@ def run_experiment(env, experiment_config, **args):
                                     **config)
             env.Alias("outputs", output)
             outputs.append((config_file, output))
+    
+            #env.VisualizeImages("work/${EXPERIMENT_NAME}/${FOLD}/images.png",
+            #                    output,
+            #                    **config)
 
+    
             tsne = env.MakeTSNE("work/${EXPERIMENT_NAME}/${FOLD}/tsne_${APPLY_CONFIG_ID}.json.gz",
                                [schema, output],
                                **config)
             env.Alias("tsne", tsne)
     results = env.CollateOutputs(
-        "work/${EXPERIMENT_NAME}/results.csv.gz", 
+        "work/${EXPERIMENT_NAME}/results.csv", 
         [test, schema] + outputs, 
         EXPERIMENT_NAME=experiment_name
     )

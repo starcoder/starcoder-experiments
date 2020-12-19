@@ -1,7 +1,10 @@
+import numpy
 import re
 import argparse
 import gzip
 import json
+import os.path
+from PIL import Image
 
 def fix_date(d):
     if d == None:
@@ -58,7 +61,7 @@ if __name__ == "__main__":
                 "eye_color" : j.get("Eye Color", None),
                 "native_county" : j.get("Native County", None),
                 "native_state" : j.get("Native State", None),
-                "image" : j.get("suspect_image", None),
+                #"image" : j.get("suspect_image", None),
                 "birth_date" : fix_date(j.get("Date of Birth", None)),
                 "education" : j.get("Education Level (Highest Grade Completed)", None),
                 "age_at_incarceration" : int(j.get("Age (when Received)", 0)),
@@ -66,6 +69,17 @@ if __name__ == "__main__":
                 "age_at_death" : int(j.get("age", 0)),
                 "executed_for" : ex_id
             }
+            if j.get("suspect_image", None) != None:
+                image_fname = os.path.join(os.path.dirname(args.inputs[0]), "images", j["suspect_image"])
+                if os.path.exists(image_fname):
+                    im = Image.open(image_fname)
+                    im.thumbnail((32, 32))
+                    n = numpy.asarray(im)
+                    m = numpy.zeros((32, 32, 3))
+                    if len(n.shape) == 3:
+                        m[0:n.shape[0], 0:n.shape[1], 0:] = n
+                        pris["image"] = m.tolist()
+                    #pris["image"] = n.tolist()
             pris["participated_in"] = entities["person"].get(pris["name"], {}).get("participated_in", [])
             entities["person"][pris["name"]] = pris
             for codef in j.get("Co-Defendants", "").split(" and "):
@@ -80,6 +94,8 @@ if __name__ == "__main__":
     with gzip.open(args.output, "wt") as ofd:
         for et, eot in entities.items():
             for eid, e in eot.items():
+                #if e.get("image", None) == None:
+                #    continue
                 e = {k : v for k, v in e.items() if v}
                 e["id"] = eid
                 e["entity_type"] = et

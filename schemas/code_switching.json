@@ -1,0 +1,34 @@
+{
+  "@context": {
+    "@vocab": "http://schema.org"
+  },
+  "meta": {
+    "owners": [],
+    "name": "Code Switching",
+    "description": "Documents that contain a mixture of languages, with information about what that mixture consists of.",
+    "domain": "Computational Linguistics",
+    "id_property": "id",
+    "entity_type_property": "entity_type"
+  },
+  "entity_types": {
+    "document": {
+      "meta": {
+        "display": "{0.text}"
+      },
+      "properties": [
+        "text",
+        "language_proportions"
+      ]
+    }
+  },
+  "properties": {
+    "text": {
+      "type": "text"
+    },
+    "language_proportions": {
+      "type": "distribution"
+    }
+  },
+  "relationships": {
+  }
+}

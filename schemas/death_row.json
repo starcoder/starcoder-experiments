@@ -133,11 +133,11 @@
       "type": "text"
     },
     "image": {
-      "type": "image",
-      "width": 128,
-      "height": 128,
-      "channels": 3,
-      "channel_size": 8
+	"type": "image",
+	"width": 32,
+	"height": 32,
+	"channels": 3,
+	"channel_size": 8
     }
   },
   "relationships": {

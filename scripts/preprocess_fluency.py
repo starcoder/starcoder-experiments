@@ -49,7 +49,7 @@ if __name__ == "__main__":
                                     continue
                                 tweet_id = "{}_{}".format(file_id, tweet_id)
                                 entities[tweet_id] = {"twitter_language" : list(tweet["twitter"][1].keys())[0],
-                                                      "valid_vector" : tweet["valid"], #[v for k, v in sorted(tweet["valid"].items())],
+                                                      #"valid_vector" : tweet["valid"], #[v for k, v in sorted(tweet["valid"].items())],
                                                       "entity_type" : "tweet",
                                                       "written_by" : user_id,
                                                       "text" : tweet["text"],
@@ -66,4 +66,4 @@ if __name__ == "__main__":
                             print(entity)
                             raise e
             except EOFError:
-                pass
+                print(fname)

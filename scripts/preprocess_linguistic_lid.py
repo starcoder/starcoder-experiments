@@ -50,25 +50,25 @@ if __name__ == "__main__":
                 macroareas["macroarea {}".format(row["macroarea"])] = {
                     "id" : "macroarea {}".format(row["macroarea"]),
                     "entity_type" : "macroarea",
-                    "macroarea_name" : row["macroarea"]
+                    #"macroarea_name" : row["macroarea"]
                 }
                 families["family {}".format(row["family"])] = {
                     "id" : "family {}".format(row["family"]),
                     "entity_type" : "family",
                     "from_macroarea" : "macroarea {}".format(row["macroarea"]),
-                    "family_name" : row["family"]
+                    #"family_name" : row["family"]
                 }
                 genuses["genus {}".format(row["genus"])] = {
                     "id" : "genus {}".format(row["genus"]),
                     "from_family" : "family {}".format(row["family"]),
                     "entity_type" : "genus",
-                    "genus_name" : row["genus"]
+                    #"genus_name" : row["genus"]
                 }
                 languages["language {}".format(lang_code)] = {
                     "id" : "language {}".format(lang_code),
                     "entity_type" : "language",
                     "from_genus" : "genus {}".format(row["genus"]),
-                    "language_name" : row["Name"]
+                    #"language_name" : row["Name"]
                 }
 
     tweets = []
@@ -79,7 +79,7 @@ if __name__ == "__main__":
             tweets.append({"id" : tid,
                            "entity_type" : "tweet",
                            "written_in" : "language {}".format(lang_code),
-                           "tweet_text" : text, #ngrams(text.lower(), 1),
+                           "tweet_text" : text, #[:20], #ngrams(text.lower(), 1),
                            "tweet_language" : lang_code,
             })
 
@@ -87,6 +87,8 @@ if __name__ == "__main__":
     with gzip.open(args.output_file, "wt") as ofd:
         for tweet in tweets:
             lang = tweet["tweet_language"]
+            if lang not in ["es", "ca", "pt", "de", "nl", "fr", "da", "sv"]:
+                continue
             if lang in wals_langs:
                 lang = "language {}".format(lang)
                 ofd.write(json.dumps(tweet) + "\n")

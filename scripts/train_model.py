@@ -19,7 +19,7 @@ from starcoder.schema import Schema
 from starcoder.batchifier import Batchifier
 from starcoder.property import CategoricalProperty
 from starcoder.random import random
-from starcoder.utils import run_epoch, simple_loss_policy
+from starcoder.utils import run_epoch, simple_loss_policy, warmup
 from torch.autograd import set_detect_anomaly
 set_detect_anomaly(True)
 from typing import Dict, List, Any, Tuple
@@ -48,8 +48,9 @@ if __name__ == "__main__":
     parser.add_argument("--dev_property_dropout", type=float, dest="dev_property_dropout", default=0.0, help="Size of embeddings")
     parser.add_argument("--autoencoder_shapes", type=int, default=[], dest="autoencoder_shapes", nargs="*", help="Autoencoder layer sizes")
     parser.add_argument("--ae_loss", dest="ae_loss", default=False, action="store_true", help="Optimize autoencoder loss directly")
-    parser.add_argument("--depthwise_boost", dest="depthwise_boost", default="none", choices=["none", "residual", "reconstruction"],
+    parser.add_argument("--depthwise_boost", dest="depthwise_boost", default="none", choices=["none", "highway", "cul-de-sac"],
                         help="Method to address vanishing gradient in stacked autoencoders")
+    parser.add_argument("--mask_properties", dest="mask_properties", default=[], nargs="+")
     
     # training-related
     parser.add_argument("--batchifier_class", dest="batchifier_class", default="sample_entities", choices=batchifier_classes.keys(),
@@ -136,6 +137,9 @@ if __name__ == "__main__":
            optim = Adam(model.parameters(), lr=args.learning_rate)
         sched = scheduler_classes["basic"](args.early_stop, optim, patience=args.patience, verbose=True) if args.patience != None else None
 
+        #logger.info("Warming up property encoders")
+        #warmup(model, batchifier, scheduler_classes["basic"], train_data, dev_data, args.batch_size, freeze=True, gpu=args.gpu)
+        
         logger.info("Training StarCoder with %d/%d train/dev entities and %d/%d train/dev components and batch size %d", 
                      len(train_ids), 
                      len(dev_ids),
@@ -158,6 +162,7 @@ if __name__ == "__main__":
                 train_property_dropout=args.train_property_dropout,
                 train_neuron_dropout=args.train_neuron_dropout,
                 dev_property_dropout=args.dev_property_dropout,
+                mask_properties=args.mask_properties
             )
             trace = {
                 "iteration" : e,

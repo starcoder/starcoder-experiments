@@ -37,8 +37,10 @@
         "name"
       ]
     },
-    "location": {
-      "display": "{0.address}",
+      "location": {
+	  "meta" : {
+	      "display": "{0.address}"
+	  },
       "properties": [
         "address",
         "coordinates"

@@ -1,3 +1,4 @@
+import math
 import argparse
 import gzip
 import logging
@@ -43,7 +44,7 @@ if __name__ == "__main__":
         with gzip.open(oname, "rt") as ifd:
             for line in ifd:
                 entity = json.loads(line)
-                if entity["original"]["id"] in test_ids and entity["original"]["entity_type"] in ["node", "tweet"]:
+                if entity["original"]["id"] in test_ids:
                     for k, v in entity["original"].items():
                         rv = entity["reconstruction"].get(k, None)
                         if rv != None:
@@ -58,10 +59,12 @@ if __name__ == "__main__":
             tp = schema["properties"].get(k, {}).get("type")
             if tp == "categorical":
                 datum[k] = f1_score(
-                    [x for x, _ in datum[k]],
-                    [x for _, x in datum[k]],
+                    [str(x) for x, _ in datum[k]],
+                    [str(x) for _, x in datum[k]],
                     average="macro",
                 )
+            elif tp == "scalar":
+                datum[k] = sum([math.sqrt((a - b)**2) for a, b in datum[k]]) / len(datum[k])
         data.append(datum)
     
     with open(args.output, "wt") as ofd:
