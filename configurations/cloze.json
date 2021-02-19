@@ -1,0 +1,9 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : [],
+	    "batch_size" : 1024
+	}
+    ]
+]

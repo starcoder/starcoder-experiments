@@ -1,0 +1,9 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : ["author", "document"],
+	    "batch_size" : 768
+	}
+    ]
+]

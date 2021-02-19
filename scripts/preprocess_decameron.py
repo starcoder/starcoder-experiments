@@ -14,17 +14,17 @@ class TEIHandler(xml.sax.handler.ContentHandler):
     content_elements: Any
     content_passthrough_elements: Any
     relationship_elements: Any 
-    relationship_fields: Any
-    content_field: Any = "content"
-    id_field: Any = "id"
-    entity_type_field: Any = "entity_type"
+    relationships: Any
+    content_property: Any = "content"
+    id_property: Any = "id"
+    entity_type_property: Any = "entity_type"
     name: Any = ""
     owners: Any = field(default_factory=list)
     description: Any = ""
     domain: Any = ""
     relationships: Any = field(default_factory=dict)
     unique_ids: Any = field(default_factory=set)
-    fields: Any = field(default_factory=set)
+    properties: Any = field(default_factory=set)
     not_numeric: Any = field(default_factory=set)
     entity_types: Any = field(default_factory=dict)
     unique_values: Any = field(default_factory=dict)
@@ -49,16 +49,16 @@ class TEIHandler(xml.sax.handler.ContentHandler):
             entity = {
                 "__content_entity__" : name in self.content_elements,
                 "__content__" : [],
-                self.id_field : eid,
-                self.entity_type_field : name,
+                self.id_property : eid,
+                self.entity_type_property : name,
             }
             self.ids_to_types[eid] = name
             if name in self.content_elements:
-                qn = "{}_{}".format(name, self.content_field)
+                qn = "{}_{}".format(name, self.content_property)
                 self.entity_types[name].add(qn)
             for n in [x for x in attr_names if x != "id"]:
                 val = attrs.getValue(n)
-                if n in self.relationship_fields:
+                if n in self.relationships:
                     rel_type = "{}_{}".format(name, n)
                     self.relationships[rel_type] = self.relationships.get(rel_type, [])
                     for v in val.split():                        
@@ -70,7 +70,7 @@ class TEIHandler(xml.sax.handler.ContentHandler):
                     self.entity_types[name].add(qn)
                     #if qn == "place_itcity":
                     #    print(self.entity_types["place"])
-                    self.fields.add(qn)
+                    self.properties.add(qn)
                     if val == None or re.match("^\s+$", val):
                         continue
                     try:
@@ -90,16 +90,16 @@ class TEIHandler(xml.sax.handler.ContentHandler):
                 rel_type = attrs.getValue("type")
                 self.relationships[rel_type] = self.relationships.get(rel_type, [])
                 for v in target_id.split():
-                    self.relationships[rel_type].append({"source" : self.location[-1][self.id_field], "target" : v})
+                    self.relationships[rel_type].append({"source" : self.location[-1][self.id_property], "target" : v})
 
     def endElement(self, name):
         if name in self.structural_elements + self.content_elements:
             entity = self.location[-1]
             if name in self.content_elements:
-                cf = "{}_{}".format(name, self.content_field)
+                cf = "{}_{}".format(name, self.content_property)
 
                 val = re.sub(r"\s+", " ", " ".join(entity["__content__"]))
-                self.fields.add(cf)
+                self.properties.add(cf)
                 try:
                     val = float(val)
                 except:
@@ -107,14 +107,14 @@ class TEIHandler(xml.sax.handler.ContentHandler):
                 self.unique_values[cf] = self.unique_values.get(cf, set())
                 self.unique_values[cf].add(val)
                 entity[cf] = val
-            entity[self.entity_type_field] = name
+            entity[self.entity_type_property] = name
             self.location = self.location[:-1]
-            self.ids_to_types[entity[self.id_field]] = entity[self.entity_type_field]
+            self.ids_to_types[entity[self.id_property]] = entity[self.entity_type_property]
             if "__content_entity__" in entity:
                 del entity["__content_entity__"]
             if "__content__" in entity:
                 del entity["__content__"]
-            self.all_entities[entity[self.id_field]] = entity
+            self.all_entities[entity[self.id_property]] = entity
             #self.ofd.write(json.dumps(entity) + "\n")
 
         elif name in self.relationship_elements:
@@ -140,15 +140,15 @@ class TEIHandler(xml.sax.handler.ContentHandler):
             "description" : self.description,
             "domain" : self.domain,
             "owners" : [],
-            "id_field" : self.id_field,
-            "entity_type_field" : self.entity_type_field,
+            "id_property" : self.id_property,
+            "entity_type_property" : self.entity_type_property,
         }
-        self.data_fields = {
+        self.properties = {
             name : {
                 "type" : "scalar" if name not in self.not_numeric else "categorical" if len(self.unique_values.get(name)) < self.categorical_limit and max([len(str(x)) for x in self.unique_values.get(name, [])]) < 50 else "text"
-            } for name in list(self.fields)
+            } for name in list(self.properties)
         }
-        self.relationship_fields = {}
+        #self.relationships = {}
         for rel_type, rels in self.relationships.items():
             sources = set()
             targets = set()
@@ -158,11 +158,11 @@ class TEIHandler(xml.sax.handler.ContentHandler):
                 self.all_entities[rel["source"]][rel_type] = self.all_entities[rel["source"]].get(rel_type, [])
                 self.all_entities[rel["source"]][rel_type].append(rel["target"])
             assert len(sources) == 1 and len(targets) == 1
-            self.relationship_fields[rel_type] = {
+            self.relationships[rel_type] = {
                 "source_entity_type" : sources.pop(),
                 "target_entity_type" : targets.pop()
             }
-        self.entity_types = {k : {"data_fields" : list(v)} for k, v in self.entity_types.items()}
+        self.entity_types = {k : {"properties" : list(v)} for k, v in self.entity_types.items()}
 
     @property
     def data(self):
@@ -176,8 +176,8 @@ class TEIHandler(xml.sax.handler.ContentHandler):
                 "@vocab" : "http://schema.org"
             },
             "meta" : self.meta,
-            "data_fields" : self.data_fields,
-            "relationship_fields" : self.relationship_fields,
+            "properties" : self.properties,
+            "relationships" : self.relationships,
             "entity_types" : self.entity_types,
         }
 # who ruler
@@ -190,10 +190,10 @@ if __name__ == "__main__":
     parser.add_argument("--schema", dest="schema", help="Output file")
     args, rest = parser.parse_known_args()
 
-    relationship_fields = [
-        "who",
-        "ruler"
-    ]
+    relationships = {
+#        "who" : [],
+#        "ruler" : [],
+    }
     # orig[reg]
     relationship_elements = [
         "rel",
@@ -229,12 +229,20 @@ if __name__ == "__main__":
     ]
     content_passthrough_elements = []
     with gzip.open(args.inputs[0], "rt") as ifd:
-        handler = TEIHandler(structural_elements, content_elements, content_passthrough_elements, relationship_elements, relationship_fields, name="Decameron", description="Original Italian text of Boccaccio's Decameron.", domain="Literature")
+        handler = TEIHandler(
+            structural_elements,
+            content_elements,
+            content_passthrough_elements,
+            relationship_elements,
+            relationships,
+            name="Decameron",
+            description="Original Italian text of Boccaccio's Decameron.",
+            domain="Literature"
+        )
         xml.sax.parse(ifd, handler)
 
     with open(args.schema, "wt") as ofd:
         schema = json.dumps(handler.schema, indent=4)
-        #print(schema)
         ofd.write(schema)
 
     with gzip.open(args.data, "wt") as ofd:

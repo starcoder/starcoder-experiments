@@ -1,0 +1,18 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : [],
+	    "batch_size" : 1024,
+	    "depth" : 1
+	}
+    ],
+    [
+	"$.entity_types",
+	{
+	    "autoencoder_shape" : [128],
+	    "bottleneck_size" : 32,
+	    "normalizer" : "starcoder.normalizer.LayerNormalizer"
+	}
+    ]
+]

@@ -1,11 +1,23 @@
 [
     [
+	"$",
+	{
+	    "batch_size" : 1024
+	}
+    ],
+    [
 	"$.properties[?(@.type=='text')]",
 	{
 	    "class" : "starcoder.property.CharacterSequenceProperty",
 	    "encoder" : "starcoder.property_encoder.SequenceEncoder",
 	    "decoder" : "starcoder.property_decoder.NullDecoder",
 	    "loss" : "starcoder.property_loss.NullLoss"
+	}
+    ],
+    [
+	"$.properties[?(@.type=='distribution')]",
+	{
+	    "encoder" : "starcoder.property_encoder.NullEncoder"
 	}
     ]
 ]

@@ -4,6 +4,7 @@ import gzip
 import logging
 import json
 import csv
+import torch
 from sklearn.metrics import f1_score
 
 logger = logging.getLogger("collate_outputs")
@@ -40,7 +41,7 @@ if __name__ == "__main__":
         with gzip.open(cname, "rt") as ifd:
             config = json.loads(ifd.read())
         #datum = {"BATCH_SIZE", "SPLITTER_CLASS", "BATCHIFIER_CLASS", "DEPTH"}
-        datum = {"DEPTH" : config["DEPTH"]}
+        datum = {"DEPTH" : config["DEPTH"], "DEPTHWISE_BOOST" : config["DEPTHWISE_BOOST"]}
         with gzip.open(oname, "rt") as ifd:
             for line in ifd:
                 entity = json.loads(line)
@@ -49,11 +50,9 @@ if __name__ == "__main__":
                         rv = entity["reconstruction"].get(k, None)
                         if rv != None:
                             tp = schema["properties"].get(k, {}).get("type")
-                            if tp in ["scalar", "categorical"]:
+                            if tp in ["scalar", "categorical", "distribution"]:
                                 datum[k] = datum.get(k, [])
                                 datum[k].append((v, rv))
-                    #entities.append(entity)
-        #print(len(entities))
         for k in list(datum.keys()):
             cols.add(k)
             tp = schema["properties"].get(k, {}).get("type")
@@ -65,6 +64,15 @@ if __name__ == "__main__":
                 )
             elif tp == "scalar":
                 datum[k] = sum([math.sqrt((a - b)**2) for a, b in datum[k]]) / len(datum[k])
+            elif tp == "distribution":
+                gold = torch.zeros(size=(len(datum[k]), len(datum[k][0][0])))
+                guess = torch.zeros(size=(len(datum[k]), len(datum[k][0][0])))
+                for i, (a, b) in enumerate(datum[k]):
+                    gold[i] = torch.tensor([x[1] for x in sorted(a.items())])
+                    guess[i] = torch.tensor([x[1] for x in sorted(b.items())])
+                datum[k] = torch.nn.functional.kl_div(guess, gold, reduction="batchmean").tolist()
+                #    print(len(a), len(b))
+                pass
         data.append(datum)
     
     with open(args.output, "wt") as ofd:

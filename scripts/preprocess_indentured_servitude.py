@@ -45,8 +45,8 @@ if __name__ == "__main__":
                 "binds_to" : bound_to.get("name"),
                 "with_consent_of" : consentor.get("name"),
                 "assigned_by" : assignor.get("name"),
-                "departed_from" : "loc ".format(departure_location.get("address")),
-                "located_at" : "loc ".format(bondage_location.get("address")),
+                "departed_from" : "loc {}".format(departure_location.get("address")) if departure_location != {} else None,
+                "located_at" : "loc {}".format(bondage_location.get("address")) if bondage_location != {} else None,
                 "at_expiration" : row["At Expiration"],
                 "to_be_found" : row["To Be Found"],
                 "to_be_taught" : row["To Be Taught"],
@@ -74,7 +74,7 @@ if __name__ == "__main__":
                     g = geocoder(loc["address"])
                     if g != None:
                         loc["coordinates"] = g
-                    entities["location"]["loc ".format(loc["address"])] = loc
+                    entities["location"]["loc {}".format(loc["address"])] = loc
             for person in [bound, bound_to, assignor, consentor, ]:
                 if person:
                     entities["person"][person["name"]] = person
@@ -84,4 +84,4 @@ if __name__ == "__main__":
             for eid, e in eot.items():
                 e["id"] = eid
                 e["entity_type"] = et
-                ofd.write(json.dumps(e) + "\n")
+                ofd.write(json.dumps({k : v for k, v in e.items() if v not in [None]}) + "\n")

@@ -90,12 +90,14 @@ if __name__ == "__main__":
                             "name" : cid
                         }
                     entities["person"][cid]["participated_in"] = entities["person"].get(cid, {}).get("participated_in", []) + [ex_id]
-
+    
     with gzip.open(args.output, "wt") as ofd:
         for et, eot in entities.items():
             for eid, e in eot.items():
                 #if e.get("image", None) == None:
                 #    continue
+                #e = {"image" : e["image"]}
+                     
                 e = {k : v for k, v in e.items() if v}
                 e["id"] = eid
                 e["entity_type"] = et

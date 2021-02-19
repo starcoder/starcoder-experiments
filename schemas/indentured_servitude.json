@@ -10,7 +10,8 @@
     "description": "Records of indentured servitude.",
     "domain": "History",
     "id_property": "id",
-    "entity_type_property": "entity_type"
+    "entity_type_property": "entity_type",
+      "shared_entity_types" : ["location"]
   },
   "entity_types": {
     "contract": {
@@ -65,7 +66,7 @@
     },
     "date": {
       "type": "date",
-      "format": "%d-%b-%Y"
+      "format": ["%d-%b-%Y", "%d-%B-%Y"]
     },
     "binds_as": {
       "type": "categorical"

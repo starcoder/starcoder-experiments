@@ -20,6 +20,7 @@ class Geocoder(object):
 
     def __call__(self, text):
         if text not in self.cache:
+            return None
             logger.info("Unknown location: {}".format(text))
             for i in range(self.retries):
                 try:

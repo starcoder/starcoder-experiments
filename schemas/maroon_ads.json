@@ -75,11 +75,7 @@
       "type": "scalar"
     },
     "notice_date": {
-      "type": "date",
-      "format": [
-        "%d-%b-%Y",
-        "%d-%b%Y"
-      ]
+      "type": "date"
     },
     "city_name": {
       "type": "categorical"
@@ -118,7 +114,7 @@
       "type": "scalar"
     },
     "owner_name": {
-      "type": "categorical"
+      "type": "text"
     },
     "owner_profession": {
       "type": "categorical"

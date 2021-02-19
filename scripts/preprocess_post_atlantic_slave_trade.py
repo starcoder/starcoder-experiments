@@ -64,4 +64,6 @@ if __name__ == "__main__":
 
     with gzip.open(args.output, "wt") as ofd:
         for e in all_entities:
+            if "source_row" in e:
+                e["source_row"] = str(e["source_row"])
             ofd.write(json.dumps(e) + "\n")

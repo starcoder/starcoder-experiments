@@ -1,0 +1,8 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : ["source", "document", "book", "chapter"]
+	}
+    ]
+]

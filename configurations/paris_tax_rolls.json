@@ -1,0 +1,8 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : ["tax_roll", "role", "parish", "street"]
+	}
+    ]
+]

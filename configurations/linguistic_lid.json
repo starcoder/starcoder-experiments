@@ -1,11 +1,24 @@
 [
     [
+	"$",
+	{
+	    "shared_entity_types" : ["language", "family", "genus", "macroarea"],
+	    "depth" : 4
+	}
+    ],
+    [
 	"$.properties[?(@.type=='text')]",
 	{
 	    "class" : "starcoder.property.CharacterSequenceProperty",
 	    "encoder" : "starcoder.property_encoder.SequenceEncoder",
 	    "decoder" : "starcoder.property_decoder.NullDecoder",
 	    "loss" : "starcoder.property_loss.NullLoss"
+	}
+    ],
+    [
+	"$.properties[?(@.type=='categorical')]",
+	{
+	    "encoder" : "starcoder.property_encoder.NullEncoder"
 	}
     ]
 ]

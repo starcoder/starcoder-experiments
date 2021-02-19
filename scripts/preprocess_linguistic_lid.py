@@ -87,8 +87,8 @@ if __name__ == "__main__":
     with gzip.open(args.output_file, "wt") as ofd:
         for tweet in tweets:
             lang = tweet["tweet_language"]
-            if lang not in ["es", "ca", "pt", "de", "nl", "fr", "da", "sv"]:
-                continue
+            #if lang not in ["es", "ca", "pt", "de", "nl", "fr", "da", "sv"]:
+            #    continue
             if lang in wals_langs:
                 lang = "language {}".format(lang)
                 ofd.write(json.dumps(tweet) + "\n")

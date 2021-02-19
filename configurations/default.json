@@ -1,10 +1,51 @@
 [
     [
-	"$.properties.*",
+	"$",
+	{
+	    "proportions" : [
+		0.8,
+		0.1,
+		0.1
+	    ],
+	    "splitter" : "starcoder.splitter.SampleComponents",
+	    "batchifier" : "starcoder.batchifier.SampleComponents",
+	    "scheduler" : "starcoder.scheduler.BasicScheduler",
+	    "projector" : "starcoder.projector.MLPProjector",
+	    "autoencoder" : "starcoder.autoencoder.BasicAutoencoder",
+	    "null_autoencoder" : "starcoder.autoencoder.NullAutoencoder",
+	    "depth" : 1,
+	    "reverse_relationships" : true,
+	    "shared_entity_types" : [],
+	    "batch_size" : 4096,
+	    "max_epochs" : 2,
+	    "patience" : 5,
+	    "early_stop" : 10
+	}
+    ],
+    [
+	"$.entity_types",
+	{
+	    "autoencoder_shape" : [512],
+	    "bottleneck_size" : 128,
+	    "normalizer" : "starcoder.normalizer.LayerNormalizer"
+	}
+    ],
+    [
+	"$.relationships",
+	{
+	    "source_summarizer" : "starcoder.summarizer.DANSummarizer",
+	    "target_summarizer" : "starcoder.summarizer.DANSummarizer",
+	    "relationship_detector" : "starcoder.relationship_detector.MLP",
+	    "dropout_probability" : 0.2
+	}
+    ],
+    [
+	"$.properties",
 	{
 	    "encoder" : "starcoder.property_encoder.NullEncoder",
 	    "decoder" : "starcoder.property_encoder.NullDecoder",
-	    "loss" : "starcoder.property_encoder.NullLoss"
+	    "loss" : "starcoder.property_encoder.NullLoss",
+	    "dropout_probability" : 0.2
 	}
     ],
     [
@@ -13,7 +54,8 @@
 	    "class" : "starcoder.property.CharacterSequenceProperty",
 	    "encoder" : "starcoder.property_encoder.SequenceEncoder",
 	    "decoder" : "starcoder.property_decoder.SequenceDecoder",
-	    "loss" : "starcoder.property_loss.SequenceLoss"
+	    "loss" : "starcoder.property_loss.SequenceLoss",
+	    "embedding_size" : 32
 	}
     ],
     [
@@ -22,7 +64,8 @@
 	    "class" : "starcoder.property.CategoricalProperty",
 	    "encoder" : "starcoder.property_encoder.CategoricalEncoder",
 	    "decoder" : "starcoder.property_decoder.CategoricalDecoder",
-	    "loss" : "starcoder.property_loss.CategoricalLoss"
+	    "loss" : "starcoder.property_loss.CategoricalLoss",
+	    "embedding_size" : 32
 	}
     ],
     [
@@ -35,12 +78,59 @@
 	}
     ],
     [
+	"$.properties[?(@.type=='date')]",
+	{
+	    "class" : "starcoder.property.DateProperty",
+	    "encoder" : "starcoder.property_encoder.ScalarEncoder",
+	    "decoder" : "starcoder.property_decoder.ScalarDecoder",
+	    "loss" : "starcoder.property_loss.ScalarLoss",
+	    "format" : ["%m/%d/%Y", "%d-%b-%Y", "%d-%B-%Y", "%b-%Y", "%Y"]
+	}
+    ],
+    [
+	"$.properties[?(@.type=='datetime')]",
+	{
+	    "class" : "starcoder.property.DateTimeProperty",
+	    "encoder" : "starcoder.property_encoder.ScalarEncoder",
+	    "decoder" : "starcoder.property_decoder.ScalarDecoder",
+	    "loss" : "starcoder.property_loss.ScalarLoss",
+	    "format" : ["%a %b %d %H:%M:%S %z %Y"]
+	}
+    ],
+    [
+	"$.properties[?(@.type=='place')]",
+	{
+	    "class" : "starcoder.property.PlaceProperty",
+	    "encoder" : "starcoder.property_encoder.PlaceEncoder",
+	    "decoder" : "starcoder.property_decoder.PlaceDecoder",
+	    "loss" : "starcoder.property_loss.NumericLoss"
+	}
+    ],
+    [
+	"$.properties[?(@.type=='scalar')]",
+	{
+	    "class" : "starcoder.property.ScalarProperty",
+	    "encoder" : "starcoder.property_encoder.ScalarEncoder",
+	    "decoder" : "starcoder.property_decoder.ScalarDecoder",
+	    "loss" : "starcoder.property_loss.ScalarLoss"
+	}
+    ],
+    [
 	"$.properties[?(@.type=='distribution')]",
 	{
 	    "class" : "starcoder.property.DistributionProperty",
 	    "encoder" : "starcoder.property_encoder.DistributionEncoder",
 	    "decoder" : "starcoder.property_decoder.DistributionDecoder",
 	    "loss" : "starcoder.property_loss.DistributionLoss"
+	}
+    ],
+    [
+	"$.properties[?(@.type=='image')]",
+	{
+	    "class" : "starcoder.property.ImageProperty",
+	    "encoder" : "starcoder.property_encoder.ImageEncoder",
+	    "decoder" : "starcoder.property_decoder.ImageDecoder",
+	    "loss" : "starcoder.property_loss.ImageLoss"
 	}
     ]
 ]

@@ -1,0 +1,9 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : ["location"],
+	    "batch_size" : 2048
+	}
+    ]
+]

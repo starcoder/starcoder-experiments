@@ -57,13 +57,13 @@
       "type": "categorical"
     },
     "line_name": {
-      "type": "categorical"
+      "type": "text"
     },
     "token": {
       "type": "text"
     },
     "lemma": {
-      "type": "categorical"
+      "type": "text"
     },
     "tagging": {
       "type": "categorical"

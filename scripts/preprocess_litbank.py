@@ -163,9 +163,12 @@ if __name__ == "__main__":
                             entities["quote"][quote_id]["spoken_by"] = speaker_id
                             entities["discourse_entity"][speaker_id] = entities["discourse_entity"].get(speaker_id, {})
 
+    entity_type_counts = {}
     with gzip.open(args.output, "wt") as ofd:
         for entity_type, entries in entities.items():
             for entry_id, entry in entries.items():
                 entry["entity_type"] = entity_type
                 entry["id"] = entry_id
                 ofd.write(json.dumps(entry) + "\n")
+                entity_type_counts[entity_type] = entity_type_counts.get(entity_type, 0) + 1
+

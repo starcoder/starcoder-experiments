@@ -45,11 +45,14 @@ if __name__ == "__main__":
                     }
 
                     document = {k : v for k, v in document.items() if v not in ["", None]}
-                    
-                    ofd.write(json.dumps(document) + "\n")
+                    entities[document["id"]] = document
+                    #ofd.write(json.dumps(document) + "\n")
 
         for eid, entity in entities.items():
             entity["id"] = eid
+            for rel in ["response_to", "for_submission"]:
+                if rel in entity and entity[rel] not in entities:
+                    del entity[rel]
             ofd.write(json.dumps(entity) + "\n")
     
     

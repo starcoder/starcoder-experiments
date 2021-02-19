@@ -168,7 +168,7 @@
       "type": "categorical"
     },
     "notice_capture_location": {
-      "type": "categorical"
+      "type": "text"
     },
     "notice_capture_location_coordinates": {
       "type": "place"
@@ -211,7 +211,7 @@
       "type": "scalar"
     },
     "voyage_arrival_location": {
-      "type": "categorical"
+      "type": "text"
     },
     "voyage_arrival_location_coordinates": {
       "type": "place"
@@ -220,7 +220,7 @@
       "type": "scalar"
     },
     "voyage_departure_location": {
-      "type": "categorical"
+      "type": "text"
     },
     "voyage_departure_location_coordinates": {
       "type": "place"
@@ -256,7 +256,7 @@
       "type": "categorical"
     },
     "owner_location": {
-      "type": "categorical"
+      "type": "text"
     },
     "owner_location_coordinates": {
       "type": "place"
@@ -265,7 +265,7 @@
       "type": "text"
     },
     "shipper_location": {
-      "type": "categorical"
+      "type": "text"
     },
     "shipper_location_coordinates": {
       "type": "place"
@@ -286,7 +286,7 @@
       "type": "text"
     },
     "consignor_location": {
-      "type": "categorical"
+      "type": "text"
     },
     "consignor_location_coordinates": {
       "type": "place"
@@ -298,16 +298,16 @@
       "type": "categorical"
     },
     "vessel_name": {
-      "type": "categorical"
+      "type": "text"
     },
     "vessel_location": {
-      "type": "categorical"
+      "type": "text"
     },
     "vessel_location_coordinates": {
       "type": "place"
     },
     "gazette_name": {
-      "type": "categorical"
+      "type": "text"
     },
     "author_type": {
       "type": "categorical"
@@ -322,7 +322,7 @@
       "type": "place"
     },
     "jail_name": {
-      "type": "categorical"
+      "type": "text"
     }
   },
   "relationships": {

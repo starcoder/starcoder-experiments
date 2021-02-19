@@ -17,9 +17,10 @@
 		"tweet_text"
 	    ]
 	},
-	"language": {},
-	"genus": {},
-	"family": {}
+	"language": {"properties" : []},
+	"genus": {"properties" : []},
+	"family": {"properties" : []},
+	"macroarea": {"properties" : []}
     },
     "properties": {
 	"tweet_language": {
@@ -41,6 +42,10 @@
 	"from_family": {
 	    "source_entity_type": "genus",
 	    "target_entity_type": "family"
+	},
+	"from_macroarea": {
+	    "source_entity_type": "family",
+	    "target_entity_type": "macroarea"
 	}
     }
 }

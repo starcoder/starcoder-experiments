@@ -30,10 +30,6 @@
     }
   },
   "relationships": {
-    "unary_arg": {
-      "source_entity_type": "node",
-      "target_entity_type": "node"
-    },
     "left_arg": {
       "source_entity_type": "node",
       "target_entity_type": "node"

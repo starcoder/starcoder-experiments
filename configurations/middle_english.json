@@ -1,0 +1,9 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : ["book", "section"],
+	    "batch_size" : 1024
+	}
+    ]
+]

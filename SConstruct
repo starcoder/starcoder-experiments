@@ -73,6 +73,7 @@ vars.AddVariables(
 env = Environment(variables=vars, ENV=os.environ, TARFLAGS="-c -z", TARSUFFIX=".tgz",
                   tools=["default", steamroller.generate])
 
+
 preprocessors = {}
 for exp_name, exp_spec in env["EXPERIMENTS"].items():
     preprocessors["preprocess_{}".format(exp_name)] = env.Builder(
@@ -97,8 +98,8 @@ env.Append(
         "SplitData" : env.Builder(
             **env.ActionMaker(
                 "python",
-                "scripts/split_data.py",
-                "--input ${SOURCES[0]} --proportions ${PROPORTIONS} --outputs ${TARGETS} --random_seed ${RANDOM_SEED} --splitter_class ${SPLITTER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES}",
+                "",
+                "-m starcoder.splitter --schema ${SOURCES[0]} --input ${SOURCES[1]} --random_seed ${RANDOM_SEED} ${TARGETS}",
                 other_deps=[],
             )
         ),
@@ -106,9 +107,11 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/train_model.py",
-                "--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask_properties ' + ' '.join(MASK_PROPERTIES) if MASK_PROPERTIES else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT} ${'--depthwise_boost ' + DEPTHWISE_BOOST if DEPTHWISE_BOOST else ''}",
-                other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
-                            "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP", "DEPTHWISE_BOOST"],
+                "--schema ${SOURCES[0]} --data ${SOURCES[1]} --train ${SOURCES[2]} --dev ${SOURCES[3]} --model_output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
+# ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask_properties ' + ' '.join(MASK_PROPERTIES) if MASK_PROPERTIES else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT} ${'--depthwise_boost ' + DEPTHWISE_BOOST if DEPTHWISE_BOOST else ''}",
+                #"--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask_properties ' + ' '.join(MASK_PROPERTIES) if MASK_PROPERTIES else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT} ${'--depthwise_boost ' + DEPTHWISE_BOOST if DEPTHWISE_BOOST else ''}",
+#                other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
+#                            "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP", "DEPTHWISE_BOOST"],
                 USE_GPU=env["USE_GPU"],
             ),
             USE_GPU=env["USE_GPU"],
@@ -117,8 +120,10 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/apply_model.py",
-                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]} ${'--gpu' if USE_GPU_APPLY else ''} --test_field_dropout ${TEST_FIELD_DROPOUT} ${'--mask_properties ' + ' '.join(MASK_PROPERTIES) if MASK_PROPERTIES else ''}",
-            )
+                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]}",
+                USE_GPU=env["USE_GPU"],
+            ),
+            USE_GPU=env["USE_GPU"]
         ),
         "TopicModel" : env.Builder(
             **env.ActionMaker(
@@ -151,8 +156,8 @@ env.Append(
         "ExpandSchema" : env.Builder(
             **env.ActionMaker(
                 "python",
-                "scripts/expand_schema.py",
-                "--schema ${SOURCES[0]} ${SOURCES[1:]} --output ${TARGETS[0]}",
+                "",
+                "-m starcoder.schema --schema ${SOURCES[0]} ${SOURCES[1:]} --output ${TARGETS[0]}",
             )
         ),
         "SaveConfig" : env.Builder(
@@ -180,7 +185,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/visualize_images.py",
-                "--input ${SOURCES[0]} --output ${TARGETS[0]}"
+                "--input ${SOURCES[0]} ${'--id_file ' + SOURCES[1].rstr() if len(SOURCES) == 2 else ''} --output ${TARGETS[0]}"
             )
         ),
     },
@@ -201,7 +206,17 @@ env['PRINT_CMD_LINE_FUNC'] = print_cmd_line
 
 
 # and how we decide if a dependency is out of date
-env.Decider("timestamp-newer")
+def decider(dependency, target, prev_ni, repo_node):    
+    try:
+        prev_ts = getattr(prev_ni, "timestamp")
+    except:
+        prev_ts = None
+    if dependency.get_timestamp() != prev_ts or not dependency.is_up_to_date():
+        #target.set_timestamp(dependency.get_timestamp())
+        return True
+    return False
+env.Decider("timestamp-newer") #decider)
+
 
 def expand_configuration(*configs):
     unexpanded = {}
@@ -231,25 +246,36 @@ def run_experiment(env, experiment_config, **args):
     
     data = sum([env.Glob(env.subst(p)) for p in experiment_config.get("DATA_FILES", [])], [])
     if experiment_name != "decameron":
-        schema = env.ExpandSchema(
-            "work/${EXPERIMENT_NAME}/schema.json",
-            [experiment_config.get("SCHEMA", None), "configurations/default.json"] + env.Glob("configurations/{}.json".format(experiment_name)),
-            **args, **experiment_config
-        )
+        #schema = env.ExpandSchema(
+        #    "work/${EXPERIMENT_NAME}/schema.json",
+        #    [experiment_config.get("SCHEMA", None), "configurations/default.json"] + env.Glob("configurations/{}.json".format(experiment_name)),
+        #    **args, **experiment_config
+        #)
+        initial_schema = experiment_config.get("SCHEMA", None)
         data = getattr(env, "preprocess_{}".format(experiment_name))("work/${EXPERIMENT_NAME}/data.json.gz",
                                                                      data, **args, **experiment_config)
     else:
-        schema, data = env.Decameron(["work/${EXPERIMENT_NAME}/schema.json", "work/${EXPERIMENT_NAME}/data.json.gz"],
-                                     data, **args, **experiment_config)
+        initial_schema, data = env.Decameron(
+            ["work/${EXPERIMENT_NAME}/auto_schema.json", "work/${EXPERIMENT_NAME}/data.json.gz"],
+            data, **args, **experiment_config)
+        pass
+    schema = env.ExpandSchema(
+        "work/${EXPERIMENT_NAME}/schema.json",
+        [
+            initial_schema, 
+            "configurations/default.json"
+        ] + env.Glob("configurations/{}.json".format(experiment_name)),
+        **args, **experiment_config
+    )
+
     env.Alias("schemas", schema)
     env.Alias("data", data)
-
     # prepare the final spec and dataset
-    observed_schema, dataset = env.PrepareDataset(["work/${EXPERIMENT_NAME}/schema.json.gz", "work/${EXPERIMENT_NAME}/dataset.pkl.gz"],
-                                                  [data] + ([] if schema == None else [schema]),
-                                                  **args
-    )
-    env.Alias("datasets", dataset)
+    #observed_schema, dataset = env.PrepareDataset(["work/${EXPERIMENT_NAME}/schema.json.gz", "work/${EXPERIMENT_NAME}/dataset.pkl.gz"],
+                                                  #[data] + ([] if schema == None else [schema]),
+                                                  #**args
+                                                  #)
+    #env.Alias("datasets", dataset)
 
     tm = env.TopicModel(
         "work/${EXPERIMENT_NAME}/topic_models.json.gz",
@@ -265,15 +291,43 @@ def run_experiment(env, experiment_config, **args):
     )
     env.Alias("liwc", liwc)
     
-    split_names = [n for n, _ in experiment_config.get("SPLIT_PROPORTIONS", env["SPLIT_PROPORTIONS"])]
-    split_props = [p for _, p in experiment_config.get("SPLIT_PROPORTIONS", env["SPLIT_PROPORTIONS"])]    
-
-    
-    train, dev, test = env.SplitData(["work/${{EXPERIMENT_NAME}}/{0}_ids.txt.gz".format(n) for n in split_names], 
-                                     dataset,
+    train, dev, test = env.SplitData(["work/${{EXPERIMENT_NAME}}/{0}_ids.json.gz".format(n) for n in ["train", "dev", "test"]], 
+                                     [schema, data],                                     
                                      **experiment_config,
-                                     **args, RANDOM_SEED=0, PROPORTIONS=split_props)
+                                     **args, RANDOM_SEED=0) #, PROPORTIONS=split_props)
     env.Alias("splits", [train, dev, test])
+
+    model = env.TrainModel("work/${EXPERIMENT_NAME}/model.pkl.gz",
+                           [schema, data, train, dev],
+                           **experiment_config,
+                           **args
+    )
+    env.Alias("models", model)
+    output = env.ApplyModel("work/${EXPERIMENT_NAME}/output.json.gz",
+                            [model, data],
+                            **experiment_config,
+                            **args
+                        )
+    env.Alias("outputs", output)
+    if experiment_name == "death_row":
+        img = env.VisualizeImages("work/${EXPERIMENT_NAME}/image_reconstructions.png", 
+                                  output,
+                                  **experiment_config,
+                                  **args
+        )
+        test_img = env.VisualizeImages("work/${EXPERIMENT_NAME}/test_image_reconstructions.png", 
+                                       [output, test],
+                                       **experiment_config,
+                                       **args
+        )
+
+    #**config)
+
+    #   **config)    
+    #env.TrainModel(
+
+    return None
+
     train_configs = expand_configuration(experiment_config, args)
     
     # expand apply configurations
@@ -323,6 +377,7 @@ def run_experiment(env, experiment_config, **args):
         [test, schema] + outputs, 
         EXPERIMENT_NAME=experiment_name
     )
+    env.Alias("results", results)
     return model
 
 

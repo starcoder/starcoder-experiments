@@ -1,0 +1,43 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : ["audio", "video", "image"]
+	}
+    ],
+    [
+	"$.properties[?(@.type=='video')]",
+	{
+	    "class" : "starcoder.property.VideoProperty",
+	    "encoder" : "starcoder.property_encoder.VideoEncoder",
+	    "decoder" : "starcoder.property_decoder.VideoDecoder",
+	    "loss" : "starcoder.property_loss.VideoLoss",
+	    "width" : 320,
+	    "height" : 240,
+	    "channels" : 1
+	}
+    ],
+    [
+	"$.properties[?(@.type=='audio')]",
+	{
+	    "class" : "starcoder.property.AudioProperty",
+	    "encoder" : "starcoder.property_encoder.AudioEncoder",
+	    "decoder" : "starcoder.property_decoder.AudioDecoder",
+	    "loss" : "starcoder.property_loss.AudioLoss",
+	    "channels" : 1
+	}
+    ],
+    [
+	"$.properties[?(@.type=='image')]",
+	{
+	    "class" : "starcoder.property.ImageProperty",
+	    "encoder" : "starcoder.property_encoder.ImageEncoder",
+	    "decoder" : "starcoder.property_decoder.ImageDecoder",
+	    "loss" : "starcoder.property_loss.ImageLoss",
+	    "width": 32,
+	    "height": 32,
+	    "channels": 3,
+	    "channel_size": 8
+	}
+    ]
+]

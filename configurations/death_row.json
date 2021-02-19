@@ -1,0 +1,34 @@
+[
+    [
+	"$",
+	{
+	    "shared_entity_types" : [],
+	    "max_epochs" : 20,
+	    "depth" : 0,
+	    "batch_size" : 64
+	}
+    ],
+    [
+	"$.entity_types",
+	{
+	    "autoencoder_shape" : [4096],
+	    "bottleneck_size" : 2048
+	}
+    ],
+    [
+	"$.properties[?(@.type=='image')]",
+	{
+	    "width": 32,
+	    "height": 32,
+	    "channels": 3,
+	    "channel_size": 8
+	}
+    ],
+    [
+	"$.properties[?(@.type=='text')]",
+	{
+	    "decoder" : "starcoder.property_decoder.NullDecoder",
+	    "loss" : "starcoder.property_loss.NullLoss"
+	}
+    ]
+]

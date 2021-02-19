@@ -48,8 +48,7 @@
       "type": "scalar"
     },
     "created_at": {
-      "type": "date",
-      "format": "%Y"
+      "type": "datetime"
     },
     "text": {
       "type": "text"

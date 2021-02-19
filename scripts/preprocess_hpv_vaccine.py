@@ -16,6 +16,8 @@ if __name__ == "__main__":
         for fname in args.inputs:
             with gzip.open(fname, "rt") as ifd:
                 for i, line in enumerate(ifd):
+                    if i > 200000:
+                        break
                     j = json.loads(line)
                     et = "submission" if "selftext" in j else "comment"
                     counts[et] = counts.get(et, 0) + 1
@@ -36,7 +38,7 @@ if __name__ == "__main__":
                         "entity_type" : "submission" if "selftext" in j else "comment",
                         "response_to" : j.get("parent_id", "").split("_")[-1] if j.get("parent_id", 1) != j.get("link_id", 2) else "",
                         "for_submission" : j.get("link_id", "").split("_")[-1] if "link_id" in j else "",
-                        "posted_in" : subreddit_id,
+                        "posted_in" : subreddit_id if "selftext" in j else None,
                         "score" : j["score"],
                         "gilded" : j["gilded"],
                         #"parent_id" : parent_id,
@@ -49,11 +51,13 @@ if __name__ == "__main__":
                     }
 
                     document = {k : v for k, v in document.items() if v not in ["", None]}
-                    #if document["entity_type"] == "submission":
-                    ofd.write(json.dumps(document) + "\n")
+                    entities[document["id"]] = document
 
         for eid, entity in entities.items():
             entity["id"] = eid
+            for rel in ["for_submission", "response_to", "posted_in"]:
+                if rel in entity and entity[rel] not in entities:
+                    del entity[rel]
             entity = {k : v for k, v in entity.items() if v}
             ofd.write(json.dumps(entity) + "\n")
     
