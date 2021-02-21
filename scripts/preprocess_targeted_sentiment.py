@@ -10,7 +10,6 @@ def process_tree(node, path, split, top_level=False):
     node_id = "_".join([str(x) for x in path])
     entity = {"id" : node_id,
               "split" : split}
-
     if isinstance(node, str):
         entity["text"] = node
         entity["entity_type"] = "word"

@@ -243,8 +243,8 @@ def expand_configuration(*configs):
 def run_experiment(env, experiment_config, **args):
     outputs = []
     experiment_name = args["EXPERIMENT_NAME"]
-    
-    data = sum([env.Glob(env.subst(p)) for p in experiment_config.get("DATA_FILES", [])], [])
+    pats = experiment_config.get("DATA_FILES", [])
+    data = sum([env.Glob(env.subst(p)) for p in (pats if isinstance(pats, (list, tuple)) else [pats])], [])
     if experiment_name != "decameron":
         #schema = env.ExpandSchema(
         #    "work/${EXPERIMENT_NAME}/schema.json",

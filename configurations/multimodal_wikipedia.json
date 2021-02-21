@@ -36,8 +36,9 @@
 	    "loss" : "starcoder.property_loss.ImageLoss",
 	    "width": 32,
 	    "height": 32,
-	    "channels": 3,
-	    "channel_size": 8
+	    "channels": 1,
+	    "channel_size": 8,
+	    "root": "/home/tom/data/multimodal_wikipedia/downsampled"
 	}
     ]
 ]

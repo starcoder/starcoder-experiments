@@ -16,13 +16,17 @@ if __name__ == "__main__":
     args, rest = parser.parse_known_args()
 
     entities = {}
-    data_path = os.path.dirname(args.inputs[0])
+    data_path = os.path.dirname(args.inputs[0])    
     with gzip.open(args.inputs[0], "rt") as ifd: #, gzip.open(args.output, "wt") as ofd:
         for i, line in enumerate(ifd):
             j = json.loads(line)
             #for field_name in ["has_image", "image"]:
             #    if field_name in j:
             #        del j[field_name]
+            if j["entity_type"] in ["audio", "video", "image"]:
+                path = os.path.join(data_path, "downsampled", j[j["entity_type"]])
+                if not os.path.exists(path):
+                    continue
             entities[j["id"]] = j
             #if j["entity_type"] == "article" or os.path.exists(os.path.join(data_path, "full_media", j[j["entity_type"]])):
             #ofd.write(json.dumps(j) + "\n")                
@@ -79,5 +83,5 @@ if __name__ == "__main__":
                 elif rel in entity and entity[rel] not in entities:
                     del entity[rel]
                 if entity.get(rel, None) == []:
-                    del entity[rel]
+                    del entity[rel]                    
             ofd.write(json.dumps(entity) + "\n")
