@@ -17,9 +17,9 @@
 	    "reverse_relationships" : true,
 	    "shared_entity_types" : [],
 	    "batch_size" : 4096,
-	    "max_epochs" : 200,
-	    "patience" : 5,
-	    "early_stop" : 10
+	    "max_epochs" : 500,
+	    "patience" : 10,
+	    "early_stop" : 20
 	}
     ],
     [

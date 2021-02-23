@@ -7,5 +7,11 @@
 	    "decoder" : "starcoder.property_decoder.NullDecoder",
 	    "loss" : "starcoder.property_loss.NullLoss"
 	}
+    ],
+    [
+	"$.properties[?(@.name=='twitter_language')]",
+	{
+	    "encoder" : "starcoder.property_encoder.NullEncoder"
+	}
     ]
 ]

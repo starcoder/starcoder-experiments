@@ -4,6 +4,7 @@ import pickle
 import logging
 import argparse
 import torch
+from torch import Tensor
 from starcoder.ensemble_model import GraphAutoencoder
 from starcoder.dataset import Dataset
 from starcoder.property import CategoricalProperty
@@ -26,81 +27,99 @@ if __name__ == "__main__":
     parser.add_argument("--mask_probability", dest="mask_probability", default=0.5, help="Mask probability")
     parser.add_argument("--output", dest="output", help="Output file")
     parser.add_argument("--gpu", dest="gpu", default=False, action="store_true", help="Use GPU")
+    parser.add_argument("--blind", dest="blind", default=False, action="store_true", help="Blind")
+    parser.add_argument("--remove_structure", dest="remove_structure", default=False, action="store_true", help="Remove structure")
     parser.add_argument("--batch_size", dest="batch_size", default=1512, type=int, help="")
-    parser.add_argument("--log_level", dest="log_level", default="ERROR", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], help="Logging level")
+    parser.add_argument("--log_level", dest="log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], help="Logging level")
     args, rest = parser.parse_known_args()
 
     logging.basicConfig(
         level=getattr(logging, args.log_level),
         format='%(name)s - %(asctime)s - %(levelname)s - %(message)s'
     )
-    
+
+    with open(args.schema, "rt") as ifd:
+        schema = json.loads(ifd.read())
+    if "shared_entity_types" in schema["meta"]:
+        del schema["meta"]["shared_entity_types"]
+
     
     with gzip.open(args.model, "rb") as ifd:
-        model = torch.load(ifd) # type: ignore
-        #state, margs, _ = torch.load(ifd) # type: ignore
-    #with (gzip.open if args.schema.endswith("gz") else open)(args.schema, "rt") as ifd:
-    #    schema = json.loads(ifd.read())
+        model = torch.load(ifd)
 
+    model.eval()
+    if args.gpu:
+        model.cuda()
+        logging.info("CUDA memory allocated/cached: %.3fg/%.3fg", 
+                     torch.cuda.memory_allocated() / 1000000000, torch.cuda.memory_cached() / 1000000000)
+
+    model.train(False)
 
     data = []
     with (gzip.open if args.dataset.endswith("gz") else open)(args.dataset, "rt") as ifd:
         for line in ifd:
             entity = json.loads(line)
             eid = entity[model.schema["id_property"]]
+            if args.remove_structure == True:
+                entity = {k : v for k, v in entity.items() if k not in schema["relationships"]}
             data.append(entity)
-    data = Dataset(model.schema, data)
-    
-        
-    #logger.info("Loading model")
-    #model = GraphAutoencoder(schema, 
-    #                         data=data)
-    #margs.depth, 
-    #                         margs.autoencoder_shapes,
-    #                         reverse_relationships=True,
-    #                         depthwise_boost=margs.depthwise_boost
-    #)
-    #model.load_state_dict(state)
-    model.eval()
-    if args.gpu:
-        model.cuda()
-        logging.info("CUDA memory allocated/cached: %.3fg/%.3fg", 
-                     torch.cuda.memory_allocated() / 1000000000, torch.cuda.memory_cached() / 1000000000)
-        
-    model.train(False)
-    if args.split == None:
-        components = [i for i in range(data.num_components)]
-    else:
-        data = data.subselect_entities(entity_ids)
-        components = [i for i in range(data.num_components)]
-    
-    logging.info("Dataset has %d entities", data.num_entities)
+
+    dataset = Dataset(schema, data)
+
+    #if args.split == None:
+    #    components = [i for i in range(dataset.num_components)]
+    #else:
+    #    dataset = dataset.subselect_entities(entity_ids)
+    #    components = [i for i in range(dataset.num_components)]
+
+    logging.info("Dataset has %d entities", dataset.num_entities)
     all_bottlenecks = {}
     all_reconstructions = {}
-    batchifier = starport(model.schema["meta"]["batchifier"])(model.schema)
-    
+    #batchifier = starport(schema["meta"]["batchifier"])(schema)
+    batchifier = starport("starcoder.batchifier.SampleEntities")(schema)
+
+    logging.info("Running full reconstruction")
     for originals, loss, reconstructions, bottlenecks in apply_to_components(
             model,
-            batchifier, #batchifier_classes["sample_components"]([]),
-            data,
-            args.batch_size,
+            batchifier,
+            dataset,
+            dataset.num_entities,
+            #args.batch_size,
             args.gpu,
             args.mask_properties,
             args.mask_probability
     ):
-
-        #for entity in [data.schema.unpack(e) for e in unstack_entities(norm, data.schema)]:
-        for rid, reconstruction in reconstructions.items(): #unstack_entities(norm, data.schema):
-            all_reconstructions[rid] = reconstruction
+        for rid, reconstruction in reconstructions.items():
+            all_reconstructions[rid] = {k : v.tolist() if isinstance(v, Tensor) else {kk : vv.tolist() if isinstance(vv, Tensor) else vv for kk, vv in v.items()} if isinstance(v, dict) else v for k, v in reconstruction.items()}
             all_bottlenecks[rid] = bottlenecks[rid]
-            #print(entity)
-            #entity = {k : model.property_objects[k].unpack(v) if k not in [data.schema["id_property"], data.schema["entity_type_property"]] else v for k, v in entity.items()}
-            #reconstructions[rec] = reconstruction
-        #    bottlenecks[entity[data.schema["id_property"]]] = bns[entity[data.schema["id_property"]]].tolist()
             
+    if args.blind:
+        for property_name in schema["properties"].keys():
+            logging.info("Running blind reconstruction for property '%s'", property_name)
+            blind_dataset = Dataset(schema, [{k : v for k, v in d.items() if k != args.blind} for d in data])
+            if args.split == None:
+                components = [i for i in range(blind_dataset.num_components)]
+            else:
+                blind_dataset = blind_dataset.subselect_entities(entity_ids)
+                components = [i for i in range(blind_dataset.num_components)]
+            for originals, loss, reconstructions, bottlenecks in apply_to_components(
+                    model,
+                    batchifier,
+                    blind_dataset,
+                    dataset.num_entities,
+                    #args.batch_size,
+                    args.gpu,
+                    args.mask_properties,
+                    args.mask_probability
+            ):
+                for rid, reconstruction in reconstructions.items():
+                    if property_name in reconstruction:
+                        v = reconstruction[property_name]
+                        all_reconstructions[rid][property_name] = v.tolist() if isinstance(v, Tensor) else {kk : vv.tolist() if isinstance(vv, Tensor) else vv for kk, vv in v.items()} if isinstance(v, dict) else v
+
     with gzip.open(args.output, "wt") as ofd:
         for eid, reconstruction in reconstructions.items():
-            item = {"original" : data.entity(eid),
+            item = {"original" : dataset.entity(eid),
                     "reconstruction" : all_reconstructions[eid],
                     "bottleneck" : all_bottlenecks[eid]
             }

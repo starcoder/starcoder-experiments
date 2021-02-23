@@ -108,10 +108,6 @@ env.Append(
                 "python",
                 "scripts/train_model.py",
                 "--schema ${SOURCES[0]} --data ${SOURCES[1]} --train ${SOURCES[2]} --dev ${SOURCES[3]} --model_output ${TARGETS[0]} ${'--gpu' if USE_GPU else ''}",
-# ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask_properties ' + ' '.join(MASK_PROPERTIES) if MASK_PROPERTIES else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT} ${'--depthwise_boost ' + DEPTHWISE_BOOST if DEPTHWISE_BOOST else ''}",
-                #"--data ${SOURCES[0]} --train ${SOURCES[1]} --dev ${SOURCES[2]} --model_output ${TARGETS[0]} --trace_output ${TARGETS[1]} ${'--gpu' if USE_GPU else ''} ${'--autoencoder_shapes ' + ' '.join(map(str, AUTOENCODER_SHAPES)) if AUTOENCODER_SHAPES != None else ''} ${'--mask_properties ' + ' '.join(MASK_PROPERTIES) if MASK_PROPERTIES else ''} --log_level ${LOG_LEVEL} ${'--autoencoder' if AUTOENCODER else ''} --random_restarts ${RANDOM_RESTARTS} ${' --subselect ' if SUBSELECT==True else ''} --batchifier_class ${BATCHIFIER_CLASS} --shared_entity_types ${SHARED_ENTITY_TYPES} --train_field_dropout ${TRAIN_FIELD_DROPOUT} --train_neuron_dropout ${TRAIN_NEURON_DROPOUT} --dev_field_dropout ${DEV_FIELD_DROPOUT} ${'--depthwise_boost ' + DEPTHWISE_BOOST if DEPTHWISE_BOOST else ''}",
-#                other_args=["DEPTH", "MAX_EPOCHS", "LEARNING_RATE", "RANDOM_SEED", "PATIENCE", "MOMENTUM", "BATCH_SIZE",
-#                            "EMBEDDING_SIZE", "HIDDEN_SIZE", "FIELD_DROPOUT", "HIDDEN_DROPOUT", "EARLY_STOP", "DEPTHWISE_BOOST"],
                 USE_GPU=env["USE_GPU"],
             ),
             USE_GPU=env["USE_GPU"],
@@ -120,7 +116,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/apply_model.py",
-                "--model ${SOURCES[0]} --dataset ${SOURCES[1]} ${'--split ' + SOURCES[2].rstr() if len(SOURCES) == 3 else ''} --output ${TARGETS[0]}",
+                "--schema ${SOURCES[0]} --model ${SOURCES[1]} --dataset ${SOURCES[2]} ${'--split ' + SOURCES[3].rstr() if len(SOURCES) == 4 else ''} --output ${TARGETS[0]} ${'--blind' if BLIND else ''} ${'--remove_structure' if REMOVE_STRUCTURE else ''}",
                 USE_GPU=env["USE_GPU"],
             ),
             USE_GPU=env["USE_GPU"]
@@ -178,7 +174,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/collate_outputs.py",
-                "${SOURCES[2:]} --output ${TARGETS[0]} --test ${SOURCES[0]} --schema ${SOURCES[1]}",
+                "${SOURCES[1:]} --output ${TARGETS[0]} ${'--test ' + SOURCES[0].rstr() if LIMIT_TO_TEST==True else ''}",
             )
         ),
         "VisualizeImages" : env.Builder(
@@ -192,6 +188,11 @@ env.Append(
     tools=["default"],
 )
 
+def expand_cells(grid_search):
+    retval = [[]]
+    for pat, par, vals in grid_search:
+        retval = sum([[old + [(pat, {par : val})] for val in vals] for old in retval], [])    
+    return retval
 
 # function for width-aware printing of commands
 def print_cmd_line(s, target, source, env):
@@ -242,15 +243,11 @@ def expand_configuration(*configs):
 
 def run_experiment(env, experiment_config, **args):
     outputs = []
+    blind_outputs = []
     experiment_name = args["EXPERIMENT_NAME"]
     pats = experiment_config.get("DATA_FILES", [])
     data = sum([env.Glob(env.subst(p)) for p in (pats if isinstance(pats, (list, tuple)) else [pats])], [])
     if experiment_name != "decameron":
-        #schema = env.ExpandSchema(
-        #    "work/${EXPERIMENT_NAME}/schema.json",
-        #    [experiment_config.get("SCHEMA", None), "configurations/default.json"] + env.Glob("configurations/{}.json".format(experiment_name)),
-        #    **args, **experiment_config
-        #)
         initial_schema = experiment_config.get("SCHEMA", None)
         data = getattr(env, "preprocess_{}".format(experiment_name))("work/${EXPERIMENT_NAME}/data.json.gz",
                                                                      data, **args, **experiment_config)
@@ -258,7 +255,7 @@ def run_experiment(env, experiment_config, **args):
         initial_schema, data = env.Decameron(
             ["work/${EXPERIMENT_NAME}/auto_schema.json", "work/${EXPERIMENT_NAME}/data.json.gz"],
             data, **args, **experiment_config)
-        pass
+
     schema = env.ExpandSchema(
         "work/${EXPERIMENT_NAME}/schema.json",
         [
@@ -270,13 +267,7 @@ def run_experiment(env, experiment_config, **args):
 
     env.Alias("schemas", schema)
     env.Alias("data", data)
-    # prepare the final spec and dataset
-    #observed_schema, dataset = env.PrepareDataset(["work/${EXPERIMENT_NAME}/schema.json.gz", "work/${EXPERIMENT_NAME}/dataset.pkl.gz"],
-                                                  #[data] + ([] if schema == None else [schema]),
-                                                  #**args
-                                                  #)
-    #env.Alias("datasets", dataset)
-
+    
     tm = env.TopicModel(
         "work/${EXPERIMENT_NAME}/topic_models.json.gz",
         [data, schema],
@@ -294,91 +285,89 @@ def run_experiment(env, experiment_config, **args):
     train, dev, test = env.SplitData(["work/${{EXPERIMENT_NAME}}/{0}_ids.json.gz".format(n) for n in ["train", "dev", "test"]], 
                                      [schema, data],                                     
                                      **experiment_config,
-                                     **args, RANDOM_SEED=0) #, PROPORTIONS=split_props)
+                                     **args, RANDOM_SEED=0)
     env.Alias("splits", [train, dev, test])
 
-    model = env.TrainModel("work/${EXPERIMENT_NAME}/model.pkl.gz",
-                           [schema, data, train, dev],
-                           **experiment_config,
-                           **args
-    )
-    env.Alias("models", model)
-    output = env.ApplyModel("work/${EXPERIMENT_NAME}/output.json.gz",
-                            [model, data],
+    for i, cell in enumerate(expand_cells(experiment_config.get("GRID_SEARCH", []))):
+        cell = shlex.quote(str(cell)) if env["USE_GRID"] else str(cell)
+        cell_schema = env.ExpandSchema(
+            "work/${EXPERIMENT_NAME}/schema_${CELL_INDEX}.json",
+            [
+                schema, 
+                env.Value(cell),
+            ],
+            CELL_INDEX=i,
+            **args, 
+            **experiment_config
+        )
+        env.Alias("schemas", cell_schema)
+        model = env.TrainModel("work/${EXPERIMENT_NAME}/model_${CELL_INDEX}.pkl.gz",
+                               [cell_schema, data, train, dev],
+                               CELL_INDEX=i,
+                               **experiment_config,
+                               **args
+        )
+        env.Alias("models", model)
+
+        output = env.ApplyModel("work/${EXPERIMENT_NAME}/output_${CELL_INDEX}.json.gz",
+                                [cell_schema, model, data],
+                                CELL_INDEX=i,                                
+                                **{k : (False if k == "REMOVE_STRUCTURE" else v) for k, v in experiment_config.items()},
+                                **args,
+                            )
+        env.Alias("outputs", output)
+        outputs.append((cell_schema, output))
+        
+        blind_output = env.ApplyModel("work/${EXPERIMENT_NAME}/blind_output_${CELL_INDEX}.json.gz",
+                                      [cell_schema, model, data],
+                                      CELL_INDEX=i,
+                                      BLIND=True,
+                                      **experiment_config,
+                                      **args
+                                  )
+        env.Alias("blind_outputs", blind_output)
+        blind_outputs.append((cell_schema, blind_output))
+
+        tsne = env.MakeTSNE("work/${EXPERIMENT_NAME}/tsne_${CELL_INDEX}.json.gz",
+                            [cell_schema, output],
+                            CELL_INDEX=i,
                             **experiment_config,
                             **args
                         )
-    env.Alias("outputs", output)
-    if experiment_name == "death_row":
-        img = env.VisualizeImages("work/${EXPERIMENT_NAME}/image_reconstructions.png", 
-                                  output,
-                                  **experiment_config,
-                                  **args
-        )
-        test_img = env.VisualizeImages("work/${EXPERIMENT_NAME}/test_image_reconstructions.png", 
-                                       [output, test],
-                                       **experiment_config,
-                                       **args
-        )
 
-    #**config)
-
-    #   **config)    
-    #env.TrainModel(
-
-    return None
-
-    train_configs = expand_configuration(experiment_config, args)
-    
-    # expand apply configurations
-    apply_configs = [[]]
-    for arg_name, values in experiment_config.get("APPLY_CONFIG", {}).items():
-       apply_configs = sum([[config + [(arg_name.upper(), v)] for config in apply_configs] for v in values], [])
-    apply_configs = [dict(config) for config in apply_configs]    
-    results = []
-    for config in train_configs:
-        config["TRAIN_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
-        model, trace = env.TrainModel(["work/${EXPERIMENT_NAME}/model_${TRAIN_CONFIG_ID}.pkl.gz", 
-                                       "work/${EXPERIMENT_NAME}/trace_${TRAIN_CONFIG_ID}.json.gz"],
-                                      [dataset, train, dev],
-                                      **config)
-        env.Alias("models", model)
-        struct = env.ExtractModelStructure("work/${EXPERIMENT_NAME}/structure_${TRAIN_CONFIG_ID}.json.gz",
-                                           model,
-                                           **config)
-        env.Alias("structure", struct)
-        for apply_config in apply_configs:
-            config.update(apply_config)
-            config["APPLY_CONFIG_ID"] = md5(str(sorted(list(config.items()))).encode()).hexdigest()
-            config_file = env.SaveConfig(
-                "work/${EXPERIMENT_NAME}/${FOLD}/config_${APPLY_CONFIG_ID}.json.gz",
-                [],
-                CONFIG=json.dumps(config),
-                **config
+        if experiment_name == "death_row":
+            img = env.VisualizeImages("work/${EXPERIMENT_NAME}/image_reconstructions_${CELL_INDEX}.png", 
+                                      output,
+                                      CELL_INDEX=i,
+                                      **experiment_config,
+                                      **args
             )
-            env.Alias("configs", config_file)
-            output = env.ApplyModel("work/${EXPERIMENT_NAME}/${FOLD}/output_${APPLY_CONFIG_ID}.json.gz",
-                                    [model, dataset],
-                                    **config)
-            env.Alias("outputs", output)
-            outputs.append((config_file, output))
-    
-            #env.VisualizeImages("work/${EXPERIMENT_NAME}/${FOLD}/images.png",
-            #                    output,
-            #                    **config)
+            test_img = env.VisualizeImages("work/${EXPERIMENT_NAME}/test_image_reconstructions_${CELL_INDEX}.png", 
+                                           [output, test],
+                                           CELL_INDEX=i,
+                                           **experiment_config,
+                                           **args
+            )
 
-    
-            tsne = env.MakeTSNE("work/${EXPERIMENT_NAME}/${FOLD}/tsne_${APPLY_CONFIG_ID}.json.gz",
-                               [schema, output],
-                               **config)
-            env.Alias("tsne", tsne)
+    blind_results = env.CollateOutputs(
+        "work/${EXPERIMENT_NAME}/blind_results.csv", 
+        [test] + blind_outputs,
+        **experiment_config,
+        **args,
+        LIMIT_TO_TEST=True
+    )
+    env.Alias("blind_results", blind_results)
+
     results = env.CollateOutputs(
         "work/${EXPERIMENT_NAME}/results.csv", 
-        [test, schema] + outputs, 
-        EXPERIMENT_NAME=experiment_name
+        [test] + outputs,
+        **experiment_config,
+        **args,
+        LIMIT_TO_TEST=False
     )
     env.Alias("results", results)
-    return model
+    
+    return None
 
 
 env.AddMethod(run_experiment, "RunExperiment")

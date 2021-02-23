@@ -3,7 +3,8 @@
 	"$",
 	{
 	    "shared_entity_types" : ["language", "family", "genus", "macroarea"],
-	    "depth" : 4
+	    "depth" : 4,
+	    "batch_size" : 8192
 	}
     ],
     [
