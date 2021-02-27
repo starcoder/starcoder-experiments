@@ -68,6 +68,7 @@ vars.AddVariables(
     ("TRAIN_NEURON_DROPOUT", "", 0.1),
     ("DEV_FIELD_DROPOUT", "", 0.1),
     ("TEST_FIELD_DROPOUT", "", 1.0),
+    ("CACHED", "", True),
 )
 
 env = Environment(variables=vars, ENV=os.environ, TARFLAGS="-c -z", TARSUFFIX=".tgz",
@@ -116,7 +117,7 @@ env.Append(
             **env.ActionMaker(
                 "python",
                 "scripts/apply_model.py",
-                "--schema ${SOURCES[0]} --model ${SOURCES[1]} --dataset ${SOURCES[2]} ${'--split ' + SOURCES[3].rstr() if len(SOURCES) == 4 else ''} --output ${TARGETS[0]} ${'--blind' if BLIND else ''} ${'--remove_structure' if REMOVE_STRUCTURE else ''}",
+                "--schema ${SOURCES[0]} --model ${SOURCES[1]} --dataset ${SOURCES[2]} ${'--split ' + SOURCES[3].rstr() if len(SOURCES) == 4 else ''} --output ${TARGETS[0]} ${'--blind' if BLIND else ''} ${'--remove_structure' if REMOVE_STRUCTURE else ''} --log_level ${LOG_LEVEL} ${'--cached ' if CACHED else ''}",
                 USE_GPU=env["USE_GPU"],
             ),
             USE_GPU=env["USE_GPU"]
@@ -190,8 +191,9 @@ env.Append(
 
 def expand_cells(grid_search):
     retval = [[]]
-    for pat, par, vals in grid_search:
-        retval = sum([[old + [(pat, {par : val})] for val in vals] for old in retval], [])    
+    for pat, parvals in grid_search:
+        for par, vals in parvals.items():
+            retval = sum([[old + [(pat, {par : val})] for val in vals] for old in retval], [])    
     return retval
 
 # function for width-aware printing of commands
@@ -289,6 +291,7 @@ def run_experiment(env, experiment_config, **args):
     env.Alias("splits", [train, dev, test])
 
     for i, cell in enumerate(expand_cells(experiment_config.get("GRID_SEARCH", []))):
+        cell = experiment_config.get("OVERRIDES", []) + cell
         cell = shlex.quote(str(cell)) if env["USE_GRID"] else str(cell)
         cell_schema = env.ExpandSchema(
             "work/${EXPERIMENT_NAME}/schema_${CELL_INDEX}.json",

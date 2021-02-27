@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser.add_argument("--schema", dest="schema", help="Input file")
     parser.add_argument("--data", dest="data", help="Input file")
     parser.add_argument("--output", dest="output", help="Output file")
-    parser.add_argument("--log_level", dest="log_level", default="ERROR", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], help="Logging level")
+    parser.add_argument("--log_level", dest="log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"], help="Logging level")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -40,9 +40,11 @@ if __name__ == "__main__":
 
     with gzip.open(args.output, "wt") as ofd:
         for et, eids in indices.items():
-            if len(eids) == 1:
+            if len(eids) <= 1:
                 continue
             bns = numpy.asarray([data[eid]["bottleneck"] for eid in eids])
+            if bns.shape[1] == 0:
+                continue
             logger.info("Bottleneck shape for entity-type '%s': %s", et, bns.shape)
             emb = TSNE().fit_transform(bns)
             for eid, row in zip(eids, emb):
